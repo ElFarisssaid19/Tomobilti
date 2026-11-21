@@ -66,11 +66,11 @@ npm run setup
 # 3. Start MySQL, phpMyAdmin and Mailpit (waits until they are healthy)
 npm run services:up
 
-# 4. Laravel: app key, database, public storage link
+# 4. Laravel: app key, public storage link, database with demo data
 cd backend
 php artisan key:generate
-php artisan migrate
 php artisan storage:link
+php artisan migrate --seed
 cd ..
 
 # 5. Run everything (API + queue worker + Vite)
@@ -78,6 +78,27 @@ npm run dev
 ```
 
 Open http://localhost:5173: the home page should show a green **"API connectée"** badge.
+
+## Database and demo data
+
+The schema, the enums, the availability rule and the demo data are documented in **[docs/database.md](docs/database.md)**.
+
+Rebuild the database with the demo data at any time (from `backend/`):
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+The seed is reproducible (fixed Faker seed): 32 cars with placeholder images, 5 pick-up locations, 27 users and 64 reservations in every status, with their invoices. Reservation dates are relative to the day you seed.
+
+### Demo accounts
+
+> **Development only.** These accounts and their password exist only in the demo seed. Never use them in production.
+
+| Email                 | Password   | Role   |
+| --------------------- | ---------- | ------ |
+| `admin@tomobilti.ma`  | `password` | Admin  |
+| `client@tomobilti.ma` | `password` | Client |
 
 ## URLs and ports
 
@@ -159,6 +180,7 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
 
 - [x] **Phase 0: Setup** (monorepo, Docker services, Laravel API, React SPA, tooling)
 - [ ] **Phase 1: Database** (schema, migrations, models, seeders)
+  - [x] **1A Base de données** (enums, migrations, models, relations, factories, seeders; see [docs/database.md](docs/database.md))
 - [ ] **Phase 2: Auth & roles** (Sanctum SPA login, registration, customer and admin roles)
 - [ ] **Phase 3: Catalogue** (cars, categories, images, search and filters)
 - [ ] **Phase 4: Reservation** (availability, booking flow, pricing in MAD)
