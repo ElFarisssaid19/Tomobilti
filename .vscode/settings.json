@@ -1,0 +1,51 @@
+{
+  // ---- General ----
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    ".env.example": "dotenv",
+    "*.css": "tailwindcss"
+  },
+
+  // ---- JavaScript / React (frontend/) : Prettier + ESLint ----
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[tailwindcss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "prettier.requireConfig": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.workingDirectories": ["./frontend"],
+  "eslint.validate": ["javascript", "javascriptreact"],
+
+  // ---- Tailwind CSS v4 (entry file holds the @theme tokens) ----
+  "tailwindCSS.experimental.configFile": {
+    "frontend/src/index.css": "frontend/src/**"
+  },
+  "tailwindCSS.classFunctions": ["clsx", "cn", "cva"],
+  "editor.quickSuggestions": { "strings": "on" },
+
+  // ---- PHP (backend/) : Laravel Pint via the official Laravel extension ----
+  "Laravel.basePath": "backend",
+  "Laravel.pint.runOnSave": true,
+  "[php]": {
+    // Pint formats PHP on save (Laravel.pint.runOnSave); avoid a second formatter.
+    "editor.formatOnSave": false
+  },
+  "intelephense.format.enable": false,
+
+  // ---- Clutter ----
+  "search.exclude": {
+    "**/node_modules": true,
+    "backend/vendor": true,
+    "**/dist": true,
+    "backend/storage/framework": true
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "tomobilti",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tomobilti: location de voitures (React SPA + API Laravel).",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names api,queue,web --prefix-colors blue,magenta,green \"npm:dev:api\" \"npm:dev:queue\" \"npm:dev:web\"",
+    "dev:api": "cd backend && php artisan serve --host=localhost --port=8000",
+    "dev:queue": "cd backend && php artisan queue:listen --tries=1 --timeout=0",
+    "dev:web": "npm --prefix frontend run dev",
+    "services:up": "docker compose up -d --wait",
+    "services:down": "docker compose down",
+    "services:logs": "docker compose logs -f",
+    "setup": "npm install && npm run setup:backend && npm run setup:frontend",
+    "setup:backend": "composer install --working-dir=backend --no-interaction",
+    "setup:frontend": "npm --prefix frontend install",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && php artisan test",
+    "test:frontend": "npm --prefix frontend test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && ./vendor/bin/pint --test",
+    "lint:frontend": "npm --prefix frontend run lint && npm --prefix frontend run format:check",
+    "format": "npm run format:backend && npm run format:frontend",
+    "format:backend": "cd backend && ./vendor/bin/pint",
+    "format:frontend": "npm --prefix frontend run format"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
+}

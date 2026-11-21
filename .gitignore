@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+/backend/vendor/
+
+# Environment files (each app has a committed .env.example)
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+dist-ssr/
+/backend/public/build/
+/backend/public/hot
+/backend/public/storage
+
+# Laravel storage and caches
+/backend/storage/*.key
+/backend/storage/logs/*.log
+/backend/storage/pail
+/backend/.phpunit.cache
+/backend/.phpunit.result.cache
+/backend/database/*.sqlite*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editors (shared VS Code settings are committed)
+.idea/
+*.sw?
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
