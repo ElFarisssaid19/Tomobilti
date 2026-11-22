@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserRole;
+use App\Notifications\Auth\ResetPasswordNotification;
+use App\Notifications\Auth\VerifyEmailNotification;
 use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -20,6 +22,9 @@ use Laravel\Sanctum\HasApiTokens;
  *
  * "role" and "is_active" are deliberately not mass assignable, so a registration
  * or profile form can never promote a user to admin or reactivate an account.
+ *
+ * Customers must verify their email address (MustVerifyEmail). The verification
+ * and password reset emails link to the React SPA (see app/Notifications/Auth).
  */
 #[Fillable([
     'name',
@@ -34,7 +39,7 @@ use Laravel\Sanctum\HasApiTokens;
     'driving_license_issued_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -43,6 +48,24 @@ class User extends Authenticatable
      * Minimum number of years a customer must have held a driving licence.
      */
     public const MIN_LICENSE_YEARS = 2;
+
+    /**
+     * Minimum age to create a customer profile (and to hold a driving licence).
+     */
+    public const MIN_AGE = 18;
+
+    /**
+     * Profile fields a customer must fill in before booking a car.
+     *
+     * @var list<string>
+     */
+    public const BOOKING_PROFILE_FIELDS = [
+        'phone',
+        'birth_date',
+        'cin',
+        'driving_license_number',
+        'driving_license_issued_at',
+    ];
 
     /**
      * The model's default values for attributes.
@@ -118,5 +141,37 @@ class User extends Authenticatable
         return $this->driving_license_issued_at->lessThanOrEqualTo(
             $on->copy()->subYears(self::MIN_LICENSE_YEARS),
         );
+    }
+
+    /**
+     * Whether every field required to book a car is filled in.
+     */
+    public function hasCompleteProfile(): bool
+    {
+        foreach (self::BOOKING_PROFILE_FIELDS as $field) {
+            if (blank($this->{$field})) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Send the French verification email that links to the SPA.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
+    }
+
+    /**
+     * Send the French password reset email that links to the SPA.
+     *
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

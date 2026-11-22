@@ -1,18 +1,51 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
-import { Spinner } from './components/ui'
-import AdminLayout from './layouts/AdminLayout.jsx'
+import AdminRoute from './components/auth/AdminRoute.jsx'
+import GuestRoute from './components/auth/GuestRoute.jsx'
+import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
+import {
+  AdminPageSkeleton,
+  ContentSkeleton,
+  PageSkeleton,
+} from './components/layout/PageSkeleton.jsx'
 import ClientLayout from './layouts/ClientLayout.jsx'
 import PublicLayout from './layouts/PublicLayout.jsx'
 import RootLayout from './layouts/RootLayout.jsx'
 import ComingSoonPage from './pages/ComingSoonPage.jsx'
-import CreditsPage from './pages/CreditsPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
+
+/*
+ * Code splitting: the home page ships in the main bundle; every other page is its own
+ * chunk, downloaded on first visit behind a skeleton. The admin area is only ever
+ * downloaded by administrators (after AdminRoute has let them in).
+ */
+const LoginPage = lazy(() => import('./pages/auth/LoginPage.jsx'))
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage.jsx'))
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage.jsx'))
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage.jsx'))
+const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage.jsx'))
+const ProfilePage = lazy(() => import('./pages/account/ProfilePage.jsx'))
+const CreditsPage = lazy(() => import('./pages/CreditsPage.jsx'))
+const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'))
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage.jsx'))
 
 // Living style guide: development only. The condition is static, so Vite drops the
 // import (and the whole style guide) from the production build.
 const DesignPage = import.meta.env.DEV ? lazy(() => import('./pages/design/DesignPage.jsx')) : null
+
+/** A lazy public page with its loading skeleton. */
+function page(Page, label) {
+  return (
+    <Suspense fallback={<PageSkeleton label={label} />}>
+      <Page />
+    </Suspense>
+  )
+}
+
+function adminPlaceholder(title) {
+  return <ComingSoonPage title={title} phase="phase 5" inContainer={false} />
+}
 
 export default function App() {
   return (
@@ -26,80 +59,79 @@ export default function App() {
           />
           <Route path="a-propos" element={<ComingSoonPage title="À propos" phase="phase 7" />} />
           <Route path="contact" element={<ComingSoonPage title="Contact" phase="phase 7" />} />
-          <Route
-            path="connexion"
-            element={<ComingSoonPage title="Connexion" phase="phase 2 (authentification)" />}
-          />
-          <Route
-            path="inscription"
-            element={<ComingSoonPage title="Inscription" phase="phase 2 (authentification)" />}
-          />
+          <Route path="credits" element={page(CreditsPage)} />
 
-          <Route path="credits" element={<CreditsPage />} />
-
-          <Route path="mon-espace" element={<ClientLayout />}>
-            <Route index element={<Navigate to="reservations" replace />} />
-            <Route
-              path="reservations"
-              element={
-                <ComingSoonPage
-                  title="Mes réservations"
-                  phase="phase 4 (réservation)"
-                  inContainer={false}
-                  titleAs="h2"
-                />
-              }
-            />
-            <Route
-              path="profil"
-              element={
-                <ComingSoonPage
-                  title="Profil"
-                  phase="phase 2 (authentification)"
-                  inContainer={false}
-                  titleAs="h2"
-                />
-              }
-            />
+          {/* Visitors only: signed-in users are sent to their space. */}
+          <Route element={<GuestRoute />}>
+            <Route path="connexion" element={page(LoginPage)} />
+            <Route path="inscription" element={page(RegisterPage)} />
+            <Route path="mot-de-passe-oublie" element={page(ForgotPasswordPage)} />
+            <Route path="reinitialiser-mot-de-passe" element={page(ResetPasswordPage)} />
           </Route>
+
+          {/* Link from the verification email: works signed in or not. */}
+          <Route path="verifier-email" element={page(VerifyEmailPage)} />
+
+          {/* Mon espace: signed-in users only. */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="espace" element={<ClientLayout />}>
+              <Route index element={<Navigate to="profil" replace />} />
+              <Route
+                path="reservations"
+                element={
+                  <ComingSoonPage
+                    title="Mes réservations"
+                    phase="phase 4 (réservation)"
+                    inContainer={false}
+                    titleAs="h2"
+                  />
+                }
+              />
+              <Route
+                path="profil"
+                element={
+                  <Suspense fallback={<ContentSkeleton />}>
+                    <ProfilePage />
+                  </Suspense>
+                }
+              />
+            </Route>
+          </Route>
+          <Route path="mon-espace/*" element={<Navigate to="/espace" replace />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        <Route path="admin" element={<AdminLayout />}>
+        {/* Administration: admins only (clients get the 403 page). */}
+        <Route element={<AdminRoute />}>
           <Route
-            index
-            element={<ComingSoonPage title="Tableau de bord" phase="phase 5" inContainer={false} />}
-          />
-          <Route
-            path="voitures"
-            element={<ComingSoonPage title="Voitures" phase="phase 5" inContainer={false} />}
-          />
-          <Route
-            path="categories"
-            element={<ComingSoonPage title="Catégories" phase="phase 5" inContainer={false} />}
-          />
-          <Route
-            path="reservations"
-            element={<ComingSoonPage title="Réservations" phase="phase 5" inContainer={false} />}
-          />
-          <Route
-            path="clients"
-            element={<ComingSoonPage title="Clients" phase="phase 5" inContainer={false} />}
-          />
+            path="admin"
+            element={
+              <Suspense fallback={<AdminPageSkeleton />}>
+                <AdminLayout />
+              </Suspense>
+            }
+          >
+            <Route
+              index
+              element={
+                <Suspense fallback={<ContentSkeleton label="Chargement du tableau de bord…" />}>
+                  <AdminDashboardPage />
+                </Suspense>
+              }
+            />
+            <Route path="voitures" element={adminPlaceholder('Voitures')} />
+            <Route path="categories" element={adminPlaceholder('Catégories')} />
+            <Route path="reservations" element={adminPlaceholder('Réservations')} />
+            <Route path="clients" element={adminPlaceholder('Clients')} />
+          </Route>
         </Route>
 
         {DesignPage && (
           <Route
             path="design"
             element={
-              <Suspense
-                fallback={
-                  <div className="grid min-h-dvh place-items-center text-fg-muted">
-                    <Spinner size="lg" label="Chargement du guide de style…" />
-                  </div>
-                }
-              >
+              <Suspense fallback={<PageSkeleton label="Chargement du guide de style…" />}>
                 <DesignPage />
               </Suspense>
             }

@@ -12,11 +12,12 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 ## Always reuse, never invent
 
 - **Components**: `frontend/src/components/ui` (import from `components/ui/index.js`).
-  Button, IconButton, Chip/ChipGroup, Input, Textarea, Select, Checkbox, RadioGroup,
+  Button, IconButton, Chip/ChipGroup, Input (+ `trailing` slot), PasswordInput, Textarea,
+  Select, Checkbox, RadioGroup,
   Switch, FormField, DateRangePicker/DateRangeCalendar, Badge, StatusBadge, Card,
   PromoCard, CarCard(+Skeleton), CarListItem(+Skeleton), Modal, ConfirmDialog,
   Drawer/BottomSheet, DropdownMenu, Tabs, Tooltip, Accordion, Skeleton, Spinner,
-  EmptyState, ErrorState, Pagination, Breadcrumbs, PageHeader, SectionHeading,
+  EmptyState, ErrorState, Alert, Pagination, Breadcrumbs, PageHeader, SectionHeading,
   Stepper, Avatar, StatCard, Table, Toaster, Glow. Extend one of these (props, variants)
   before writing a new one. A new reusable component goes in `components/ui`, gets
   added to `index.js` and `/design`, and is documented in DESIGN.md.

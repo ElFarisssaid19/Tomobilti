@@ -4,6 +4,7 @@
  * Usage and rules: frontend/DESIGN.md.
  */
 export { default as Accordion } from './Accordion.jsx'
+export { default as Alert } from './Alert.jsx'
 export { default as Avatar } from './Avatar.jsx'
 export { default as Badge } from './Badge.jsx'
 export { default as Breadcrumbs } from './Breadcrumbs.jsx'
@@ -29,6 +30,7 @@ export { default as IconButton } from './IconButton.jsx'
 export { Input, Textarea } from './Input.jsx'
 export { default as Modal } from './Modal.jsx'
 export { default as PageHeader } from './PageHeader.jsx'
+export { default as PasswordInput } from './PasswordInput.jsx'
 export { default as Pagination } from './Pagination.jsx'
 export { default as PromoCard } from './PromoCard.jsx'
 export { default as RadioGroup } from './RadioGroup.jsx'

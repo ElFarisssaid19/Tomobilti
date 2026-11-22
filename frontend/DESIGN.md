@@ -180,7 +180,8 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
    `CarListItemSkeleton`, `Table loading`), never a blank screen. Wrap them in
    `LoadingRegion`. A loading button shows a spinner and keeps its width (`loading` prop).
 9. **Feedback.** sonner toasts: `toast.success(...)`, `toast.error(...)`, shown at the
-   top because the bottom belongs to the mobile nav.
+   top because the bottom belongs to the mobile nav, and below the navbar (92px desktop,
+   72px mobile) so they never cover its buttons.
 10. **Navbar.** See "Floating navbar" in section 5: a glass pill on desktop that turns more
     opaque and compact after scrolling and tucks away while scrolling down. The mobile
     menu and sheets slide in over a dimmed, blurred backdrop.
@@ -218,9 +219,10 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   mobile), animated outlet, `SiteFooter` (with the "Crédits photos" link), `BottomNav`
   (mobile). It adds `pb-28 md:pb-0` so the bottom nav never hides content. It also has a
   skip link to `#contenu`.
-- **ClientLayout** ("Mon espace", nested in PublicLayout): page title + sliding link tabs.
-  Child pages use `PageHeader titleAs="h2"`.
-- **AdminLayout**: collapsible sidebar (`lg`+, remembered in localStorage, icons with
+- **ClientLayout** ("Mon espace" at `/espace`, nested in PublicLayout behind
+  `ProtectedRoute`): "Bonjour, {prénom}" title, the email verification banner, sliding link
+  tabs. Child pages use `PageHeader titleAs="h2"`.
+- **AdminLayout** (lazy-loaded behind `AdminRoute`): collapsible sidebar (`lg`+, remembered in localStorage, icons with
   tooltips when collapsed), glass topbar with the page title and the avatar menu,
   left drawer on mobile. No bottom nav.
 - Navigation items live in `src/config/navigation.js`.
@@ -241,8 +243,30 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   and `glass` after scrolling; the floating bottom nav remains the main navigation.
 - **Spacing**: the hero runs behind the navbar; every other page starts with
   `pt-24 md:pt-32` so the navbar never covers content. The admin keeps its sidebar.
-- When auth arrives (Phase 2), the actions slot shows the avatar menu instead of
-  Connexion / Inscription, in the same right-hand position.
+- **Auth-aware actions**: visitors see Connexion / Inscription; signed-in users see the
+  avatar menu (`UserMenu`: Mon espace, Administration for admins, Déconnexion) in the same
+  right-hand position. While the session loads, a skeleton pill of the same size holds the
+  place. The mobile top bar shows the compact avatar, and the bottom nav's "Profil" item
+  leads to `/connexion` for visitors (`guestTo` in `config/navigation.js`).
+
+### Auth pages and route guards (Phase 2)
+
+- **AuthShell** (`components/auth`): on desktop, a tall photo of a Moroccan road on the left
+  (one photo per page: login, register, password, verify, with its place as caption on a
+  gradient) and the form on the right, left-aligned, `max-w-md`. The auth glow sits behind
+  the photo column only, never behind the form. Mobile shows the form alone with the glow
+  at the top edge.
+- Field errors (422) go under the field through `errors`; errors without a field (disabled
+  account 403, too many attempts 429, network) go in a `danger` **Alert** above the form.
+  Client-side checks use the same `{ field: [message] }` shape, and the first invalid field
+  gets the focus.
+- New passwords show `PasswordStrength` (four segments, color only via CSS transitions:
+  danger, warning, success; never lime).
+- Guards: `GuestRoute`, `ProtectedRoute`, `AdminRoute` render `PageSkeleton` /
+  `AdminPageSkeleton` while the session loads, so the wrong page never flashes. Clients who
+  open `/admin` get `ForbiddenPage` (403).
+- "Mon espace" (`/espace`) shows the warning Alert `EmailVerificationBanner` until the email
+  address is verified.
 
 ### Photos
 
@@ -317,6 +341,15 @@ wrap instead; `bleed` runs it to the screen edges on mobile).
   <Input name="email" type="email" />
 </FormField>
 ```
+
+```jsx
+<PasswordInput label="Mot de passe" name="password" autoComplete="current-password" errors={apiError} />
+<Input type="search" trailing={<IconButton icon={X} label="Effacer" variant="ghost" size="sm" />} />
+```
+
+`PasswordInput` is an `Input` with a show/hide `IconButton` (French label, `aria-pressed`)
+in the `trailing` slot. `trailing` holds an interactive element at the right edge of the
+field (`suffix` is for static text such as "DH").
 
 `errors` accepts the axios error, the Laravel 422 payload `{ message, errors }` or the
 `errors` object. The first message for `name` is shown and linked with
@@ -393,6 +426,17 @@ documented `static` + `AnimatePresence` pattern.
 <StatCard icon={CalendarCheck} label="Réservations ce mois" value={128} format="number" trend={{ value: 12, label: 'vs octobre' }} />
 <Table caption="Réservations" columns={[{ key, header, render, align }]} rows={rows} rowKey="reference" loading={isLoading} empty={<EmptyState … />} />
 ```
+
+### Alert
+
+```jsx
+<Alert tone="danger" title="Trop de tentatives">Veuillez essayer de nouveau dans 42 secondes.</Alert>
+<Alert tone="warning" title="Confirmez votre adresse e-mail" action={<Button size="sm" variant="secondary">Renvoyer l’e-mail</Button>}>…</Alert>
+```
+
+Inline message in a page or a form: `info | success | warning | danger`, always with its
+icon. `danger` is announced as `role="alert"`, the others as `role="status"`. Use a toast
+for feedback after an action, an Alert for a state the user must read on the page.
 
 ### States: Skeleton, Spinner, EmptyState, ErrorState, Toaster
 

@@ -174,6 +174,36 @@ npm run preview   # serve the build on http://localhost:4173
 - Models are returned through **Eloquent API Resources** (`app/Http/Resources`), never as raw models.
 - The SPA calls the API with the shared axios instance in `frontend/src/api/client.js` (`withCredentials` and `withXSRFToken` enabled). Call `getCsrfCookie()` before login or register.
 
+## Authentication and roles
+
+Sanctum **SPA cookie authentication** (no tokens): the browser keeps a Laravel session cookie and an `XSRF-TOKEN` cookie that axios sends back as a header. Controllers live in `backend/app/Http/Controllers/Auth` (no Fortify, no Breeze), validation in `app/Http/Requests`.
+
+```
+SPA                                         API
+GET  /sanctum/csrf-cookie            ───▶   sets XSRF-TOKEN cookie
+POST /api/auth/login | register      ───▶   session cookie (+ remember cookie if asked)
+GET  /api/user                       ───▶   UserResource (401 for guests)
+```
+
+| Endpoint                                         | Auth        | Notes                                                                              |
+| ------------------------------------------------ | ----------- | ---------------------------------------------------------------------------------- |
+| `POST /api/auth/register`                        | —           | Role is always `client`. Logs in and sends the verification email. 6/min           |
+| `POST /api/auth/login`                           | —           | `remember`. 5 failed attempts per minute per email + IP (429). Disabled account: 403 |
+| `POST /api/auth/logout`                          | session     | Invalidates the session, new CSRF token                                            |
+| `GET /api/user`                                  | session     | `UserResource` (never the password hash, the remember token or `is_active`)        |
+| `POST /api/auth/forgot-password`                 | —           | Same answer whether the account exists or not. 6/min                               |
+| `POST /api/auth/reset-password`                  | —           | Token from the email. 6/min                                                        |
+| `POST /api/auth/email/verify/{id}/{hash}`        | signed URL  | Called by `/verifier-email`; works signed in or not. 403 `expired` / `invalid`     |
+| `POST /api/auth/email/verification-notification` | session     | Resend the verification email. 6/min                                               |
+| `PUT /api/profile`                               | session     | Any subset of the profile; 18+, licence after the 18th birthday, new email = re-verify |
+| `PUT /api/profile/password`                      | session     | `current_password` required                                                        |
+| `GET /api/admin/ping`                            | admin       | `admin` middleware: 401 for guests, 403 for clients                                |
+
+- **Emails** (`app/Notifications/Auth`): French, Tomobilti theme (`resources/views/vendor/mail`), queued, delivered to Mailpit in development. The links open the React app: `FRONTEND_URL/verifier-email?id&hash&expires&signature` and `FRONTEND_URL/reinitialiser-mot-de-passe?token&email`. The queue worker (`npm run dev` starts it) must run for them to leave.
+- **Roles**: the `role` column is not mass assignable. The `access-admin` gate (`AppServiceProvider`) backs the `admin` middleware alias; model policies go in `app/Policies`.
+- **SPA** (`frontend/src`): `context/AuthContext.jsx` loads the user on start and exposes `useAuth()` (`user`, `status`, `isAdmin`, `isVerified`, `login`, `register`, `logout`, `refreshUser`). The axios client retries once after a 419 with a fresh CSRF cookie and clears the user on 401. Guards: `GuestRoute`, `ProtectedRoute` (→ `/connexion?redirect=…`), `AdminRoute` (clients see a 403 page).
+- **Pages**: `/connexion`, `/inscription`, `/mot-de-passe-oublie`, `/reinitialiser-mot-de-passe`, `/verifier-email`, `/espace/profil`, `/espace/reservations`, `/admin`. After login, admins land on `/admin`, clients on `?redirect=` or `/espace/profil`.
+
 ## VS Code
 
 Open the repository root. Install the recommended extensions when VS Code suggests them (`.vscode/extensions.json`).
@@ -186,7 +216,7 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
   - [x] **1A Base de données** (enums, migrations, models, relations, factories, seeders; see [docs/database.md](docs/database.md))
   - [x] **1B Design system (frontend)** (tokens, motion, UI kit, layouts, style guide at `/design` in development; see [frontend/DESIGN.md](frontend/DESIGN.md))
   - [x] **1C Photos & navbar** (real car and site photos imported with their credits, floating desktop navbar; see [docs/image-credits.md](docs/image-credits.md))
-- [ ] **Phase 2: Auth & roles** (Sanctum SPA login, registration, customer and admin roles)
+- [x] **Phase 2: Auth & roles** (Sanctum SPA login, registration, email verification, password reset, customer profile, admin role; see [Authentication and roles](#authentication-and-roles))
 - [ ] **Phase 3: Catalogue** (cars, categories, images, search and filters)
 - [ ] **Phase 4: Reservation** (availability, booking flow, pricing in MAD)
 - [ ] **Phase 5: Admin dashboard** (fleet, bookings, customers, statistics)

@@ -30,3 +30,16 @@ export function toDateRanges(ranges = []) {
     .map((range) => ({ from: toDay(range.from), to: toDay(range.to) }))
     .filter((range) => range.from && range.to)
 }
+
+/** "YYYY-MM-DD" in local time, for <input type="date"> min/max. */
+export function toInputDate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/** Latest birth date of someone who is at least `years` old today. */
+export function latestBirthDateForAge(years, today = new Date()) {
+  return toInputDate(new Date(today.getFullYear() - years, today.getMonth(), today.getDate()))
+}

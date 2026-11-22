@@ -16,18 +16,21 @@ export const PUBLIC_LINKS = [
   { label: 'Contact', to: '/contact' },
 ]
 
-/** Floating bottom nav (mobile), public and client areas. */
+/**
+ * Floating bottom nav (mobile), public and client areas.
+ * `guestTo` replaces `to` for visitors who are not signed in.
+ */
 export const BOTTOM_NAV = [
   { label: 'Accueil', to: '/', icon: House, end: true },
   { label: 'Voitures', to: '/voitures', icon: CarFront },
-  { label: 'Réservations', to: '/mon-espace/reservations', icon: CalendarCheck },
-  { label: 'Profil', to: '/mon-espace/profil', icon: UserRound },
+  { label: 'Réservations', to: '/espace/reservations', icon: CalendarCheck },
+  { label: 'Profil', to: '/espace/profil', guestTo: '/connexion', icon: UserRound },
 ]
 
 /** Tabs of "Mon espace". */
 export const CLIENT_LINKS = [
-  { label: 'Mes réservations', to: '/mon-espace/reservations', icon: CalendarCheck },
-  { label: 'Profil', to: '/mon-espace/profil', icon: UserRound },
+  { label: 'Mes réservations', to: '/espace/reservations', icon: CalendarCheck },
+  { label: 'Profil', to: '/espace/profil', icon: UserRound },
 ]
 
 /** Admin sidebar. */

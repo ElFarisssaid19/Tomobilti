@@ -15,17 +15,10 @@ return [
     |
     */
 
+    // Every auth endpoint lives under api/auth/*, so these two paths cover the SPA.
     'paths' => [
         'api/*',
         'sanctum/csrf-cookie',
-        // Session-based auth routes (Phase 2).
-        'login',
-        'logout',
-        'register',
-        'forgot-password',
-        'reset-password',
-        'email/verification-notification',
-        'user/*',
     ],
 
     'allowed_methods' => ['*'],

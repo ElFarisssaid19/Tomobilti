@@ -2,7 +2,18 @@
   "mcpServers": {
     "laravel-boost": {
       "command": "php",
-      "args": ["backend/artisan", "boost:mcp"]
+      "args": [
+        "backend/artisan",
+        "boost:mcp"
+      ]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
     }
   }
 }

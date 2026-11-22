@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import {
   Accordion,
+  Alert,
   Avatar,
   Breadcrumbs,
   Button,
@@ -449,6 +450,26 @@ function StatesDemo() {
           <CarListItemSkeleton />
           <CarListItemSkeleton />
         </DemoPanel>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Alert tone="danger" title="Trop de tentatives">
+          Tentatives de connexion trop nombreuses. Veuillez essayer de nouveau dans 42 secondes.
+        </Alert>
+        <Alert
+          tone="warning"
+          title="Confirmez votre adresse e-mail"
+          action={
+            <Button variant="secondary" size="sm">
+              Renvoyer l’e-mail
+            </Button>
+          }
+        >
+          Il faut confirmer cette adresse avant de réserver une voiture.
+        </Alert>
+        <Alert tone="success" title="Mot de passe réinitialisé">
+          Connectez-vous avec votre nouveau mot de passe.
+        </Alert>
+        <Alert tone="info">Le permis doit avoir au moins 2 ans le jour du retrait.</Alert>
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <EmptyState

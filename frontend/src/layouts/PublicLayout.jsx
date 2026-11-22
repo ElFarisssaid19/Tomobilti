@@ -11,7 +11,7 @@ import SiteHeader from '../components/layout/SiteHeader.jsx'
 export default function PublicLayout() {
   const { pathname } = useLocation()
   // "Mon espace" animates its own tabs: keep it mounted while switching between them.
-  const transitionKey = pathname.startsWith('/mon-espace') ? '/mon-espace' : pathname
+  const transitionKey = pathname.startsWith('/espace') ? '/espace' : pathname
 
   return (
     <div className="flex min-h-dvh flex-col pb-28 md:pb-0">

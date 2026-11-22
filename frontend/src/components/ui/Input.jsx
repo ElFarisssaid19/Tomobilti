@@ -9,6 +9,7 @@ import FormField from './FormField.jsx'
  *
  * @example <Input label="Téléphone" name="phone" type="tel" placeholder="+212 6 12 34 56 78" />
  * @example <Input leftIcon={Search} aria-label="Rechercher" placeholder="Marque, modèle…" />
+ * @example <Input type="password" trailing={<IconButton … />} />  // interactive element on the right
  */
 export function Input({
   label,
@@ -20,6 +21,7 @@ export function Input({
   disabled,
   leftIcon: Icon,
   suffix,
+  trailing,
   className,
   inputClassName,
   ...props
@@ -44,6 +46,7 @@ export function Input({
           'h-12 px-4',
           Icon && 'pl-11',
           suffix && 'pr-14',
+          trailing && 'pr-13',
           inputClassName,
         )}
         {...props}
@@ -52,6 +55,9 @@ export function Input({
         <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-medium text-fg-subtle">
           {suffix}
         </span>
+      )}
+      {trailing && (
+        <span className="absolute top-1/2 right-1.5 flex -translate-y-1/2">{trailing}</span>
       )}
     </div>
   )

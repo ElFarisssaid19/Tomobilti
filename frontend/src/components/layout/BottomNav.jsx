@@ -1,6 +1,7 @@
 import { LayoutGroup, motion } from 'motion/react'
 import { NavLink } from 'react-router'
 import { BOTTOM_NAV } from '../../config/navigation.js'
+import { useAuth } from '../../context/authContext.js'
 import { cn } from '../../lib/cn.js'
 import { spring } from '../../lib/motion.js'
 
@@ -8,8 +9,12 @@ import { spring } from '../../lib/motion.js'
  * Floating glass bottom navigation (mobile only, public and client areas).
  * The active item sits in a lime circle that slides between items (shared layout).
  * Layouts using it add `pb-28 md:pb-0` so it never hides content.
+ * Items with `guestTo` (Profil) lead to the login page for visitors.
  */
 export default function BottomNav() {
+  const { status } = useAuth()
+  const isGuest = status === 'guest'
+
   return (
     <nav
       aria-label="Navigation"
@@ -17,10 +22,10 @@ export default function BottomNav() {
     >
       <LayoutGroup id="bottom-nav">
         <ul className="mx-auto flex max-w-md items-stretch justify-between rounded-full border border-white/10 glass p-1.5 shadow-pop">
-          {BOTTOM_NAV.map(({ label, to, icon: Icon, end }) => (
-            <li key={to} className="flex-1">
+          {BOTTOM_NAV.map(({ label, to, guestTo, icon: Icon, end }) => (
+            <li key={label} className="flex-1">
               <NavLink
-                to={to}
+                to={isGuest && guestTo ? guestTo : to}
                 end={end}
                 className="group flex flex-col items-center gap-0.5 rounded-full py-1 focus-visible:outline-offset-0"
               >

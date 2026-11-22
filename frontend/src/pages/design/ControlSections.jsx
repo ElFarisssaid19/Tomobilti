@@ -23,6 +23,7 @@ import {
   FormField,
   IconButton,
   Input,
+  PasswordInput,
   RadioGroup,
   Select,
   StatusBadge,
@@ -184,6 +185,12 @@ function FormsDemo() {
           type="email"
           required
           errors={VALIDATION_ERROR}
+        />
+        <PasswordInput
+          label="Mot de passe"
+          name="password"
+          autoComplete="new-password"
+          hint="PasswordInput : bouton afficher/masquer (aria-pressed) dans le slot trailing d’Input."
         />
         <Input label="Code promo" name="promo" placeholder="Indisponible" disabled />
         <Input

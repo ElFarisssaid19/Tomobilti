@@ -1,22 +1,30 @@
 import { LayoutGroup, motion } from 'motion/react'
 import { NavLink } from 'react-router'
+import EmailVerificationBanner from '../components/auth/EmailVerificationBanner.jsx'
 import PageTransition from '../components/layout/PageTransition.jsx'
 import { PageHeader } from '../components/ui'
 import { CLIENT_LINKS } from '../config/navigation.js'
+import { useAuth } from '../context/authContext.js'
+import { firstName } from '../lib/auth.js'
 import { cn } from '../lib/cn.js'
 import { spring } from '../lib/motion.js'
 
 /**
  * "Mon espace" (client area), nested in PublicLayout so it shares the navbar, the
  * footer and the mobile bottom nav. Its tabs are links; the lime pill slides between them.
+ * Rendered inside ProtectedRoute, so the user is always signed in here.
  */
 export default function ClientLayout() {
+  const { user } = useAuth()
+
   return (
     <div className="container-page flex flex-1 flex-col gap-8 pt-24 pb-16 md:pt-32">
       <PageHeader
-        title="Mon espace"
-        description="Vos réservations et vos informations personnelles."
+        title={`Bonjour, ${firstName(user)}`}
+        description="Mon espace : vos réservations et vos informations personnelles."
       />
+
+      <EmailVerificationBanner />
 
       <nav aria-label="Mon espace">
         <LayoutGroup id="client-tabs">

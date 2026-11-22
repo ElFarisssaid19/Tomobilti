@@ -3,7 +3,10 @@ import { Toaster as SonnerToaster } from 'sonner'
 import Spinner from './Spinner.jsx'
 
 /**
- * sonner toaster themed with our tokens. Mount once (RootLayout), then:
+ * sonner toaster themed with our tokens. Toasts appear at the top (the bottom belongs
+ * to the mobile nav), below the navbar so they never cover its buttons: 92px on
+ * desktop (floating pill: 16px + 64px), 72px on mobile (64px top bar).
+ * Mount once (RootLayout), then:
  *   import { toast } from 'sonner'
  *   toast.success('Réservation envoyée')
  *   toast.error('La réservation a échoué', { description: error.response?.data?.message })
@@ -13,6 +16,8 @@ export default function Toaster() {
     <SonnerToaster
       theme="dark"
       position="top-center"
+      offset={{ top: 92 }}
+      mobileOffset={{ top: 72 }}
       gap={10}
       icons={{
         success: <CircleCheck className="size-5 text-success" aria-hidden="true" />,

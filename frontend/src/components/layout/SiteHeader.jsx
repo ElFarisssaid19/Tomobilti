@@ -1,13 +1,16 @@
-import { LogIn, Menu } from 'lucide-react'
+import { LayoutDashboard, LogIn, LogOut, Menu, UserRound } from 'lucide-react'
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react'
 import { useState } from 'react'
 import { NavLink } from 'react-router'
 import { PUBLIC_LINKS } from '../../config/navigation.js'
+import { useAuth } from '../../context/authContext.js'
+import useLogout from '../../hooks/useLogout.js'
 import useScrollDirection from '../../hooks/useScrollDirection.js'
 import useScrolled from '../../hooks/useScrolled.js'
 import { cn } from '../../lib/cn.js'
 import { spring } from '../../lib/motion.js'
-import { Button, Drawer, IconButton } from '../ui'
+import UserMenu from '../auth/UserMenu.jsx'
+import { Button, Drawer, IconButton, Skeleton } from '../ui'
 import Logo from './Logo.jsx'
 
 /** Below this scroll position the navbar always stays visible (over the hero). */
@@ -24,8 +27,14 @@ const HIDE_AFTER = 240
  *   while scrolling down past the hero and comes back on any upward scroll. It never
  *   hides at the top of the page, while it holds keyboard focus, while the menu is open
  *   or when the user asks for reduced motion.
+ *
+ * Actions follow the session: Connexion / Inscription for visitors, the avatar menu
+ * (Mon espace, Administration, Déconnexion) once signed in, and a placeholder of the
+ * same size while the session loads, so nothing jumps.
  */
 export default function SiteHeader() {
+  const { status, isAdmin } = useAuth()
+  const handleLogout = useLogout()
   const scrolled = useScrolled()
   const pastHero = useScrolled(HIDE_AFTER)
   const direction = useScrollDirection()
@@ -52,7 +61,11 @@ export default function SiteHeader() {
         <div className="container-page flex h-16 items-center justify-between gap-4">
           <Logo />
           <div className="flex items-center gap-2">
-            <IconButton icon={LogIn} label="Connexion" size="sm" to="/connexion" />
+            {status === 'loading' && <Skeleton className="size-9 rounded-full" />}
+            {status === 'guest' && (
+              <IconButton icon={LogIn} label="Connexion" size="sm" to="/connexion" />
+            )}
+            {status === 'authenticated' && <UserMenu compact />}
             <IconButton
               icon={Menu}
               label="Ouvrir le menu"
@@ -118,21 +131,27 @@ export default function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-1.5 justify-self-end">
-            {/* md (768–1023px) is too narrow for two text buttons: Connexion becomes an icon. */}
-            <IconButton
-              icon={LogIn}
-              label="Connexion"
-              variant="ghost"
-              size="sm"
-              to="/connexion"
-              className="lg:hidden"
-            />
-            <Button to="/connexion" variant="ghost" size="sm" className="hidden lg:inline-flex">
-              Connexion
-            </Button>
-            <Button to="/inscription" size="sm">
-              Inscription
-            </Button>
+            {status === 'loading' && <Skeleton className="h-10 w-28 rounded-full lg:w-40" />}
+            {status === 'guest' && (
+              <>
+                {/* md (768–1023px) is too narrow for two text buttons: Connexion becomes an icon. */}
+                <IconButton
+                  icon={LogIn}
+                  label="Connexion"
+                  variant="ghost"
+                  size="sm"
+                  to="/connexion"
+                  className="lg:hidden"
+                />
+                <Button to="/connexion" variant="ghost" size="sm" className="hidden lg:inline-flex">
+                  Connexion
+                </Button>
+                <Button to="/inscription" size="sm">
+                  Inscription
+                </Button>
+              </>
+            )}
+            {status === 'authenticated' && <UserMenu />}
           </div>
         </div>
       </div>
@@ -162,12 +181,54 @@ export default function SiteHeader() {
           </ul>
         </nav>
         <div className="mt-6 flex flex-col gap-2 border-t border-line pt-6">
-          <Button to="/inscription" size="lg" onClick={() => setMenuOpen(false)}>
-            Créer un compte
-          </Button>
-          <Button to="/connexion" variant="secondary" size="lg" onClick={() => setMenuOpen(false)}>
-            Connexion
-          </Button>
+          {status === 'authenticated' ? (
+            <>
+              <Button
+                to="/espace/profil"
+                size="lg"
+                leftIcon={UserRound}
+                onClick={() => setMenuOpen(false)}
+              >
+                Mon espace
+              </Button>
+              {isAdmin && (
+                <Button
+                  to="/admin"
+                  variant="secondary"
+                  size="lg"
+                  leftIcon={LayoutDashboard}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Administration
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="lg"
+                leftIcon={LogOut}
+                onClick={() => {
+                  setMenuOpen(false)
+                  handleLogout()
+                }}
+              >
+                Déconnexion
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button to="/inscription" size="lg" onClick={() => setMenuOpen(false)}>
+                Créer un compte
+              </Button>
+              <Button
+                to="/connexion"
+                variant="secondary"
+                size="lg"
+                onClick={() => setMenuOpen(false)}
+              >
+                Connexion
+              </Button>
+            </>
+          )}
         </div>
       </Drawer>
     </header>

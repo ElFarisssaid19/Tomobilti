@@ -172,7 +172,7 @@ Accounts of agency staff (`admin`) and customers (`client`). The Laravel default
 | `driving_license_issued_at` | date, nullable                        | `hasValidLicense()` requires at least **2 years** (`User::MIN_LICENSE_YEARS`).      |
 | `is_active`                 | boolean, default `true`               | **Not mass assignable**. Disabled accounts.                                         |
 
-Helpers: `isAdmin()`, `isClient()`, `age`, `hasValidLicense(?$onDate)` (pass the pick-up date to check the licence on that day).
+Helpers: `isAdmin()`, `isClient()`, `age`, `hasValidLicense(?$onDate)` (pass the pick-up date to check the licence on that day), `hasCompleteProfile()` (phone, birth date, CIN and licence filled in: required to book). The model implements `MustVerifyEmail`.
 
 ### `categories`
 

@@ -15,4 +15,42 @@ return [
         '503' => 'Service temporairement indisponible.',
     ],
 
+    'auth' => [
+        'registered' => 'Compte créé. Un e-mail de vérification vous a été envoyé.',
+        'logged_in' => 'Connexion réussie.',
+        'logged_out' => 'Vous êtes déconnecté.',
+        'inactive' => 'Votre compte est désactivé. Contactez l’agence pour le réactiver.',
+        'reset_link_sent' => 'Si un compte existe pour cette adresse, vous allez recevoir un lien de réinitialisation dans quelques instants.',
+    ],
+
+    'verification' => [
+        'verified' => 'Votre adresse e-mail est vérifiée.',
+        'already_verified' => 'Votre adresse e-mail est déjà vérifiée.',
+        'sent' => 'Un nouveau lien de vérification vous a été envoyé.',
+        'expired' => 'Ce lien de vérification a expiré. Demandez-en un nouveau.',
+        'invalid' => 'Ce lien de vérification n’est pas valide.',
+    ],
+
+    'profile' => [
+        'updated' => 'Profil enregistré.',
+        'updated_verify_email' => 'Profil enregistré. Confirmez votre nouvelle adresse e-mail avec le lien que nous venons de vous envoyer.',
+        'password_updated' => 'Mot de passe modifié.',
+    ],
+
+    'admin' => [
+        'pong' => 'Espace administrateur opérationnel. Bonjour, :name.',
+    ],
+
+    'validation' => [
+        'phone' => 'Saisissez un numéro marocain valide, par exemple 06 12 34 56 78 ou +212 6 12 34 56 78.',
+        'email_taken' => 'Un compte existe déjà avec cette adresse e-mail.',
+        'terms' => 'Vous devez accepter les conditions générales de location.',
+        'min_age' => 'Vous devez avoir au moins :age ans.',
+        'cin' => 'Saisissez un numéro de CIN valide, par exemple BE123456.',
+        'cin_taken' => 'Ce numéro de CIN est déjà utilisé par un autre compte.',
+        'license_in_future' => 'La date d’obtention du permis ne peut pas être dans le futur.',
+        'license_before_adult' => 'Le permis ne peut pas avoir été obtenu avant vos 18 ans.',
+        'password_same' => 'Le nouveau mot de passe doit être différent de l’actuel.',
+    ],
+
 ];

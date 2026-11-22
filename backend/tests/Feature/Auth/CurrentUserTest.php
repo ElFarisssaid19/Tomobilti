@@ -1,0 +1,45 @@
+<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CurrentUserTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_returns_the_signed_in_user_without_secrets(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->getJson('/api/user')
+            ->assertOk()
+            ->assertJsonPath('data.id', $user->id)
+            ->assertJsonPath('data.role', 'client')
+            ->assertJsonPath('data.role_label', 'Client')
+            ->assertJsonPath('data.is_admin', false)
+            ->assertJsonPath('data.cin', $user->cin)
+            ->assertJsonPath('data.birth_date', $user->birth_date->toDateString())
+            ->assertJsonPath('data.has_complete_profile', true)
+            ->assertJsonMissingPath('data.password')
+            ->assertJsonMissingPath('data.remember_token')
+            ->assertJsonMissingPath('data.is_active');
+    }
+
+    public function test_admin_flag_and_label_come_from_the_role(): void
+    {
+        $this->actingAs(User::factory()->admin()->create())
+            ->getJson('/api/user')
+            ->assertJsonPath('data.is_admin', true)
+            ->assertJsonPath('data.role_label', 'Administrateur')
+            ->assertJsonPath('data.has_complete_profile', false);
+    }
+
+    public function test_guest_gets_401(): void
+    {
+        $this->getJson('/api/user')->assertUnauthorized();
+    }
+}
