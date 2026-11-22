@@ -1,0 +1,466 @@
+{
+  "dacia-logan-2024": {
+    "label": "Dacia Logan 2024",
+    "photos": [
+      {
+        "commons": "File:Dacia Logan Facelift (2020-present)-Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Dacia Logan Facelift (2020-present)-Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "dacia-logan-2023": {
+    "label": "Dacia Logan 2023",
+    "photos": [
+      {
+        "commons": "File:Dacia Logan 2023 Front 2 (cropped).jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Dacia Logan 2023 Rear 2.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "dacia-sandero-2024": {
+    "label": "Dacia Sandero 2024",
+    "photos": [
+      {
+        "commons": "File:Dacia Sandero 2023 Front 1 (cropped).jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Dacia Sandero 2023 Rear 1 (cropped).jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "dacia-sandero-stepway-2025": {
+    "label": "Dacia Sandero Stepway 2025",
+    "photos": [
+      {
+        "commons": "File:2023 Dacia Sandero Stepway 1.0 tCe Bi-Fuel Expression at Dacia Manchester 01.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2023 Dacia Sandero Stepway 1.0 tCe Bi-Fuel Expression at Dacia Manchester 02.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "fiat-tipo-2023": {
+    "label": "Fiat Tipo 2023",
+    "photos": [
+      {
+        "commons": "File:Fiat Tipo Sedan Facelift Leonberg 2022 1X7A0412.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Fiat Tipo Sedan Facelift Leonberg 2022 1X7A0513.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "hyundai-i10-2024": {
+    "label": "Hyundai i10 2024",
+    "photos": [
+      {
+        "commons": "File:Hyundai i10 1.0 Intro (III) – f 03012021.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Hyundai i10 1.0 Intro (III) – h 03012021.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "kia-picanto-2024": {
+    "label": "Kia Picanto 2024",
+    "photos": [
+      {
+        "commons": "File:2017 Kia Picanto 1 1.0 Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2017 Kia Picanto 1 1.0 Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "renault-clio-5-2024": {
+    "label": "Renault Clio 5 2024",
+    "photos": [
+      {
+        "commons": "File:2019 Renault Clio Iconic TCE 1.0 Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2019 Renault Clio Iconic TCE 1.0 Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "renault-clio-5-2025": {
+    "label": "Renault Clio 5 2025",
+    "photos": [
+      {
+        "commons": "File:Renault Clio V (2023) Esprit Alpine Automesse Ludwigsburg 2023 1X7A0012.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Renault Clio V (2023) Esprit Alpine Automesse Ludwigsburg 2023 1X7A0015.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "peugeot-208-2024": {
+    "label": "Peugeot 208 2024",
+    "photos": [
+      {
+        "commons": "File:2020 Peugeot 208 B - 20-06-03 - 01.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2020 Peugeot 208 B - 20-06-03 - 03.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "peugeot-208-2025": {
+    "label": "Peugeot 208 2025",
+    "photos": [
+      {
+        "commons": "File:2020 Peugeot 208 GT Line Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2020 Peugeot 208 GT Line Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "citroen-c3-2024": {
+    "label": "Citroën C3 2024",
+    "photos": [
+      {
+        "commons": "File:Citroen C3 (3rd generation) Facelift Auto Zuerich 2021 IMG 0026.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Citroen C3 (3rd generation) Facelift Auto Zuerich 2021 IMG 0027.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "seat-ibiza-2023": {
+    "label": "Seat Ibiza 2023",
+    "photos": [
+      {
+        "commons": "File:2018 SEAT Ibiza SE Technology MPi 1.0 Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2018 SEAT Ibiza SE Technology MPi 1.0 Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "volkswagen-polo-2024": {
+    "label": "Volkswagen Polo 2024",
+    "photos": [
+      {
+        "commons": "File:2018 Volkswagen Polo SE TSi 1.0 Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2018 Volkswagen Polo SE TSi 1.0 Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "peugeot-301-2024": {
+    "label": "Peugeot 301 2024",
+    "photos": [
+      {
+        "commons": "File:Peugeot 301 2017 Facelift.jpg",
+        "view": "avant-trois-quarts",
+        "blur": [
+          [
+            0.17,
+            0.56,
+            0.2,
+            0.14
+          ]
+        ]
+      }
+    ]
+  },
+  "skoda-octavia-2024": {
+    "label": "Skoda Octavia 2024",
+    "photos": [
+      {
+        "commons": "File:Skoda Octavia IV liftback (cropped).jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Skoda Octavia IV liftback 2 (cropped).jpg",
+        "view": "arriere-trois-quarts"
+      },
+      {
+        "commons": "File:Skoda Octavia IV interior.jpg",
+        "view": "interieur"
+      }
+    ]
+  },
+  "volkswagen-passat-2023": {
+    "label": "Volkswagen Passat 2023",
+    "photos": [
+      {
+        "commons": "File:VW Passat B8 Limousine 2.0 TDI Highline.JPG",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:VW Passat B8 Limousine 2.0 TDI Highline Heck.JPG",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "toyota-corolla-hybride-2025": {
+    "label": "Toyota Corolla Hybride 2025",
+    "photos": [
+      {
+        "commons": "File:2019 Toyota Corolla Hybrid Saloon.jpg",
+        "view": "avant-trois-quarts",
+        "blur": [
+          [
+            0.82,
+            0.64,
+            0.17,
+            0.13
+          ]
+        ]
+      },
+      {
+        "commons": "File:2019 Toyota Corolla Hybrid Saloon Interior.jpg",
+        "view": "interieur"
+      }
+    ]
+  },
+  "dacia-duster-2024": {
+    "label": "Dacia Duster 2024",
+    "photos": [
+      {
+        "commons": "File:Dacia Duster III GIMS 2024 1X7A2015.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Dacia Duster III GIMS 2024 1X7A2017.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "dacia-duster-2025": {
+    "label": "Dacia Duster 2025",
+    "photos": [
+      {
+        "commons": "File:Dacia Duster III IMG 8961.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Dacia Duster III IMG 8970.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "hyundai-tucson-2024": {
+    "label": "Hyundai Tucson 2024",
+    "photos": [
+      {
+        "commons": "File:Hyundai Tucson (NX4) IMG 4162.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Hyundai Tucson (NX4) Auto Zuerich 2021 IMG 0481.jpg",
+        "view": "interieur"
+      }
+    ]
+  },
+  "kia-sportage-2024": {
+    "label": "Kia Sportage 2024",
+    "photos": [
+      {
+        "commons": "File:00 Kia Sportage (NQ5) 1.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:00 Kia Sportage (NQ5) 2.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "peugeot-3008-2025": {
+    "label": "Peugeot 3008 2025",
+    "photos": [
+      {
+        "commons": "File:Peugeot 3008 C DSC 8318.jpg",
+        "view": "avant-trois-quarts",
+        "blur": [
+          [
+            0.06,
+            0.63,
+            0.155,
+            0.105
+          ]
+        ]
+      },
+      {
+        "commons": "File:Peugeot 3008 C DSC 8309.jpg",
+        "view": "arriere-trois-quarts",
+        "blur": [
+          [
+            0.645,
+            0.64,
+            0.185,
+            0.115
+          ]
+        ]
+      }
+    ]
+  },
+  "toyota-land-cruiser-prado-2023": {
+    "label": "Toyota Land Cruiser Prado 2023",
+    "photos": [
+      {
+        "commons": "File:2015 Toyota Land Cruiser Prado (KDJ150R MY14) GXL 5-door wagon (2015-06-03) 01.jpg",
+        "view": "avant-trois-quarts",
+        "blur": [
+          [
+            0.805,
+            0.645,
+            0.11,
+            0.14
+          ]
+        ]
+      },
+      {
+        "commons": "File:2015 Toyota Land Cruiser Prado (KDJ150R MY14) GXL 5-door wagon (2015-06-03) 02.jpg",
+        "view": "arriere-trois-quarts",
+        "blur": [
+          [
+            0.11,
+            0.56,
+            0.085,
+            0.12
+          ]
+        ]
+      }
+    ]
+  },
+  "dacia-jogger-2024": {
+    "label": "Dacia Jogger 2024",
+    "photos": [
+      {
+        "commons": "File:2023 Dacia Jogger 1.0 TCe Extreme in Shadow Grey at Dacia Manchester 01.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2023 Dacia Jogger 1.0 TCe Extreme in Shadow Grey at Dacia Manchester 02.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "peugeot-rifter-2024": {
+    "label": "Peugeot Rifter 2024",
+    "photos": [
+      {
+        "commons": "File:Peugeot RIFTER LONG GT (3DA-K9PYH01L) front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Peugeot RIFTER LONG GT (3DA-K9PYH01L) rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "volkswagen-touran-2023": {
+    "label": "Volkswagen Touran 2023",
+    "photos": [
+      {
+        "commons": "File:2018 Volkswagen Touran 1.6.jpg",
+        "view": "avant-trois-quarts"
+      }
+    ]
+  },
+  "mercedes-benz-classe-c-2024": {
+    "label": "Mercedes-Benz Classe C 2024",
+    "photos": [
+      {
+        "commons": "File:MB W206 1.jpg",
+        "view": "avant-trois-quarts",
+        "blur": [
+          [
+            0.785,
+            0.65,
+            0.215,
+            0.12
+          ]
+        ]
+      },
+      {
+        "commons": "File:Mercedes-Benz C 200 4MATIC AVANTGARDE (W206) interior.jpg",
+        "view": "interieur"
+      }
+    ]
+  },
+  "bmw-serie-5-2024": {
+    "label": "BMW Série 5 2024",
+    "photos": [
+      {
+        "commons": "File:BMW G60 520d IAA 2023 1X7A0757.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:BMW G60 520d IAA 2023 1X7A0761.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "range-rover-evoque-2024": {
+    "label": "Range Rover Evoque 2024",
+    "photos": [
+      {
+        "commons": "File:2019 Land Rover Range Rover Evoque R-Dynamic S 2.0 Front.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:2019 Land Rover Range Rover Evoque R-Dynamic S 2.0 Rear.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "renault-kangoo-van-2023": {
+    "label": "Renault Kangoo Van 2023",
+    "photos": [
+      {
+        "commons": "File:Renault Kangoo III IMG 5998.jpg",
+        "view": "avant-trois-quarts"
+      },
+      {
+        "commons": "File:Renault Kangoo III Rapid IMG 6601.jpg",
+        "view": "arriere-trois-quarts"
+      }
+    ]
+  },
+  "fiat-ducato-2023": {
+    "label": "Fiat Ducato 2023",
+    "photos": [
+      {
+        "commons": "File:2017 Fiat Ducato 35 Multijet II 2.3.jpg",
+        "view": "avant-trois-quarts"
+      }
+    ]
+  }
+}

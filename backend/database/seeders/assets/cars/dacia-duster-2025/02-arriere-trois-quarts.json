@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "dacia-duster-2025",
+    "model": "Dacia Duster 2025",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Dacia Duster III IMG 8970.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Dacia_Duster_III_IMG_8970.jpg",
+    "author": "Alexander-93",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

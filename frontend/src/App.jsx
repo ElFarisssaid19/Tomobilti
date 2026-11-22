@@ -6,6 +6,7 @@ import ClientLayout from './layouts/ClientLayout.jsx'
 import PublicLayout from './layouts/PublicLayout.jsx'
 import RootLayout from './layouts/RootLayout.jsx'
 import ComingSoonPage from './pages/ComingSoonPage.jsx'
+import CreditsPage from './pages/CreditsPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
@@ -33,6 +34,8 @@ export default function App() {
             path="inscription"
             element={<ComingSoonPage title="Inscription" phase="phase 2 (authentification)" />}
           />
+
+          <Route path="credits" element={<CreditsPage />} />
 
           <Route path="mon-espace" element={<ClientLayout />}>
             <Route index element={<Navigate to="reservations" replace />} />

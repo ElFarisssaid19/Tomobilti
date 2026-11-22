@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "renault-clio-5-2024",
+    "model": "Renault Clio 5 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2019 Renault Clio Iconic TCE 1.0 Rear.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2019_Renault_Clio_Iconic_TCE_1.0_Rear.jpg",
+    "author": "Vauxford",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

@@ -1,0 +1,20 @@
+{
+    "file": "03-interieur",
+    "car": "skoda-octavia-2024",
+    "model": "Skoda Octavia 2024",
+    "view": "interieur",
+    "files": {
+        "1600": "03-interieur-1600.webp",
+        "800": "03-interieur-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Skoda Octavia IV interior.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Skoda_Octavia_IV_interior.jpg",
+    "author": "Mike-fiesta",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

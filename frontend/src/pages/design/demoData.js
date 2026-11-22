@@ -3,103 +3,40 @@
  * documented in docs/database.md. Never import this outside src/pages/design.
  */
 import { addDays, startOfToday } from 'date-fns'
+import { FEATURED_CARS, MORE_DEMO_CARS } from '../../data/demoCars.js'
 import { CAR_SILHOUETTES } from '../../lib/cars.js'
 
 const CATEGORIES = {
-  economique: { name: 'Économique', slug: 'economique' },
   compacte: { name: 'Compacte', slug: 'compacte' },
-  berline: { name: 'Berline', slug: 'berline' },
-  suv: { name: 'SUV', slug: 'suv' },
-  luxe: { name: 'Luxe', slug: 'luxe' },
   utilitaire: { name: 'Utilitaire', slug: 'utilitaire' },
 }
 
+const byModel = (model) => [...FEATURED_CARS, ...MORE_DEMO_CARS].find((car) => car.model === model)
+
+/** One car per category, with real photos (index order is used by DEMO_RESERVATIONS). */
 export const DEMO_CARS = [
-  {
-    id: 1,
-    slug: 'hyundai-i10-2025',
-    brand: { name: 'Hyundai' },
-    model: 'i10',
-    year: 2025,
-    category: CATEGORIES.economique,
-    seats: 4,
-    transmission: 'manual',
-    fuel: 'petrol',
-    air_conditioning: true,
-    price_per_day: '230.00',
-    image_url: CAR_SILHOUETTES.citadine,
-  },
-  {
-    id: 2,
-    slug: 'renault-clio-5-2025',
-    brand: { name: 'Renault' },
-    model: 'Clio 5',
-    year: 2025,
-    category: CATEGORIES.compacte,
-    seats: 5,
-    transmission: 'manual',
-    fuel: 'diesel',
-    air_conditioning: true,
-    price_per_day: '300.00',
-    image_url: CAR_SILHOUETTES.citadine,
-  },
-  {
-    id: 3,
-    slug: 'skoda-octavia-2024',
-    brand: { name: 'Skoda' },
-    model: 'Octavia',
-    year: 2024,
-    category: CATEGORIES.berline,
-    seats: 5,
-    transmission: 'automatic',
-    fuel: 'diesel',
-    air_conditioning: true,
-    price_per_day: '450.00',
-    image_url: CAR_SILHOUETTES.berline,
-  },
-  {
-    id: 4,
-    slug: 'dacia-duster-2025',
-    brand: { name: 'Dacia' },
-    model: 'Duster',
-    year: 2025,
-    category: CATEGORIES.suv,
-    seats: 5,
-    transmission: 'manual',
-    fuel: 'diesel',
-    air_conditioning: true,
-    price_per_day: '400.00',
-    image_url: CAR_SILHOUETTES.suv,
-  },
-  {
-    id: 5,
-    slug: 'range-rover-evoque-2024',
-    brand: { name: 'Range Rover' },
-    model: 'Evoque',
-    year: 2024,
-    category: CATEGORIES.luxe,
-    seats: 5,
-    transmission: 'automatic',
-    fuel: 'hybrid',
-    air_conditioning: true,
-    price_per_day: '1800.00',
-    image_url: CAR_SILHOUETTES.suv,
-  },
-  {
-    id: 6,
-    slug: 'renault-kangoo-2023',
-    brand: { name: 'Renault' },
-    model: 'Kangoo',
-    year: 2023,
-    category: CATEGORIES.utilitaire,
-    seats: 2,
-    transmission: 'manual',
-    fuel: 'diesel',
-    air_conditioning: false,
-    price_per_day: '380.00',
-    image_url: CAR_SILHOUETTES.utilitaire,
-  },
+  byModel('i10'),
+  byModel('Clio 5'),
+  byModel('Octavia'),
+  byModel('Duster'),
+  byModel('Evoque'),
+  byModel('Kangoo Van'),
 ]
+
+/** A car served with the API's SVG placeholder: shows the placeholder treatment. */
+export const PLACEHOLDER_CAR = {
+  id: 32,
+  brand: { name: 'Fiat' },
+  model: 'Ducato',
+  year: 2023,
+  category: CATEGORIES.utilitaire,
+  seats: 3,
+  transmission: 'manual',
+  fuel: 'diesel',
+  air_conditioning: true,
+  price_per_day: '650.00',
+  image_url: CAR_SILHOUETTES.utilitaire,
+}
 
 /** A car whose image URL is broken: shows the silhouette fallback. */
 export const BROKEN_IMAGE_CAR = {

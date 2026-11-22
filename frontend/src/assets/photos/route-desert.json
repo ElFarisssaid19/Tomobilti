@@ -1,0 +1,17 @@
+{
+  "file": "route-desert",
+  "description": "Route sinueuse dans le désert d’Agafay, au pied de l’Atlas",
+  "files": {
+    "1600": "route-desert-1600.webp",
+    "800": "route-desert-800.webp"
+  },
+  "source": "Unsplash",
+  "title": "A winding road in the middle of a desert",
+  "source_url": "https://unsplash.com/photos/v32DdK24LYc",
+  "author": "Bradley Pritchard Jones",
+  "author_url": "https://unsplash.com/@bpj2608",
+  "license": "Unsplash License",
+  "license_url": "https://unsplash.com/license",
+  "changes": "Recadrée et redimensionnée, convertie en WebP",
+  "derivative_license": null
+}

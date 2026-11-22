@@ -1,69 +1,139 @@
 import { LogIn, Menu } from 'lucide-react'
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react'
 import { useState } from 'react'
 import { NavLink } from 'react-router'
 import { PUBLIC_LINKS } from '../../config/navigation.js'
+import useScrollDirection from '../../hooks/useScrollDirection.js'
 import useScrolled from '../../hooks/useScrolled.js'
 import { cn } from '../../lib/cn.js'
+import { spring } from '../../lib/motion.js'
 import { Button, Drawer, IconButton } from '../ui'
 import Logo from './Logo.jsx'
 
+/** Below this scroll position the navbar always stays visible (over the hero). */
+const HIDE_AFTER = 240
+
 /**
- * Public top bar. Transparent over the hero, then glass (blur) with a border after
- * scrolling. Desktop: links + Connexion / Inscription. Mobile: compact bar with a
- * menu sheet (the main mobile navigation is the bottom nav).
+ * Public navigation.
+ *
+ * - Mobile: compact top bar (logo, Connexion, menu sheet); the main mobile navigation
+ *   is the floating bottom nav.
+ * - Desktop (md+): a floating glass pill, 16px from the top, max 1100px wide, matching
+ *   the bottom nav. The active link sits in a lime pill that slides between links.
+ *   After scrolling it becomes more opaque and slightly more compact; it tucks away
+ *   while scrolling down past the hero and comes back on any upward scroll. It never
+ *   hides at the top of the page, while it holds keyboard focus, while the menu is open
+ *   or when the user asks for reduced motion.
  */
 export default function SiteHeader() {
   const scrolled = useScrolled()
+  const pastHero = useScrolled(HIDE_AFTER)
+  const direction = useScrollDirection()
+  const reduceMotion = useReducedMotion()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [focusWithin, setFocusWithin] = useState(false)
+  const hidden = pastHero && direction === 'down' && !menuOpen && !focusWithin && !reduceMotion
 
   return (
     <header
-      className={cn(
-        'fixed inset-x-0 top-0 z-(--z-sticky) border-b transition-[background-color,border-color,backdrop-filter] duration-250',
-        scrolled ? 'border-line/80 glass' : 'border-transparent bg-transparent',
-      )}
+      className="fixed inset-x-0 top-0 z-(--z-sticky)"
+      onFocus={() => setFocusWithin(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocusWithin(false)
+      }}
     >
-      <div className="container-page flex h-16 items-center justify-between gap-6 md:h-18">
-        <Logo />
-
-        <nav aria-label="Navigation principale" className="hidden md:block">
-          <ul className="flex items-center gap-7">
-            {PUBLIC_LINKS.map((link) => (
-              <li key={link.to}>
-                <NavLink
-                  to={link.to}
-                  end={link.end}
-                  className={({ isActive }) =>
-                    cn(
-                      'link-underline rounded-xs text-sm font-semibold transition-colors',
-                      isActive ? 'text-fg after:bg-lime' : 'text-fg-muted hover:text-fg',
-                    )
-                  }
-                >
-                  {link.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="hidden items-center gap-2 md:flex">
-          <Button to="/connexion" variant="ghost" size="sm">
-            Connexion
-          </Button>
-          <Button to="/inscription" size="sm">
-            Inscription
-          </Button>
+      {/* Mobile: compact top bar */}
+      <div
+        className={cn(
+          'border-b transition-[background-color,border-color] duration-250 md:hidden',
+          scrolled ? 'border-line/80 glass' : 'border-transparent bg-transparent',
+        )}
+      >
+        <div className="container-page flex h-16 items-center justify-between gap-4">
+          <Logo />
+          <div className="flex items-center gap-2">
+            <IconButton icon={LogIn} label="Connexion" size="sm" to="/connexion" />
+            <IconButton
+              icon={Menu}
+              label="Ouvrir le menu"
+              size="sm"
+              onClick={() => setMenuOpen(true)}
+            />
+          </div>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2 md:hidden">
-          <IconButton icon={LogIn} label="Connexion" size="sm" to="/connexion" />
-          <IconButton
-            icon={Menu}
-            label="Ouvrir le menu"
-            size="sm"
-            onClick={() => setMenuOpen(true)}
-          />
+      {/* Desktop: floating glass pill */}
+      <div
+        className={cn(
+          'hidden px-6 pt-4 transition-transform duration-400 ease-out motion-reduce:transition-none md:block',
+          hidden && '-translate-y-[calc(100%+1rem)]',
+        )}
+      >
+        <div
+          className={cn(
+            'mx-auto grid h-16 max-w-nav grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-full border pr-2 pl-5 backdrop-blur-xl backdrop-saturate-150 transition-[background-color,border-color,box-shadow,transform] duration-250 ease-out motion-reduce:transition-none lg:gap-4 lg:pl-6 [@media(prefers-reduced-transparency:reduce)]:bg-raised',
+            scrolled
+              ? 'border-white/12 bg-raised/90 shadow-pop motion-safe:-translate-y-1.5 motion-safe:scale-[0.98]'
+              : 'border-white/8 bg-raised/60',
+          )}
+        >
+          <Logo className="justify-self-start" />
+
+          <nav aria-label="Navigation principale">
+            <LayoutGroup id="site-nav">
+              <ul className="flex items-center gap-1">
+                {PUBLIC_LINKS.map((link) => (
+                  <li key={link.to}>
+                    <NavLink
+                      to={link.to}
+                      end={link.end}
+                      className={({ isActive }) =>
+                        cn(
+                          'relative isolate inline-flex h-10 items-center rounded-full px-3 text-sm font-semibold whitespace-nowrap transition-colors duration-150 lg:px-4',
+                          isActive
+                            ? 'text-on-lime'
+                            : 'text-fg-muted hover:bg-white/8 hover:text-fg',
+                        )
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          {isActive && (
+                            <motion.span
+                              layoutId="site-nav-pill"
+                              transition={spring}
+                              aria-hidden="true"
+                              className="absolute inset-0 -z-10 rounded-full bg-lime"
+                            />
+                          )}
+                          {link.label}
+                        </>
+                      )}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </LayoutGroup>
+          </nav>
+
+          <div className="flex items-center gap-1.5 justify-self-end">
+            {/* md (768–1023px) is too narrow for two text buttons: Connexion becomes an icon. */}
+            <IconButton
+              icon={LogIn}
+              label="Connexion"
+              variant="ghost"
+              size="sm"
+              to="/connexion"
+              className="lg:hidden"
+            />
+            <Button to="/connexion" variant="ghost" size="sm" className="hidden lg:inline-flex">
+              Connexion
+            </Button>
+            <Button to="/inscription" size="sm">
+              Inscription
+            </Button>
+          </div>
         </div>
       </div>
 

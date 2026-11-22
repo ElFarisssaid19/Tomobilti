@@ -12,6 +12,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Database\Seeders\CarSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -49,20 +50,40 @@ class DatabaseSeederTest extends TestCase
         $this->assertTrue($client->reservations()->exists());
     }
 
-    public function test_every_car_has_a_placeholder_image_on_the_public_disk(): void
+    public function test_every_car_has_its_committed_photos_or_a_placeholder_on_the_public_disk(): void
     {
         $this->seedDemoData();
 
-        $cars = Car::with('primaryImage')->get();
+        $cars = Car::with(['images' => fn ($query) => $query->orderBy('sort_order')])->get();
 
         $this->assertGreaterThanOrEqual(30, $cars->count());
         $this->assertSame(2, $cars->where('status', CarStatus::Maintenance)->count());
         $this->assertTrue($cars->contains('is_featured', true));
 
         foreach ($cars as $car) {
-            $this->assertNotNull($car->primaryImage, "{$car->slug} has no image");
-            $this->assertStringStartsWith(CarSeeder::PLACEHOLDER_DIRECTORY.'/', $car->primaryImage->path);
-            Storage::disk('public')->assertExists($car->primaryImage->path);
+            $manifests = File::glob(database_path(CarSeeder::PHOTO_ASSETS_DIRECTORY."/{$car->slug}/*.json"));
+            $this->assertNotEmpty($car->images, "{$car->slug} has no image");
+            $this->assertSame([true], $car->images->pluck('is_primary')->filter()->values()->all(), "{$car->slug} needs exactly one primary image");
+            $this->assertTrue($car->images->first()->is_primary, "{$car->slug}: the first image is the primary one");
+
+            if ($manifests === []) {
+                $this->assertCount(1, $car->images);
+                $this->assertStringStartsWith(CarSeeder::PLACEHOLDER_DIRECTORY.'/', $car->images->first()->path);
+                Storage::disk('public')->assertExists($car->images->first()->path);
+
+                continue;
+            }
+
+            $this->assertCount(count($manifests), $car->images, $car->slug);
+
+            foreach ($car->images as $image) {
+                $this->assertStringStartsWith(CarSeeder::PHOTO_DIRECTORY."/{$car->slug}/", $image->path);
+                Storage::disk('public')->assertExists([$image->path, $image->thumbnailPath()]);
+                $this->assertNotEmpty($image->author, $image->path);
+                $this->assertNotEmpty($image->license, $image->path);
+                $this->assertStringStartsWith('https://', $image->source_url);
+                $this->assertStringStartsWith("{$car->brand->name} {$car->model} {$car->year}, ", $image->alt);
+            }
         }
     }
 

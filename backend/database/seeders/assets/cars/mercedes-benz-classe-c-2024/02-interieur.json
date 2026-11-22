@@ -1,0 +1,20 @@
+{
+    "file": "02-interieur",
+    "car": "mercedes-benz-classe-c-2024",
+    "model": "Mercedes-Benz Classe C 2024",
+    "view": "interieur",
+    "files": {
+        "1600": "02-interieur-1600.webp",
+        "800": "02-interieur-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Mercedes-Benz C 200 4MATIC AVANTGARDE (W206) interior.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_C_200_4MATIC_AVANTGARDE_(W206)_interior.jpg",
+    "author": "Tokumeigakarinoaoshima",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

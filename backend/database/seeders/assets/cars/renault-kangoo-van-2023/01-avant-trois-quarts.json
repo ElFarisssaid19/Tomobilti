@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "renault-kangoo-van-2023",
+    "model": "Renault Kangoo Van 2023",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Renault Kangoo III IMG 5998.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Renault_Kangoo_III_IMG_5998.jpg",
+    "author": "Alexander Migl",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

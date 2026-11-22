@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "citroen-c3-2024",
+    "model": "Citroën C3 2024",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Citroen C3 (3rd generation) Facelift Auto Zuerich 2021 IMG 0026.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Citroen_C3_(3rd_generation)_Facelift_Auto_Zuerich_2021_IMG_0026.jpg",
+    "author": "Alexander Migl",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "hyundai-i10-2024",
+    "model": "Hyundai i10 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Hyundai i10 1.0 Intro (III) – h 03012021.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_i10_1.0_Intro_(III)_%E2%80%93_h_03012021.jpg",
+    "author": "© M 93",
+    "author_url": null,
+    "license": "CC BY-SA 3.0 de",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 3.0 de",
+    "note": null
+}

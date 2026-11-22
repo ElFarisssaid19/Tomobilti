@@ -24,6 +24,9 @@ class CarImageFactory extends Factory
             'alt' => fake()->sentence(3),
             'is_primary' => false,
             'sort_order' => fake()->numberBetween(1, 10),
+            'source_url' => null,
+            'author' => null,
+            'license' => null,
         ];
     }
 

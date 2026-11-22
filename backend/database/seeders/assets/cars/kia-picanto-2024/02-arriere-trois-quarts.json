@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "kia-picanto-2024",
+    "model": "Kia Picanto 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2017 Kia Picanto 1 1.0 Rear.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2017_Kia_Picanto_1_1.0_Rear.jpg",
+    "author": "Vauxford",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

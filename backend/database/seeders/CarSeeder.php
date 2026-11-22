@@ -7,16 +7,23 @@ use App\Enums\FuelType;
 use App\Enums\Transmission;
 use App\Models\Brand;
 use App\Models\Car;
+use App\Models\CarImage;
 use App\Models\Category;
 use App\Models\Location;
 use Database\Factories\CarFactory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * The demo fleet: 32 cars with realistic specs and MAD prices, each with a generated
- * SVG placeholder image on the public disk (real photos come with the admin, Phase 5).
+ * The demo fleet: 32 cars with realistic specs and MAD prices.
+ *
+ * Images: the real photos committed in database/seeders/assets/cars/{slug}/ (imported by
+ * `php artisan tomobilti:import-car-photos`) are copied to the public disk as
+ * cars/{slug}/{name}-1600.webp and {name}-800.webp. Cars without photos get a generated
+ * SVG placeholder in cars/placeholders/.
  */
 class CarSeeder extends Seeder
 {
@@ -24,6 +31,31 @@ class CarSeeder extends Seeder
      * Folder of the generated placeholders on the "public" disk.
      */
     public const PLACEHOLDER_DIRECTORY = 'cars/placeholders';
+
+    /**
+     * Folder of the car photos on the "public" disk (one sub-folder per car slug).
+     */
+    public const PHOTO_DIRECTORY = 'cars';
+
+    /**
+     * Folder of the committed photo assets, relative to database_path().
+     */
+    public const PHOTO_ASSETS_DIRECTORY = 'seeders/assets/cars';
+
+    /**
+     * French alt text suffix per photo view (the view is part of the file name).
+     *
+     * @var array<string, string>
+     */
+    public const VIEW_LABELS = [
+        'avant-trois-quarts' => 'vue avant trois-quarts',
+        'arriere-trois-quarts' => 'vue arrière trois-quarts',
+        'avant' => 'vue de face',
+        'arriere' => 'vue arrière',
+        'profil' => 'vue de profil',
+        'interieur' => 'intérieur',
+        'tableau-de-bord' => 'tableau de bord',
+    ];
 
     /**
      * [brand, model, category slug, year, transmission, fuel, seats, doors, luggage,
@@ -79,21 +111,6 @@ class CarSeeder extends Seeder
         'familiale' => 'Spacieux pour toute la famille et ses bagages.',
         'luxe' => 'Prestige et confort haut de gamme pour vos grandes occasions.',
         'utilitaire' => 'Pratique pour vos déménagements et transports de marchandises.',
-    ];
-
-    /**
-     * Placeholder tint per category: [main color, light background].
-     *
-     * @var array<string, array{0: string, 1: string}>
-     */
-    private const TINTS = [
-        'economique' => ['#16a34a', '#dcfce7'],
-        'compacte' => ['#0284c7', '#e0f2fe'],
-        'berline' => ['#4f46e5', '#e0e7ff'],
-        'suv' => ['#d97706', '#fef3c7'],
-        'familiale' => ['#0d9488', '#ccfbf1'],
-        'luxe' => ['#1e293b', '#e2e8f0'],
-        'utilitaire' => ['#64748b', '#f1f5f9'],
     ];
 
     /**
@@ -162,51 +179,96 @@ class CarSeeder extends Seeder
                 'is_featured' => $spec[12] ?? false,
             ]);
 
-            $path = self::PLACEHOLDER_DIRECTORY."/{$slug}.svg";
-            $disk->put($path, $this->placeholderSvg("{$brand} {$model}", $category->name, self::TINTS[$categorySlug]));
+            $this->attachImages($car, "{$brand} {$model} {$year}", $disk);
+        }
+    }
+
+    /**
+     * Copy the car's committed photos to the public disk, or generate a placeholder
+     * when it has none. The first photo is the primary one.
+     */
+    private function attachImages(Car $car, string $title, Filesystem $disk): void
+    {
+        $manifests = $this->photoManifests($car->slug);
+
+        if ($manifests === []) {
+            $path = self::PLACEHOLDER_DIRECTORY."/{$car->slug}.svg";
+            $disk->put($path, $this->placeholderSvg($title));
 
             $car->images()->create([
                 'path' => $path,
-                'alt' => "{$brand} {$model} {$year}",
+                'alt' => $title,
                 'is_primary' => true,
                 'sort_order' => 0,
+            ]);
+
+            return;
+        }
+
+        $sourceDirectory = database_path(self::PHOTO_ASSETS_DIRECTORY."/{$car->slug}");
+        $targetDirectory = self::PHOTO_DIRECTORY."/{$car->slug}";
+        $disk->deleteDirectory($targetDirectory);
+
+        foreach ($manifests as $index => $photo) {
+            foreach ($photo['files'] as $file) {
+                $disk->put("{$targetDirectory}/{$file}", File::get("{$sourceDirectory}/{$file}"));
+            }
+
+            $car->images()->create([
+                'path' => "{$targetDirectory}/".$photo['files'][(string) CarImage::LARGE_WIDTH],
+                'alt' => "{$title}, ".(self::VIEW_LABELS[$photo['view']] ?? 'photo'),
+                'is_primary' => $index === 0,
+                'sort_order' => $index,
+                'source_url' => $photo['source_url'],
+                'author' => $photo['author'],
+                'license' => $photo['license'],
             ]);
         }
     }
 
     /**
-     * Side view of a car tinted with the category color, with the model name.
+     * The per-photo manifests of a car, in file order (01-..., 02-...).
      *
-     * @param  array{0: string, 1: string}  $tint
+     * @return list<array{file: string, view: string, files: array<string, string>, source_url: string, author: string, license: string}>
      */
-    private function placeholderSvg(string $title, string $category, array $tint): string
+    private function photoManifests(string $slug): array
     {
-        [$color, $background] = $tint;
+        $files = File::glob(database_path(self::PHOTO_ASSETS_DIRECTORY."/{$slug}/*.json"));
+        sort($files);
+
+        return array_map(
+            fn (string $file): array => json_decode(File::get($file), true, flags: JSON_THROW_ON_ERROR),
+            $files,
+        );
+    }
+
+    /**
+     * Neutral side view of a car on a transparent background, styled for the SPA's
+     * dark theme (the card draws the dark stage and its highlight behind it).
+     */
+    private function placeholderSvg(string $title): string
+    {
         $title = htmlspecialchars($title, ENT_XML1);
-        $category = htmlspecialchars($category, ENT_XML1);
 
         return <<<SVG
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="{$title}">
               <defs>
-                <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="{$background}"/>
-                  <stop offset="1" stop-color="#ffffff"/>
+                <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#5a5768"/>
+                  <stop offset="1" stop-color="#22212b"/>
                 </linearGradient>
               </defs>
-              <rect width="800" height="500" fill="url(#bg)"/>
-              <ellipse cx="400" cy="338" rx="300" ry="16" fill="#0f172a" opacity="0.08"/>
-              <path fill="{$color}" d="M118 296c0-24 16-38 44-43l92-14 70-56c14-11 32-17 52-17h132c22 0 41 7 56 20l66 55 52 9c30 5 46 21 46 45v24c0 9-7 15-16 15H134c-9 0-16-6-16-15z"/>
-              <path fill="#ffffff" opacity="0.85" d="M338 190c9-8 21-12 34-12h52v62H282z"/>
-              <path fill="#ffffff" opacity="0.85" d="M440 178h64c14 0 27 5 38 14l56 48H440z"/>
-              <rect x="430" y="178" width="10" height="62" fill="{$color}"/>
-              <rect x="640" y="268" width="34" height="12" rx="6" fill="#fde68a"/>
-              <rect x="124" y="268" width="26" height="12" rx="6" fill="#fca5a5"/>
-              <circle cx="240" cy="330" r="44" fill="#1e293b"/>
-              <circle cx="240" cy="330" r="19" fill="#cbd5e1"/>
-              <circle cx="568" cy="330" r="44" fill="#1e293b"/>
-              <circle cx="568" cy="330" r="19" fill="#cbd5e1"/>
-              <text x="400" y="420" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#0f172a">{$title}</text>
-              <text x="400" y="458" text-anchor="middle" font-family="Inter, Arial, Helvetica, sans-serif" font-size="22" fill="{$color}">{$category} · Tomobilti</text>
+              <ellipse cx="400" cy="374" rx="300" ry="14" fill="#000000" opacity="0.5"/>
+              <path fill="url(#body)" d="M118 296c0-24 16-38 44-43l92-14 70-56c14-11 32-17 52-17h132c22 0 41 7 56 20l66 55 52 9c30 5 46 21 46 45v24c0 9-7 15-16 15H134c-9 0-16-6-16-15z"/>
+              <path fill="#0e0d14" d="M338 190c9-8 21-12 34-12h52v62H282z"/>
+              <path fill="#0e0d14" d="M440 178h64c14 0 27 5 38 14l56 48H440z"/>
+              <rect x="430" y="178" width="10" height="62" fill="#3a3846"/>
+              <rect x="640" y="268" width="34" height="12" rx="6" fill="#f4f2fb" opacity="0.9"/>
+              <rect x="124" y="268" width="26" height="12" rx="6" fill="#d946a0"/>
+              <circle cx="240" cy="330" r="44" fill="#060509"/>
+              <circle cx="240" cy="330" r="19" fill="#8c8999"/>
+              <circle cx="568" cy="330" r="44" fill="#060509"/>
+              <circle cx="568" cy="330" r="19" fill="#8c8999"/>
             </svg>
             SVG;
     }

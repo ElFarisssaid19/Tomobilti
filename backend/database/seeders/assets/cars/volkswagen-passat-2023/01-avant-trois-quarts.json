@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "volkswagen-passat-2023",
+    "model": "Volkswagen Passat 2023",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:VW Passat B8 Limousine 2.0 TDI Highline.JPG",
+    "source_url": "https://commons.wikimedia.org/wiki/File:VW_Passat_B8_Limousine_2.0_TDI_Highline.JPG",
+    "author": "TD",
+    "author_url": null,
+    "license": "CC BY-SA 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 3.0",
+    "note": null
+}

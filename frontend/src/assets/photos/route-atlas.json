@@ -1,0 +1,17 @@
+{
+  "file": "route-atlas",
+  "description": "Route en lacets dans la vallée du Drâa, dans l’Atlas",
+  "files": {
+    "1600": "route-atlas-1600.webp",
+    "800": "route-atlas-800.webp"
+  },
+  "source": "Pexels",
+  "title": "Scenic Draa Valley Road in Morocco’s Atlas Mountains",
+  "source_url": "https://www.pexels.com/photo/scenic-draa-valley-road-in-morocco-s-atlas-mountains-39320882/",
+  "author": "N abil",
+  "author_url": "https://www.pexels.com/@zoogaa/",
+  "license": "Pexels License",
+  "license_url": "https://www.pexels.com/license/",
+  "changes": "Recadrée et redimensionnée, convertie en WebP",
+  "derivative_license": null
+}

@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "toyota-land-cruiser-prado-2023",
+    "model": "Toyota Land Cruiser Prado 2023",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2015 Toyota Land Cruiser Prado (KDJ150R MY14) GXL 5-door wagon (2015-06-03) 02.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2015_Toyota_Land_Cruiser_Prado_(KDJ150R_MY14)_GXL_5-door_wagon_(2015-06-03)_02.jpg",
+    "author": "OSX",
+    "author_url": null,
+    "license": "Public domain",
+    "license_url": "https://en.wikipedia.org/wiki/Public_domain",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP, plaque floutée",
+    "derivative_license": null,
+    "note": null
+}

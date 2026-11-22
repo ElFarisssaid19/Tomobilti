@@ -1,0 +1,20 @@
+{
+    "file": "02-interieur",
+    "car": "toyota-corolla-hybride-2025",
+    "model": "Toyota Corolla Hybride 2025",
+    "view": "interieur",
+    "files": {
+        "1600": "02-interieur-1600.webp",
+        "800": "02-interieur-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2019 Toyota Corolla Hybrid Saloon Interior.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2019_Toyota_Corolla_Hybrid_Saloon_Interior.jpg",
+    "author": "Vauxford",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

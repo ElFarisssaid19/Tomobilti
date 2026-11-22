@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "volkswagen-polo-2024",
+    "model": "Volkswagen Polo 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2018 Volkswagen Polo SE TSi 1.0 Rear.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2018_Volkswagen_Polo_SE_TSi_1.0_Rear.jpg",
+    "author": "Vauxford",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

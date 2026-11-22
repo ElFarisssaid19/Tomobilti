@@ -72,6 +72,24 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 - Reduced motion: `MotionConfig reducedMotion="user"` is at the root. In CSS use
   `motion-safe:` / `motion-reduce:`.
 
+## Navbar and photos
+
+- Public navbar (`SiteHeader`): on desktop a floating glass pill (16px from the top,
+  `max-w-nav`, rounded-full, blur, subtle border); lime pill sliding under the active link,
+  `bg-white/8` hover; more opaque and compact after scrolling; hides while scrolling down past
+  240px, never at the top, with focus inside, with the menu open or in reduced motion.
+  Mobile keeps the compact top bar plus the bottom nav. Pages under it start at
+  `pt-24 md:pt-32`; only the hero runs behind it. Do not build another navbar.
+- Car images always go through `CarImage` (via `CarCard` / `CarListItem`): photos fill the box
+  with a bottom gradient, SVG placeholders keep the radial stage; lazy-loaded, fixed size,
+  skeleton until loaded, silhouette fallback on error. Use `thumbnail_url` (800) for cards and
+  `url` (1600) for the detail page.
+- Text over a photo sits on a gradient overlay that keeps WCAG AA. Glows never behind body text.
+- New images: never hotlink, never NC/ND licenses, no recognizable people or text. Add them to
+  the relevant `sources.json` and run `php artisan tomobilti:import-site-photos` or
+  `tomobilti:import-car-photos` (from `backend/`): it optimizes them and keeps the credits
+  (`docs/image-credits.md`, `/credits`) up to date.
+
 ## Do / Don't
 
 - Do: one primary (lime) action per area. Sentence-case French labels. A button names its

@@ -1,0 +1,18 @@
+{
+  "file": "hero",
+  "description": "Voiture sur la route d’Aït Ben Haddou sous un ciel d’orage, avec un arc-en-ciel",
+  "files": {
+    "1920": "hero-1920.webp",
+    "1280": "hero-1280.webp",
+    "mobile": "hero-mobile.webp"
+  },
+  "source": "Pexels",
+  "title": "Blue Car Travelling on Gray Asphalt Road",
+  "source_url": "https://www.pexels.com/photo/blue-car-travelling-on-gray-asphalt-road-570018/",
+  "author": "Loubna Belmekki",
+  "author_url": "https://www.pexels.com/@loubna-belmekki-155664/",
+  "license": "Pexels License",
+  "license_url": "https://www.pexels.com/license/",
+  "changes": "Recadrée et redimensionnée, convertie en WebP",
+  "derivative_license": null
+}

@@ -13,7 +13,7 @@ const twMerge = extendTailwindMerge({
       radius: ['input', 'card', 'card-lg'],
       shadow: ['glow-lime', 'glow-violet', 'pop', 'inner-light'],
       animate: ['shimmer', 'glow-drift'],
-      container: ['page'],
+      container: ['page', 'nav'],
     },
   },
 })

@@ -89,7 +89,7 @@ Rebuild the database with the demo data at any time (from `backend/`):
 php artisan migrate:fresh --seed
 ```
 
-The seed is reproducible (fixed Faker seed): 32 cars with placeholder images, 5 pick-up locations, 27 users and 64 reservations in every status, with their invoices. Reservation dates are relative to the day you seed.
+The seed is reproducible (fixed Faker seed): 32 cars with real photos (committed in `backend/database/seeders/assets/cars`, credits in [docs/image-credits.md](docs/image-credits.md)), 5 pick-up locations, 27 users and 64 reservations in every status, with their invoices. Reservation dates are relative to the day you seed.
 
 ### Demo accounts
 
@@ -140,6 +140,9 @@ php artisan migrate:fresh --seed   # rebuild the database
 php artisan route:list             # list routes
 php artisan tinker                 # REPL
 php artisan lang:update            # update the French translations (laravel-lang)
+php artisan tomobilti:import-car-photos   # download and optimize the demo car photos (WebP 800 + 1600 px)
+php artisan tomobilti:import-site-photos  # same for the SPA's site photos (frontend/src/assets/photos)
+php artisan tomobilti:image-credits       # regenerate docs/image-credits.md and the /credits data
 ```
 
 Inside `frontend/`:
@@ -182,6 +185,7 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
 - [x] **Phase 1: Database** (schema, migrations, models, seeders)
   - [x] **1A Base de données** (enums, migrations, models, relations, factories, seeders; see [docs/database.md](docs/database.md))
   - [x] **1B Design system (frontend)** (tokens, motion, UI kit, layouts, style guide at `/design` in development; see [frontend/DESIGN.md](frontend/DESIGN.md))
+  - [x] **1C Photos & navbar** (real car and site photos imported with their credits, floating desktop navbar; see [docs/image-credits.md](docs/image-credits.md))
 - [ ] **Phase 2: Auth & roles** (Sanctum SPA login, registration, customer and admin roles)
 - [ ] **Phase 3: Catalogue** (cars, categories, images, search and filters)
 - [ ] **Phase 4: Reservation** (availability, booking flow, pricing in MAD)

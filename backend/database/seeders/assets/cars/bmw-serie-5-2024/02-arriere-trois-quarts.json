@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "bmw-serie-5-2024",
+    "model": "BMW Série 5 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:BMW G60 520d IAA 2023 1X7A0761.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:BMW_G60_520d_IAA_2023_1X7A0761.jpg",
+    "author": "Alexander-93",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

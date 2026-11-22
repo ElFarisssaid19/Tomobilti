@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "peugeot-3008-2025",
+    "model": "Peugeot 3008 2025",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Peugeot 3008 C DSC 8318.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Peugeot_3008_C_DSC_8318.jpg",
+    "author": "Alexander Migl",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP, plaque floutée",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "dacia-jogger-2024",
+    "model": "Dacia Jogger 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2023 Dacia Jogger 1.0 TCe Extreme in Shadow Grey at Dacia Manchester 02.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2023_Dacia_Jogger_1.0_TCe_Extreme_in_Shadow_Grey_at_Dacia_Manchester_02.jpg",
+    "author": "MoCars",
+    "author_url": null,
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": null,
+    "note": null
+}

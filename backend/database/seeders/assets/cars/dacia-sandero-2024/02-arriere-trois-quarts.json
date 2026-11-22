@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "dacia-sandero-2024",
+    "model": "Dacia Sandero 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Dacia Sandero 2023 Rear 1 (cropped).jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Dacia_Sandero_2023_Rear_1_(cropped).jpg",
+    "author": "Mihnea Lazăr",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

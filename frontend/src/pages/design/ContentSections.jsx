@@ -55,7 +55,7 @@ import {
 import { relationName } from '../../lib/cars.js'
 import { revealOnView, spring, staggerItem } from '../../lib/motion.js'
 import { formatDate, formatPrice } from '../../utils/format.js'
-import { BROKEN_IMAGE_CAR, DEMO_CARS, DEMO_RESERVATIONS } from './demoData.js'
+import { BROKEN_IMAGE_CAR, DEMO_CARS, DEMO_RESERVATIONS, PLACEHOLDER_CAR } from './demoData.js'
 import { DemoGroup, DemoPanel, DemoSection, Specimen } from './parts.jsx'
 
 const SHORT = { day: 'numeric', month: 'short' }
@@ -504,10 +504,12 @@ export default function ContentSections() {
           <CarGridDemo />
         </DemoGroup>
         <DemoGroup
-          title="Image en erreur"
-          note="Une URL cassée bascule sur la silhouette locale de la catégorie."
+          title="Photo, placeholder et erreur"
+          note="Une photo remplit la zone (dégradé discret en bas). Un placeholder SVG garde la scène sombre et son halo. Une URL cassée bascule sur la silhouette locale."
         >
-          <div className="max-w-sm">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <CarCard car={DEMO_CARS[3]} to="/voitures" />
+            <CarCard car={PLACEHOLDER_CAR} onReserve={() => toast('Réserver le Fiat Ducato')} />
             <CarCard car={BROKEN_IMAGE_CAR} onReserve={() => toast('Réserver la Peugeot 208')} />
           </div>
         </DemoGroup>
@@ -526,7 +528,7 @@ export default function ContentSections() {
               />
             ))}
             <CarListItem
-              car={DEMO_CARS[5]}
+              car={PLACEHOLDER_CAR}
               onAction={() => toast('Action')}
               actionIcon={Pencil}
               actionLabel="Modifier"

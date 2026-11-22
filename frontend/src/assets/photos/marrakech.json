@@ -1,0 +1,17 @@
+{
+  "file": "marrakech",
+  "description": "Minaret de la Koutoubia à Marrakech au coucher du soleil",
+  "files": {
+    "1600": "marrakech-1600.webp",
+    "800": "marrakech-800.webp"
+  },
+  "source": "Pexels",
+  "title": "Koutoubia Mosque at Sunset, Marrakech",
+  "source_url": "https://www.pexels.com/photo/koutoubia-mosque-at-sunset-marrakech-40675629/",
+  "author": "Desert Morocco Adventure Tours",
+  "author_url": "https://www.pexels.com/@desert-morocco-adventure-tours-2165350666/",
+  "license": "Pexels License",
+  "license_url": "https://www.pexels.com/license/",
+  "changes": "Recadrée et redimensionnée, convertie en WebP",
+  "derivative_license": null
+}

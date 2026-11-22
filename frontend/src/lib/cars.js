@@ -48,16 +48,39 @@ export function resolveImageUrl(path) {
   return `${API_URL}/storage/${path.replace(/^storage\//, '')}`
 }
 
+/** True when a URL points to a vector placeholder rather than a photo. */
+export function isVectorImage(url) {
+  return /\.svg(\?|#|$)/i.test(url ?? '') || String(url ?? '').startsWith('data:image/svg')
+}
+
 /**
  * Main image of a car, whatever shape the API resource uses:
- * `image_url`, `primary_image: { url, path, alt }` or `images: [{ url, path, alt, is_primary }]`.
- * @returns {{ src: string, alt: string, isPlaceholder: boolean }}
+ * `image_url`, `primary_image: { url, thumbnail_url, path, alt }` or `images: [...]`.
+ * Photos come in two widths (800px `thumbnail_url` for cards, 1600px `url` for the detail
+ * page); `srcSet` lets the browser pick. SVG files are placeholders, not photos.
+ * @returns {{ src: string, srcSet?: string, alt: string, isPhoto: boolean, isPlaceholder: boolean }}
  */
 export function getCarImage(car) {
   const name = [relationName(car?.brand), car?.model].filter(Boolean).join(' ')
   const images = Array.isArray(car?.images) ? car.images : []
   const image = car?.primary_image ?? images.find((item) => item.is_primary) ?? images[0]
-  const src = resolveImageUrl(car?.image_url ?? image?.url ?? image?.path)
-  if (src) return { src, alt: image?.alt || name, isPlaceholder: false }
-  return { src: carPlaceholder(car), alt: '', isPlaceholder: true }
+  const large = resolveImageUrl(car?.image_url ?? image?.url ?? image?.path)
+  const thumbnail = resolveImageUrl(car?.thumbnail_url ?? image?.thumbnail_url)
+
+  if (!large && !thumbnail) {
+    return { src: carPlaceholder(car), alt: '', isPhoto: false, isPlaceholder: true }
+  }
+
+  const src = thumbnail || large
+  const isPhoto = !isVectorImage(src)
+  return {
+    src,
+    srcSet:
+      isPhoto && thumbnail && large && thumbnail !== large
+        ? `${thumbnail} 800w, ${large} 1600w`
+        : undefined,
+    alt: isPhoto ? image?.alt || name : '',
+    isPhoto,
+    isPlaceholder: !isPhoto,
+  }
 }

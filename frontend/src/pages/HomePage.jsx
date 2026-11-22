@@ -1,129 +1,137 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import ApiStatusBadge from '../components/ApiStatusBadge.jsx'
-import { Button, Chip, ChipGroup, Glow } from '../components/ui'
-import { CAR_SILHOUETTES } from '../lib/cars.js'
-import { fadeUp, staggerContainer, staggerItem, transition } from '../lib/motion.js'
+import { Button, CarCard, Chip, ChipGroup, Glow, SectionHeading } from '../components/ui'
+import heroDesktopLarge from '../assets/photos/hero-1920.webp'
+import heroDesktop from '../assets/photos/hero-1280.webp'
+import heroMobile from '../assets/photos/hero-mobile.webp'
+import { FEATURED_CARS } from '../data/demoCars.js'
+import { revealOnView, spring, staggerContainer, staggerItem } from '../lib/motion.js'
 
-// Hero demo: one silhouette per category. Real categories come from the API in Phase 3.
-const VEHICLES = [
-  {
-    value: 'economique',
-    label: 'Économique',
-    image: CAR_SILHOUETTES.citadine,
-    line: 'Facile à garer, même près de la médina.',
-  },
-  {
-    value: 'berline',
-    label: 'Berline',
-    image: CAR_SILHOUETTES.berline,
-    line: 'Du confort pour Casablanca – Marrakech.',
-  },
-  {
-    value: 'suv',
-    label: 'SUV',
-    image: CAR_SILHOUETTES.suv,
-    line: 'De la place pour les routes de l’Atlas.',
-  },
-  {
-    value: 'utilitaire',
-    label: 'Utilitaire',
-    image: CAR_SILHOUETTES.utilitaire,
-    line: 'Pour un déménagement ou une livraison.',
-  },
+const FILTERS = [
+  { value: 'all', label: 'Toutes' },
+  { value: 'compacte', label: 'Compactes' },
+  { value: 'suv', label: 'SUV' },
+  { value: 'luxe', label: 'Luxe' },
 ]
 
 export default function HomePage() {
-  const [category, setCategory] = useState(VEHICLES[0].value)
-  const vehicle = VEHICLES.find((item) => item.value === category)
-
   return (
-    <section className="relative isolate overflow-hidden">
-      <Glow variant="hero" drift />
+    <>
+      <Hero />
+      <FeaturedCars />
+    </>
+  )
+}
 
-      <div className="container-page grid items-center gap-10 pt-24 pb-16 md:pt-36 md:pb-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col items-start gap-6"
-        >
-          <motion.div variants={staggerItem}>
-            <ApiStatusBadge />
-          </motion.div>
-          <motion.h1
-            variants={staggerItem}
-            className="max-w-[12ch] text-display-sm font-bold text-balance text-fg sm:text-display xl:text-display-lg"
-          >
-            Prenez le volant dès l’atterrissage.
-          </motion.h1>
-          <motion.p variants={staggerItem} className="max-w-md text-lg text-fg-muted">
-            Réservez en ligne et récupérez les clés à l’aéroport ou en agence, à Marrakech,
-            Casablanca et Agadir.
-          </motion.p>
-          <motion.div variants={staggerItem} className="flex flex-wrap gap-3">
-            <Button size="lg" to="/voitures">
-              Voir les voitures
-            </Button>
-            <Button size="lg" variant="secondary" to="/inscription">
-              Créer un compte
-            </Button>
-          </motion.div>
-        </motion.div>
+/**
+ * Full-bleed photo (a grand taxi on the road near Aït Ben Haddou) under the floating
+ * navbar. Gradient overlays keep the text at WCAG AA: from the left on desktop, from the
+ * bottom on mobile, plus a top fade for the navbar and a bottom fade into the page.
+ */
+function Hero() {
+  return (
+    <section className="relative isolate flex min-h-[40rem] items-end overflow-hidden md:min-h-[44rem] md:items-center lg:min-h-[46rem]">
+      <picture>
+        <source
+          media="(min-width: 768px)"
+          srcSet={`${heroDesktop} 1280w, ${heroDesktopLarge} 1920w`}
+          sizes="100vw"
+        />
+        <img
+          src={heroMobile}
+          alt=""
+          width={800}
+          height={1000}
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 -z-30 size-full object-cover object-[62%_45%] md:object-[60%_50%]"
+        />
+      </picture>
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 bg-linear-to-t from-canvas from-30% via-canvas/70 via-55% to-canvas/5 md:bg-linear-to-r md:from-canvas md:from-15% md:via-canvas/75 md:via-50% md:to-canvas/10"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 -z-20 h-36 bg-linear-to-b from-canvas/80 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 -z-20 h-32 bg-linear-to-t from-canvas to-transparent"
+      />
+      <Glow variant="hero" drift className="-z-10 opacity-70" />
 
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          className="flex min-w-0 flex-col gap-4"
-        >
-          <Stage vehicle={vehicle} />
-          <ChipGroup label="Type de voiture" value={category} onChange={setCategory} bleed>
-            {VEHICLES.map((item) => (
-              <Chip key={item.value} value={item.value}>
-                {item.label}
-              </Chip>
-            ))}
-          </ChipGroup>
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="container-page flex flex-col items-start gap-6 pt-32 pb-14 md:pt-36 md:pb-24"
+      >
+        <motion.div variants={staggerItem}>
+          <ApiStatusBadge />
         </motion.div>
-      </div>
+        <motion.h1
+          variants={staggerItem}
+          className="max-w-[12ch] text-display-sm font-bold text-balance text-fg sm:text-display xl:text-display-lg"
+        >
+          Prenez le volant dès l’atterrissage.
+        </motion.h1>
+        <motion.p variants={staggerItem} className="max-w-md text-lg text-fg/85">
+          Réservez en ligne et récupérez les clés à l’aéroport ou en agence, à Marrakech, Casablanca
+          et Agadir.
+        </motion.p>
+        <motion.div variants={staggerItem} className="flex flex-wrap gap-3">
+          <Button size="lg" to="/voitures">
+            Voir les voitures
+          </Button>
+          <Button size="lg" variant="secondary" to="/inscription">
+            Créer un compte
+          </Button>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }
 
-/** The lit stage: the selected car slides onto a floor lit by a soft lime line. */
-function Stage({ vehicle }) {
+/**
+ * Demo of the catalogue pattern: chips filter the grid, cards slide into place with
+ * layout animations. Uses demo data until the catalogue API (Phase 3).
+ */
+function FeaturedCars() {
+  const [category, setCategory] = useState('all')
+  const cars = FEATURED_CARS.filter((car) => category === 'all' || car.category.slug === category)
+
   return (
-    <div className="relative isolate aspect-[16/11] overflow-hidden rounded-card-lg border border-line bg-surface/70 sm:aspect-[16/10]">
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-(image:--glow-stage)" />
-      <div
-        aria-hidden="true"
-        className="absolute bottom-[12%] left-1/2 -z-10 h-12 w-2/3 -translate-x-1/2 rounded-full bg-lime/10 blur-2xl"
+    <section className="container-page flex flex-col gap-6 pt-6 pb-20 md:pb-28">
+      <SectionHeading
+        title="Voitures à la une"
+        description="Six modèles choisis par l’agence, au départ de Marrakech, Casablanca et Agadir."
+        to="/voitures"
       />
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-[6%] bottom-[18%] -z-10 h-px bg-linear-to-r from-transparent via-lime/45 to-transparent"
-      />
-
-      <div
-        aria-live="polite"
-        className="absolute top-5 left-5 flex flex-col gap-1 sm:top-7 sm:left-7"
-      >
-        <p className="text-2xl font-bold text-fg">{vehicle.label}</p>
-        <p className="max-w-[26ch] text-sm text-fg-muted">{vehicle.line}</p>
-      </div>
-
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.img
-          key={vehicle.value}
-          src={vehicle.image}
-          alt=""
-          initial={{ opacity: 0, x: 48 }}
-          animate={{ opacity: 1, x: 0, transition: transition.slow }}
-          exit={{ opacity: 0, x: -48, transition: transition.base }}
-          className="absolute bottom-[14%] left-[6%] w-[88%]"
-        />
-      </AnimatePresence>
-    </div>
+      <ChipGroup label="Catégorie" value={category} onChange={setCategory} bleed>
+        {FILTERS.map((filter) => (
+          <Chip key={filter.value} value={filter.value}>
+            {filter.label}
+          </Chip>
+        ))}
+      </ChipGroup>
+      <motion.ul {...revealOnView} className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <AnimatePresence mode="popLayout">
+          {cars.map((car) => (
+            <motion.li
+              key={car.id}
+              layout
+              variants={staggerItem}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={spring}
+            >
+              {/* Detail pages arrive with the catalogue (Phase 3). */}
+              <CarCard car={car} to="/voitures" />
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </motion.ul>
+    </section>
   )
 }

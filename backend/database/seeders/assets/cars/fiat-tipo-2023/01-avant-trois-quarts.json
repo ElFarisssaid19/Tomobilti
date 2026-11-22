@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "fiat-tipo-2023",
+    "model": "Fiat Tipo 2023",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Fiat Tipo Sedan Facelift Leonberg 2022 1X7A0412.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Fiat_Tipo_Sedan_Facelift_Leonberg_2022_1X7A0412.jpg",
+    "author": "Alexander Migl",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

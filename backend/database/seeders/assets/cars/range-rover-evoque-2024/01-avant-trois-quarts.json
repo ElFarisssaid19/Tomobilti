@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "range-rover-evoque-2024",
+    "model": "Range Rover Evoque 2024",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:2019 Land Rover Range Rover Evoque R-Dynamic S 2.0 Front.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:2019_Land_Rover_Range_Rover_Evoque_R-Dynamic_S_2.0_Front.jpg",
+    "author": "Vauxford",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

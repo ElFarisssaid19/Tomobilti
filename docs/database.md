@@ -238,13 +238,39 @@ Helpers: `primaryImage` (the image flagged primary, otherwise the first one), sc
 
 Photos on the `public` disk (`storage/app/public`, served at `/storage/...`). Deleted with the car (cascade).
 
-| Column       | Type                  | Notes                                                           |
-| ------------ | --------------------- | --------------------------------------------------------------- |
-| `car_id`     | FK, cascade on delete |                                                                 |
-| `path`       | string                | Path on the public disk. The `url` accessor gives the full URL. |
-| `alt`        | string, nullable      |                                                                 |
-| `is_primary` | boolean               |                                                                 |
-| `sort_order` | smallint              |                                                                 |
+| Column       | Type                     | Notes                                                                                          |
+| ------------ | ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `car_id`     | FK, cascade on delete    |                                                                                                |
+| `path`       | string                   | Path on the public disk (the 1600px file for photos). The `url` accessor gives the full URL.   |
+| `alt`        | string, nullable         | French alt text, e.g. "Dacia Logan 2024, vue avant trois-quarts".                              |
+| `is_primary` | boolean                  | The first photo of a car.                                                                      |
+| `sort_order` | smallint                 |                                                                                                |
+| `source_url` | string(500), nullable    | Page of the original photo (Wikimedia Commons, Unsplash, Pexels). Null for SVG placeholders.   |
+| `author`     | string, nullable         | Photographer, as required by CC BY / CC BY-SA.                                                 |
+| `license`    | string(50), nullable     | e.g. `CC BY-SA 4.0`, `CC0`, `Pexels License`.                                                  |
+
+#### Photo files and sizes
+
+Every photo exists in two WebP widths (16:10, quality 80, metadata stripped) sharing one base name `{nn}-{view}`:
+
+| File                          | Size        | Used for                          | Accessor        |
+| ----------------------------- | ----------- | --------------------------------- | --------------- |
+| `{nn}-{view}-800.webp`        | 800 × 500   | Cards, lists (`srcset` 800w)      | `thumbnail_url` |
+| `{nn}-{view}-1600.webp`       | 1600 × 1000 | Detail page, retina cards (1600w) | `url`           |
+
+`path` stores the 1600px file; `CarImage::thumbnailPath()` derives the 800px one. `{nn}` is the order (01 is the primary photo) and `{view}` one of `avant-trois-quarts`, `arriere-trois-quarts`, `avant`, `arriere`, `profil`, `interieur` (the seeder turns it into the alt text). SVG placeholders (`cars/placeholders/{slug}.svg`) have a single file, so `thumbnail_url` equals `url`.
+
+#### Where the demo photos come from
+
+```bash
+php artisan tomobilti:import-car-photos            # download what is missing (add --force to redo, --only=slug)
+php artisan tomobilti:image-credits                # regenerate docs/image-credits.md and the SPA credits JSON
+```
+
+- `database/seeders/assets/cars/sources.json` lists 1 to 3 photos per car slug (a Wikimedia Commons file title, or a Pexels / Unsplash URL with its author and license). Edit this file, not the outputs.
+- The import command reads the author and license from the Commons API, refuses anything outside CC0 / public domain / CC BY / CC BY-SA / Pexels / Unsplash licenses (no NC, no ND), crops to 16:10 around an optional `focus` point (with optional `zoom` and plate `blur` regions), and writes the two WebP files plus a JSON manifest per photo (file, source URL, author, license, license URL, `changes` listing what was modified, and `derivative_license`, the license the modified version is shared under: the same one for CC BY-SA, `null` otherwise) in `database/seeders/assets/cars/{car-slug}/`. These files are committed, so seeding works offline.
+- The `CarSeeder` copies them to the public disk as `cars/{car-slug}/...` and creates the `car_images` rows with their credits. A car without photos gets a generated SVG placeholder.
+- Credits for every photo: [docs/image-credits.md](image-credits.md), and the `/credits` page of the SPA.
 
 ### `extras`
 
@@ -404,7 +430,7 @@ The seeders use a fixed Faker seed (`DatabaseSeeder::FAKER_SEED`), so seeding tw
 | `brands`            | 14   | Dacia, Renault, Peugeot, Citroën, Hyundai, Kia, Toyota, Volkswagen, Fiat, Skoda, Seat, Mercedes-Benz, BMW, Range Rover |
 | `locations`         | 5    | Marrakech Aéroport Menara, Marrakech Guéliz, Casablanca Aéroport Mohammed V, Casablanca Maârif, Agadir Al Massira      |
 | `cars`              | 32   | From Hyundai i10 (230 DH/day) to Range Rover Evoque (1 800 DH/day); 6 featured, 2 in maintenance                       |
-| `car_images`        | 32   | One generated SVG placeholder per car in `storage/app/public/cars/placeholders`                                        |
+| `car_images`        | 62   | Real photos (1 to 3 per car, WebP 800 + 1600 px) from `database/seeders/assets/cars`; SVG placeholder for cars without |
 | `extras`            | 6    | GPS, Siège bébé, Siège rehausseur, Conducteur supplémentaire, Assurance tous risques, Wi-Fi mobile                     |
 | `reservations`      | 64   | Every status, past/current/upcoming, no overlapping blocking reservation on a car                                      |
 | `extra_reservation` | ≈ 70 |                                                                                                                        |

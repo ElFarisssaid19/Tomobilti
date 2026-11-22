@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "peugeot-301-2024",
+    "model": "Peugeot 301 2024",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Peugeot 301 2017 Facelift.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Peugeot_301_2017_Facelift.jpg",
+    "author": "Anhibg",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP, plaque floutée",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

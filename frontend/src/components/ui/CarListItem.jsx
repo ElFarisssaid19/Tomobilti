@@ -38,7 +38,8 @@ export default function CarListItem({
       <CarImage
         car={car}
         className="h-14 w-20 shrink-0 rounded-sm sm:h-16 sm:w-24"
-        imgClassName="p-1.5"
+        placeholderClassName="p-1.5"
+        sizes="96px"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="truncate text-base font-semibold text-fg">

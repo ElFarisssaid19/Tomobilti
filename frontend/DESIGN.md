@@ -181,8 +181,9 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
    `LoadingRegion`. A loading button shows a spinner and keeps its width (`loading` prop).
 9. **Feedback.** sonner toasts: `toast.success(...)`, `toast.error(...)`, shown at the
    top because the bottom belongs to the mobile nav.
-10. **Navbar.** Transparent over the hero, then `glass` with a border after scrolling.
-    The mobile menu and sheets slide in over a dimmed, blurred backdrop.
+10. **Navbar.** See "Floating navbar" in section 5: a glass pill on desktop that turns more
+    opaque and compact after scrolling and tucks away while scrolling down. The mobile
+    menu and sheets slide in over a dimmed, blurred backdrop.
 11. **Duration.** UI animations take 400ms or less. Only the hero glow moves slowly
     (`animate-glow-drift`). Nothing else loops except loaders.
 12. **Reduced motion.** `<MotionConfig reducedMotion="user">` at the root turns
@@ -207,19 +208,67 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 | Animate transform/opacity with `motion.js` variants       | Write ad-hoc durations, easings or `animate={{ height }}`                |
 | Name buttons with the action ("Enregistrer les dates")    | Write "OK", "Valider" alone, or append "→" to labels                     |
 | Write sentence-case labels                                | Use ALL-CAPS eyebrows above headings                                     |
+| Put text over photos only on a gradient overlay (AA)      | Put text straight on a photo, or hotlink an image                        |
+| Import photos through the PHP commands (credits kept)     | Add an image without its author, license and source                      |
 
 ## 5. Layouts
 
 - **RootLayout**: MotionConfig, Toaster, ScrollToTop.
-- **PublicLayout**: `SiteHeader` (desktop links + Connexion / Inscription; mobile compact
-  bar + menu drawer), animated outlet, `SiteFooter`, `BottomNav` (mobile). It adds
-  `pb-28 md:pb-0` so the bottom nav never hides content. It also has a skip link to `#contenu`.
+- **PublicLayout**: `SiteHeader` (floating pill on desktop; compact bar + menu drawer on
+  mobile), animated outlet, `SiteFooter` (with the "Crédits photos" link), `BottomNav`
+  (mobile). It adds `pb-28 md:pb-0` so the bottom nav never hides content. It also has a
+  skip link to `#contenu`.
 - **ClientLayout** ("Mon espace", nested in PublicLayout): page title + sliding link tabs.
   Child pages use `PageHeader titleAs="h2"`.
 - **AdminLayout**: collapsible sidebar (`lg`+, remembered in localStorage, icons with
   tooltips when collapsed), glass topbar with the page title and the avatar menu,
   left drawer on mobile. No bottom nav.
 - Navigation items live in `src/config/navigation.js`.
+
+### Floating navbar (public site)
+
+- **Desktop (`md`+)**: a glass pill detached from the edges, 16px from the top, centered,
+  `max-w-nav` (1100px), `rounded-full`, translucent `bg-raised/60` with backdrop blur and a
+  `white/8` border; it matches the mobile bottom nav. Logo left, links centered, actions right.
+- **Active link**: lime pill (`text-on-lime`) that slides between links (`layoutId` +
+  `spring`). Hover on other links: a lighter surface (`bg-white/8`) and `text-fg`.
+- **On scroll** (past 12px): more opaque (`bg-raised/90`, `shadow-pop`) and slightly more
+  compact (moves up 6px, scales to 0.98), via a 250ms transition.
+- **Hide on scroll**: past 240px, scrolling down tucks it above the viewport (400ms);
+  any upward scroll brings it back. It never hides at the top of the page, while it
+  holds keyboard focus, while the menu is open, or with reduced motion (it then stays put).
+- **Mobile**: the compact top bar (logo, Connexion, menu sheet) stays, transparent at the top
+  and `glass` after scrolling; the floating bottom nav remains the main navigation.
+- **Spacing**: the hero runs behind the navbar; every other page starts with
+  `pt-24 md:pt-32` so the navbar never covers content. The admin keeps its sidebar.
+- When auth arrives (Phase 2), the actions slot shows the avatar menu instead of
+  Connexion / Inscription, in the same right-hand position.
+
+### Photos
+
+- **Car photos** (`CarImage`, used by `CarCard` and `CarListItem`): a real photo fills the
+  media area (`object-cover`, 16:10) with a subtle bottom gradient (`from-canvas/55`).
+  An SVG placeholder keeps the dark stage: radial highlight (`--glow-stage`), floor line,
+  `object-contain`. A file is a placeholder when its URL ends in `.svg`.
+- **Loading**: `loading="lazy"` (pass `eager` for above-the-fold cards), intrinsic
+  `width`/`height` (800 × 500) and a fixed aspect box, so nothing shifts; a shimmering
+  skeleton fills the box until the photo loads, then the photo fades in (opacity only).
+  A broken URL falls back to the local silhouette of the car's category.
+- **Sizes**: the API gives `thumbnail_url` (800px, cards) and `url` (1600px, detail page);
+  `CarImage` builds the `srcset` and takes a `sizes` prop (cards by default).
+- **Site photos** live in `src/assets/photos/` as WebP crops (e.g. `hero-1920`, `hero-1280`,
+  `hero-mobile` 4:5). Use `<picture>` with a mobile crop and `fetchPriority="high"` for the
+  hero only. Text over a photo always sits on a gradient overlay that keeps it at WCAG AA
+  (from the side on desktop, from the bottom on mobile, plus a top fade under the navbar).
+  Glows may sit over the hero photo, never behind body text.
+- **Adding photos**: never hotlink. Add the source (Wikimedia Commons, Unsplash or Pexels;
+  CC0, public domain, CC BY, CC BY-SA, Unsplash or Pexels License only; no recognizable people,
+  watermarks or text) to the `sources.json` next to the files, then run
+  `php artisan tomobilti:import-site-photos` (site) or `tomobilti:import-car-photos` (cars)
+  from `backend/`. They crop, optimize, strip metadata and write the manifest, then
+  regenerate `docs/image-credits.md` and `src/data/image-credits.json` (the `/credits` page).
+- Demo cars (`src/data/demoCars.js`, home page and `/design`) use 800px copies of the seeded
+  photos in `src/assets/cars/photos/` until the catalogue API (Phase 3).
 
 ## 6. Components
 

@@ -1,0 +1,20 @@
+{
+    "file": "02-arriere-trois-quarts",
+    "car": "peugeot-rifter-2024",
+    "model": "Peugeot Rifter 2024",
+    "view": "arriere-trois-quarts",
+    "files": {
+        "1600": "02-arriere-trois-quarts-1600.webp",
+        "800": "02-arriere-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Peugeot RIFTER LONG GT (3DA-K9PYH01L) rear.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Peugeot_RIFTER_LONG_GT_(3DA-K9PYH01L)_rear.jpg",
+    "author": "Tokumeigakarinoaoshima",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

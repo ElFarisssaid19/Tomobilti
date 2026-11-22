@@ -1,0 +1,74 @@
+[
+  {
+    "name": "hero",
+    "description": "Voiture sur la route d’Aït Ben Haddou sous un ciel d’orage, avec un arc-en-ciel",
+    "source": "Pexels",
+    "title": "Blue Car Travelling on Gray Asphalt Road",
+    "url": "https://www.pexels.com/photo/blue-car-travelling-on-gray-asphalt-road-570018/",
+    "download": "https://images.pexels.com/photos/570018/pexels-photo-570018.jpeg?auto=compress&cs=tinysrgb&w=2600",
+    "author": "Loubna Belmekki",
+    "author_url": "https://www.pexels.com/@loubna-belmekki-155664/",
+    "license": "Pexels License",
+    "variants": [
+      { "suffix": "1920", "width": 1920, "ratio": "16:9", "focus": [0.55, 0.5] },
+      { "suffix": "1280", "width": 1280, "ratio": "16:9", "focus": [0.55, 0.5] },
+      { "suffix": "mobile", "width": 800, "ratio": "4:5", "focus": [0.62, 0.5] }
+    ]
+  },
+  {
+    "name": "route-desert",
+    "description": "Route sinueuse dans le désert d’Agafay, au pied de l’Atlas",
+    "source": "Unsplash",
+    "title": "A winding road in the middle of a desert",
+    "url": "https://unsplash.com/photos/v32DdK24LYc",
+    "download": "https://images.unsplash.com/photo-1729442045650-8753bd2e6d93?w=2400&q=90&fm=jpg",
+    "author": "Bradley Pritchard Jones",
+    "author_url": "https://unsplash.com/@bpj2608",
+    "license": "Unsplash License",
+    "variants": [
+      { "suffix": "1600", "width": 1600, "ratio": "16:9", "focus": [0.5, 0.6] },
+      { "suffix": "800", "width": 800, "ratio": "16:9", "focus": [0.5, 0.6] }
+    ]
+  },
+  {
+    "name": "marrakech",
+    "description": "Minaret de la Koutoubia à Marrakech au coucher du soleil",
+    "source": "Pexels",
+    "title": "Koutoubia Mosque at Sunset, Marrakech",
+    "url": "https://www.pexels.com/photo/koutoubia-mosque-at-sunset-marrakech-40675629/",
+    "download": "https://images.pexels.com/photos/40675629/pexels-photo-40675629.jpeg?auto=compress&cs=tinysrgb&w=2400",
+    "author": "Desert Morocco Adventure Tours",
+    "author_url": "https://www.pexels.com/@desert-morocco-adventure-tours-2165350666/",
+    "license": "Pexels License",
+    "variants": [
+      { "suffix": "1600", "width": 1600, "ratio": "16:9", "focus": [0.45, 0.5] },
+      { "suffix": "800", "width": 800, "ratio": "16:9", "focus": [0.45, 0.5] }
+    ]
+  },
+  {
+    "name": "aeroport",
+    "description": "Piste d’aéroport vue du ciel au crépuscule",
+    "source": "Unsplash",
+    "title": "An aerial view of an airport runway at sunset",
+    "url": "https://unsplash.com/photos/3p3HtGKvGLM",
+    "download": "https://images.unsplash.com/photo-1683971336619-d445cbec0276?w=2400&q=90&fm=jpg",
+    "author": "Niklas Jonasson",
+    "author_url": "https://unsplash.com/@niklasjonasson",
+    "license": "Unsplash License"
+  },
+  {
+    "name": "route-atlas",
+    "description": "Route en lacets dans la vallée du Drâa, dans l’Atlas",
+    "source": "Pexels",
+    "title": "Scenic Draa Valley Road in Morocco’s Atlas Mountains",
+    "url": "https://www.pexels.com/photo/scenic-draa-valley-road-in-morocco-s-atlas-mountains-39320882/",
+    "download": "https://images.pexels.com/photos/39320882/pexels-photo-39320882.jpeg?auto=compress&cs=tinysrgb&w=2400",
+    "author": "N abil",
+    "author_url": "https://www.pexels.com/@zoogaa/",
+    "license": "Pexels License",
+    "variants": [
+      { "suffix": "1600", "width": 1600, "ratio": "16:9", "focus": [0.45, 0.62] },
+      { "suffix": "800", "width": 800, "ratio": "16:9", "focus": [0.45, 0.62] }
+    ]
+  }
+]

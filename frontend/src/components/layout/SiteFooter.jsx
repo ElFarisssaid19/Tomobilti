@@ -76,9 +76,15 @@ export default function SiteFooter() {
         ))}
       </div>
       <div className="border-t border-line">
-        <p className="container-page py-6 text-sm text-fg-subtle">
-          © {new Date().getFullYear()} Tomobilti. Prix en dirhams (DH), TTC.
-        </p>
+        <div className="container-page flex flex-col gap-2 py-6 text-sm text-fg-subtle sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Tomobilti. Prix en dirhams (DH), TTC.</p>
+          <Link
+            to="/credits"
+            className="link-underline self-start rounded-xs hover:text-fg sm:self-auto"
+          >
+            Crédits photos
+          </Link>
+        </div>
       </div>
     </footer>
   )

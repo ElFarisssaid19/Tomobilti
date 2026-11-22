@@ -1,0 +1,20 @@
+{
+    "file": "01-avant-trois-quarts",
+    "car": "hyundai-tucson-2024",
+    "model": "Hyundai Tucson 2024",
+    "view": "avant-trois-quarts",
+    "files": {
+        "1600": "01-avant-trois-quarts-1600.webp",
+        "800": "01-avant-trois-quarts-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Hyundai Tucson (NX4) IMG 4162.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_Tucson_(NX4)_IMG_4162.jpg",
+    "author": "Alexander Migl",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

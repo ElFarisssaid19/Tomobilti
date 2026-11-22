@@ -1,0 +1,20 @@
+{
+    "file": "02-interieur",
+    "car": "hyundai-tucson-2024",
+    "model": "Hyundai Tucson 2024",
+    "view": "interieur",
+    "files": {
+        "1600": "02-interieur-1600.webp",
+        "800": "02-interieur-800.webp"
+    },
+    "source": "Wikimedia Commons",
+    "title": "File:Hyundai Tucson (NX4) Auto Zuerich 2021 IMG 0481.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Hyundai_Tucson_(NX4)_Auto_Zuerich_2021_IMG_0481.jpg",
+    "author": "Alexander Migl",
+    "author_url": null,
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Recadrée au format 16:10 et redimensionnée, convertie en WebP",
+    "derivative_license": "CC BY-SA 4.0",
+    "note": null
+}

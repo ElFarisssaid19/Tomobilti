@@ -68,12 +68,7 @@ export default function CarCard({
       )}
     >
       <div className="relative">
-        <CarImage
-          car={car}
-          eager={eager}
-          className="aspect-[16/10] rounded-card"
-          imgClassName="p-5"
-        />
+        <CarImage car={car} eager={eager} className="aspect-[16/10] rounded-card" />
         {category && (
           <span className="absolute top-3 left-3 inline-flex h-7 items-center rounded-full border border-white/10 bg-canvas/70 px-3 text-xs font-semibold text-fg backdrop-blur-md">
             {category}
