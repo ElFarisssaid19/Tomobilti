@@ -1,22 +1,34 @@
 const LOCALE = 'fr-MA'
 const TIME_ZONE = 'Africa/Casablanca'
+const NBSP = ' '
 
-const priceFormatter = new Intl.NumberFormat(LOCALE, {
-  style: 'currency',
-  currency: 'MAD',
+const amountFormatter = new Intl.NumberFormat(LOCALE, {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
-  trailingZeroDisplay: 'stripIfInteger', // 450 -> "450 MAD", 1234.5 -> "1.234,50 MAD"
+  trailingZeroDisplay: 'stripIfInteger', // 450 -> "450", 1234.5 -> "1.234,50"
 })
 
+const numberFormatter = new Intl.NumberFormat(LOCALE)
+
 /**
- * Format an amount in Moroccan dirhams.
- * @example formatPrice(450) // "450 MAD"
- * @example formatPrice(1234.5) // "1.234,50 MAD" (separators depend on the browser's ICU data)
+ * Format an amount in Moroccan dirhams, with the "DH" symbol used in Morocco.
+ * Accepts numbers and the decimal strings sent by the API ("250.00").
+ * @example formatPrice(450) // "450 DH"
+ * @example formatPrice('1234.50') // "1.234,50 DH" (separators depend on the browser's ICU data)
  */
 export function formatPrice(amount) {
+  if (amount === null || amount === undefined || amount === '') return ''
   const value = Number(amount)
-  return Number.isFinite(value) ? priceFormatter.format(value) : ''
+  return Number.isFinite(value) ? `${amountFormatter.format(value)}${NBSP}DH` : ''
+}
+
+/** Format a plain number in French (thousands separators). */
+export function formatNumber(value, options) {
+  const number = Number(value)
+  if (!Number.isFinite(number)) return ''
+  return options
+    ? new Intl.NumberFormat(LOCALE, options).format(number)
+    : numberFormatter.format(number)
 }
 
 /**

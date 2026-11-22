@@ -35,7 +35,7 @@ The SPA and the API both run on **`localhost`** (never `127.0.0.1`) so Sanctum's
 | Layer    | Tools                                                                                     |
 | -------- | ----------------------------------------------------------------------------------------- |
 | Backend  | PHP 8.3+, Laravel 13, Laravel Sanctum, laravel-lang (French translations), Pint, PHPUnit |
-| Frontend | React 19, Vite 8, Tailwind CSS 4, React Router 8, axios, lucide-react, ESLint, Prettier, Vitest |
+| Frontend | React 19, Vite 8, Tailwind CSS 4, React Router 8, axios, lucide-react, Motion, Headless UI, react-day-picker, sonner, ESLint, Prettier, Vitest + Testing Library |
 | Services | MySQL 8.4, phpMyAdmin, Mailpit (Docker Compose)                                           |
 
 ## Prerequisites
@@ -179,8 +179,9 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
 ## Roadmap
 
 - [x] **Phase 0: Setup** (monorepo, Docker services, Laravel API, React SPA, tooling)
-- [ ] **Phase 1: Database** (schema, migrations, models, seeders)
+- [x] **Phase 1: Database** (schema, migrations, models, seeders)
   - [x] **1A Base de données** (enums, migrations, models, relations, factories, seeders; see [docs/database.md](docs/database.md))
+  - [x] **1B Design system (frontend)** (tokens, motion, UI kit, layouts, style guide at `/design` in development; see [frontend/DESIGN.md](frontend/DESIGN.md))
 - [ ] **Phase 2: Auth & roles** (Sanctum SPA login, registration, customer and admin roles)
 - [ ] **Phase 3: Catalogue** (cars, categories, images, search and filters)
 - [ ] **Phase 4: Reservation** (availability, booking flow, pricing in MAD)

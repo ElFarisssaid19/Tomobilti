@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" fill="none">
+  <defs>
+    <linearGradient id="body" x1="0" y1="40" x2="0" y2="122" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5a5768"/>
+      <stop offset="0.45" stop-color="#3a3846"/>
+      <stop offset="1" stop-color="#22212b"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="90" y1="46" x2="250" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1c1b26"/>
+      <stop offset="0.55" stop-color="#0e0d14"/>
+      <stop offset="1" stop-color="#2a2935"/>
+    </linearGradient>
+    <radialGradient id="rim" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#8c8999"/>
+      <stop offset="1" stop-color="#2e2c38"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="200" cy="150" rx="150" ry="6" fill="#000" opacity="0.55"/>
+  <path d="M58 116 L60 92 Q62 80 72 74 Q90 50 112 44 Q122 41 140 41 L200 41 Q218 41 230 49 L268 76 Q306 80 328 88 Q342 94 342 108 L342 116 Q342 121 336 121 L312 121 A30 30 0 0 0 252 121 L152 121 A30 30 0 0 0 92 121 L64 121 Q58 121 58 116 Z" fill="url(#body)"/>
+  <path d="M84 76 Q98 56 116 49 Q126 46 140 46 L198 46 Q212 46 222 53 L254 76 Z" fill="url(#glass)"/>
+  <path d="M144 48 L168 48 L134 74 L120 74 Z" fill="#fff" opacity="0.05"/>
+  <rect x="165" y="45" width="6" height="32" fill="#3a3846"/>
+  <path d="M70 82 Q170 79 262 81 L326 90" stroke="#fff" stroke-opacity="0.14" stroke-width="1.5"/>
+  <path d="M172 82 L172 117 M240 81 L243 117" stroke="#14131a" stroke-width="1.5"/>
+  <rect x="188" y="89" width="13" height="3" rx="1.5" fill="#14131a"/>
+  <rect x="252" y="89" width="13" height="3" rx="1.5" fill="#14131a"/>
+  <path d="M256 70 L268 70 Q272 70 271 75 L259 77 Z" fill="#2a2935"/>
+  <path d="M322 92 Q336 95 339 104 L326 102 Z" fill="#f4f2fb" opacity="0.92"/>
+  <rect x="59" y="84" width="6" height="13" rx="2" fill="#d946a0"/>
+  <path d="M312 112 L342 112" stroke="#14131a" stroke-width="2"/>
+  <g>
+    <circle cx="122" cy="124" r="24" fill="#060509"/>
+    <circle cx="122" cy="124" r="15" fill="url(#rim)"/>
+    <circle cx="122" cy="124" r="4" fill="#b8b5c4"/>
+    <circle cx="282" cy="124" r="24" fill="#060509"/>
+    <circle cx="282" cy="124" r="15" fill="url(#rim)"/>
+    <circle cx="282" cy="124" r="4" fill="#b8b5c4"/>
+  </g>
+</svg>
