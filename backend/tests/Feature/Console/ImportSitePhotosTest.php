@@ -82,6 +82,33 @@ class ImportSitePhotosTest extends TestCase
         $this->assertNull($manifest['derivative_license']);
     }
 
+    public function test_a_variant_can_blur_its_own_plate_region(): void
+    {
+        Sleep::fake();
+        Http::preventStrayRequests();
+        $photo = imagecreatetruecolor(4000, 2600);
+        imagefilledrectangle($photo, 0, 0, 1999, 2599, imagecolorallocate($photo, 255, 255, 255));
+        ob_start();
+        imagejpeg($photo, null, 95);
+        Http::fake(['images.pexels.com/*' => Http::response((string) ob_get_clean())]);
+        $source = $this->heroSource('Pexels License');
+        $source['variants'][0]['focus'] = [0.5, 0.5];
+        $source['variants'][1] = ['suffix' => 'mobile', 'width' => 800, 'ratio' => '4:5', 'focus' => [0.5, 0.5], 'blur' => [[0.3, 0.3, 0.4, 0.4]]];
+        $path = $this->photosFolder([$source]);
+
+        $this->artisan('tomobilti:import-site-photos', ['--path' => $path, '--no-credits' => true])
+            ->assertSuccessful();
+
+        // The white / black edge sits in the middle of both crops: only the mobile one is blurred.
+        $grey = fn (string $file): int => imagecolorat($image = imagecreatefromwebp("{$path}/{$file}"), (int) (imagesx($image) / 2) - 2, (int) (imagesy($image) / 2)) & 0xFF;
+        $this->assertGreaterThan(240, $grey('hero-1920.webp'));
+        $this->assertLessThan(230, $grey('hero-mobile.webp'));
+        $this->assertSame(
+            'Recadrée et redimensionnée, convertie en WebP, plaque floutée',
+            json_decode(File::get("{$path}/hero.json"), true)['changes'],
+        );
+    }
+
     public function test_refuses_a_license_outside_the_allow_list(): void
     {
         Sleep::fake();

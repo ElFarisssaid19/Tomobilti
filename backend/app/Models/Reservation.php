@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReservationStatus;
+use App\Enums\ReservationTab;
 use App\Models\Concerns\HasYearlySequenceNumber;
 use Carbon\CarbonInterface;
 use Database\Factories\ReservationFactory;
@@ -34,16 +35,19 @@ use InvalidArgumentException;
     'days',
     'price_per_day',
     'extras_total',
+    'one_way_fee',
     'total',
     'deposit_amount',
     'status',
     'customer_notes',
     'admin_notes',
     'rejection_reason',
+    'cancellation_reason',
     'confirmed_at',
     'picked_up_at',
     'returned_at',
     'cancelled_at',
+    'rejected_at',
 ])]
 class Reservation extends Model
 {
@@ -58,6 +62,7 @@ class Reservation extends Model
     protected $attributes = [
         'status' => 'pending',
         'extras_total' => 0,
+        'one_way_fee' => 0,
     ];
 
     /**
@@ -73,6 +78,7 @@ class Reservation extends Model
             'days' => 'integer',
             'price_per_day' => 'decimal:2',
             'extras_total' => 'decimal:2',
+            'one_way_fee' => 'decimal:2',
             'total' => 'decimal:2',
             'deposit_amount' => 'decimal:2',
             'status' => ReservationStatus::class,
@@ -80,6 +86,7 @@ class Reservation extends Model
             'picked_up_at' => 'datetime',
             'returned_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
     }
 
@@ -120,7 +127,7 @@ class Reservation extends Model
     }
 
     /**
-     * Booked extras, with quantity and price snapshot on the pivot.
+     * Booked extras, with quantity and price snapshot on the pivot, in booking order.
      *
      * @return BelongsToMany<Extra, $this, ExtraReservation, 'pivot'>
      */
@@ -129,7 +136,8 @@ class Reservation extends Model
         return $this->belongsToMany(Extra::class)
             ->using(ExtraReservation::class)
             ->withPivot(['quantity', 'unit_price', 'pricing', 'total'])
-            ->withTimestamps();
+            ->withTimestamps()
+            ->orderByPivot('id');
     }
 
     /**
@@ -203,6 +211,23 @@ class Reservation extends Model
     protected function past(Builder $query): void
     {
         $query->where('end_at', '<=', now());
+    }
+
+    /**
+     * Reservations of one tab of "Mes réservations" (ReservationTab).
+     */
+    #[Scope]
+    protected function inTab(Builder $query, ReservationTab $tab): void
+    {
+        $tab->apply($query);
+    }
+
+    /**
+     * Last moment the customer can cancel for free: free_cancellation_hours before pick-up.
+     */
+    public function freeCancellationDeadline(): CarbonInterface
+    {
+        return $this->start_at->copy()->subHours((int) config('tomobilti.booking.free_cancellation_hours'));
     }
 
     protected function sequenceNumberColumn(): string

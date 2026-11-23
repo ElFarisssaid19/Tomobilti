@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +23,15 @@ use Throwable;
  */
 class ApiExceptionRenderer
 {
+    /**
+     * English messages thrown by framework middleware, and their French key.
+     *
+     * @var array<string, string>
+     */
+    private const FRAMEWORK_MESSAGES = [
+        'Your email address is not verified.' => 'api.booking.email_unverified',
+    ];
+
     public static function shouldRender(Request $request): bool
     {
         return $request->is('api', 'api/*') || $request->expectsJson();
@@ -51,6 +61,10 @@ class ApiExceptionRenderer
             return $this->respond(419, __('api.errors.419'));
         }
 
+        if ($e instanceof HttpExceptionInterface && ($message = $this->explicitMessage($e)) !== null) {
+            return $this->respond($e->getStatusCode(), $message, headers: $e->getHeaders());
+        }
+
         if ($e instanceof HttpExceptionInterface) {
             $status = $e->getStatusCode();
             $key = "api.errors.{$status}";
@@ -67,6 +81,23 @@ class ApiExceptionRenderer
         ] : null;
 
         return $this->respond(500, __('api.errors.500'), debug: $debug);
+    }
+
+    /**
+     * A French message written for the user: the reason a policy gave
+     * (Response::deny('…')), or a known framework message translated.
+     */
+    private function explicitMessage(Throwable $e): ?string
+    {
+        $previous = $e->getPrevious();
+
+        if ($previous instanceof AuthorizationException && $previous->getMessage() !== 'This action is unauthorized.') {
+            return $previous->getMessage();
+        }
+
+        $key = self::FRAMEWORK_MESSAGES[$e->getMessage()] ?? null;
+
+        return $key ? __($key) : null;
     }
 
     /**

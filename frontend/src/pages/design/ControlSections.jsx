@@ -24,6 +24,7 @@ import {
   IconButton,
   Input,
   PasswordInput,
+  QuantityStepper,
   RadioGroup,
   RangeSlider,
   Select,
@@ -327,6 +328,26 @@ function RangeSliderDemo() {
   )
 }
 
+function QuantityDemo() {
+  const [seats, setSeats] = useState(1)
+  return (
+    <DemoPanel className="flex flex-wrap items-center gap-8">
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-fg">Siège bébé (jusqu’à 2)</span>
+        <QuantityStepper label="Siège bébé" value={seats} max={2} onChange={setSeats} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-fg">Désactivé</span>
+        <QuantityStepper label="GPS" value={0} max={1} disabled />
+      </div>
+      <p className="max-w-sm text-sm text-fg-muted">
+        Les boutons nomment l’action et l’option (« Ajouter : Siège bébé ») et se désactivent aux
+        bornes. La valeur est annoncée poliment (<Code>output aria-live</Code>).
+      </p>
+    </DemoPanel>
+  )
+}
+
 function DatesDemo() {
   const [range, setRange] = useState()
   const [inlineRange, setInlineRange] = useState()
@@ -453,6 +474,14 @@ export default function ControlSections() {
         description="RangeSlider : un minimum et un maximum sur la même piste (prix du catalogue), chaque poignée avec son libellé et sa valeur lue en DH."
       >
         <RangeSliderDemo />
+      </DemoSection>
+
+      <DemoSection
+        id="quantites"
+        title="Quantité"
+        description="QuantityStepper : les options de la réservation, de 0 au maximum autorisé (max_quantity)."
+      >
+        <QuantityDemo />
       </DemoSection>
 
       <DemoSection

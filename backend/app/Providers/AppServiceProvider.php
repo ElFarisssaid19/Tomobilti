@@ -52,11 +52,15 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Public endpoints:
      * - "catalog": 60 requests per minute per visitor (cars, filters, locations...);
-     * - "contact": 3 messages per 10 minutes per IP address, with a French message.
+     * - "contact": 3 messages per 10 minutes per IP address, with a French message;
+     * - "booking": 120 requests per minute (quotes refresh while the customer chooses).
      */
     private function configureRateLimiting(): void
     {
         RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for('booking', fn (Request $request): Limit => Limit::perMinute(120)
             ->by($request->user()?->id ?: $request->ip()));
 
         RateLimiter::for('contact', fn (Request $request): Limit => Limit::perMinutes(10, 3)

@@ -73,7 +73,7 @@ php artisan storage:link
 php artisan migrate --seed
 cd ..
 
-# 5. Run everything (API + queue worker + Vite)
+# 5. Run everything (API + queue worker + scheduler + Vite)
 npm run dev
 ```
 
@@ -122,7 +122,7 @@ Run from the repository root:
 
 | Command                 | What it does                                                     |
 | ----------------------- | ---------------------------------------------------------------- |
-| `npm run dev`           | API (`php artisan serve`) + queue worker + Vite, colored output  |
+| `npm run dev`           | API (`php artisan serve`) + queue worker + scheduler (`php artisan schedule:work`) + Vite, colored output |
 | `npm run services:up`   | Start the Docker services and wait until healthy                 |
 | `npm run services:down` | Stop the Docker services (data is kept in Docker volumes)        |
 | `npm run services:logs` | Follow the Docker services logs                                  |
@@ -143,7 +143,11 @@ php artisan lang:update            # update the French translations (laravel-lan
 php artisan tomobilti:import-car-photos   # download and optimize the demo car photos (WebP 800 + 1600 px)
 php artisan tomobilti:import-site-photos  # same for the SPA's site photos (frontend/src/assets/photos)
 php artisan tomobilti:image-credits       # regenerate docs/image-credits.md and the /credits data
+php artisan reservations:expire           # refuse pending requests whose pick-up time has passed
+php artisan schedule:work                 # run the scheduler locally (npm run dev starts it)
 ```
+
+In production, run the scheduler every minute with cron: `* * * * * cd /path/to/backend && php artisan schedule:run`.
 
 Inside `frontend/`:
 
@@ -219,7 +223,7 @@ public, and no endpoint exposes customers or reservation details.
 | `GET /api/catalog/filters`                 | Categories, brands and locations with their available car counts, transmission and fuel options, seat counts, min / max price per day                                                                                                                                         |
 | `GET /api/categories`                      | In display order, with `cars_count` (available cars)                                                                                                                                                                                                                            |
 | `GET /api/locations`                       | Active pick-up points with address, phone and opening hours                                                                                                                                                                                                                     |
-| `GET /api/extras`                          | Active options (read-only until Phase 4)                                                                                                                                                                                                                                        |
+| `GET /api/extras`                          | Active options (chosen in the booking flow)                                                                                                                                                                                                                                        |
 | `POST /api/contact`                        | `name`, `email`, `phone` (optional), `subject`, `message`. Queues a French email to `AGENCY_EMAIL` (default `contact@tomobilti.ma`, Mailpit in development) with the visitor as Reply-To. **3 per 10 minutes per IP** (`contact` limiter)                                         |
 
 - Filtering lives in `app/Filters/CarFilter.php`: one small method per query parameter, each
@@ -233,10 +237,61 @@ public, and no endpoint exposes customers or reservation details.
 agencies, FAQ), `/voitures` (catalogue; every filter, the sort and the page live in the URL),
 `/voitures/:slug` (gallery and lightbox with photo credits, specs, availability calendar,
 estimated total, options, similar cars), `/a-propos`, `/contact`, and `/reserver/:slug`
-(signed-in users, "Bientôt disponible" until Phase 4). Guests who press "Réserver" go to
+(signed-in users, the booking flow of Phase 4). Guests who press "Réserver" go to
 `/connexion?redirect=…` and come back to the car with their dates. Favorites are kept in the
 browser (`localStorage`) for now. Server state uses TanStack Query (conventions in
 [frontend/DESIGN.md](frontend/DESIGN.md), "Data").
+
+## Reservations (Phase 4)
+
+Customers book a car online; **payment and the deposit are handled at the agency at
+pick-up** (no online payment). The server is the only source of truth for prices and
+availability: the SPA sends the customer's choices, never a price.
+
+### Booking rules
+
+All in `backend/config/tomobilti.php` (`booking`), also served to the SPA by `GET /api/booking-rules`.
+
+| Rule | Value |
+| --- | --- |
+| Pick-up and return times | 08:00 to 20:00, every 30 minutes |
+| Earliest / latest pick-up | 2 hours from now / 6 months ahead |
+| Duration | 1 to 30 billed days; days = ceil(duration in hours / 24) |
+| Driver | at least 21 years old and licence held for at least 2 years, on the pick-up date |
+| Profile needed to book | verified email, active account, phone, birth date, CIN, licence number and date |
+| Free cancellation | until 24 hours before pick-up (pending or confirmed reservations) |
+| One-way fee | 300 DH when the return agency differs from the pick-up agency |
+| Price | days × price per day + options (per day: × days × quantity; per rental: × quantity) + one-way fee. The deposit is never in the total |
+
+The pricing (`App\Services\ReservationPricing`), the eligibility check (`App\Services\BookingEligibility`)
+and the double-booking protection are described in [docs/database.md](docs/database.md#pricing-phase-4).
+
+### Endpoints
+
+| Endpoint | Auth | Notes |
+| --- | --- | --- |
+| `GET /api/booking-rules` | — | The rules above. 120/min (`booking` limiter) |
+| `POST /api/reservations/quote` | — | `car`, `start_at`, `end_at` (`YYYY-MM-DD HH:MM`, agency time), `pickup_location`, `return_location`, `extras: [{ slug, quantity }]`. Returns the price breakdown, `available` (+ French message), and for a signed-in customer `eligibility` (`eligible`, French `reasons`, `missing_fields`) and `can_book`. 120/min |
+| `POST /api/reservations` | session + verified email | Quote input + `customer_notes`, `terms`. Validates again, checks eligibility (422 with the reasons), then creates a **pending** reservation in a transaction that locks the car row: a car booked meanwhile answers **409** with a French message. Price, extras and deposit are snapshotted. 10/min |
+| `GET /api/reservations` | session | My reservations: `tab` = `upcoming` (default), `current`, `past`, `cancelled`; 10 per page; `meta.counts` per tab |
+| `GET /api/reservations/{reference}` | session | One of mine (404 otherwise): car with photos, agencies (address, hours, phone), extras, price breakdown, status timestamps, `cancellation` (`allowed`, French `reason`, `free_until`) |
+| `POST /api/reservations/{reference}/cancel` | session | `reason` optional. Mine only (404), pending or confirmed, more than 24 h before pick-up; otherwise 403 with the French reason |
+
+- `ReservationPolicy` covers every customer action (`viewAny`, `view`, `create`, `cancel`).
+- `reservations:expire` (every five minutes) refuses pending requests whose pick-up time has
+  passed, with the reason "Demande expirée". No email is sent yet (Phase 6).
+
+### SPA pages
+
+- `/reserver/:slug` (signed-in users): 4 steps (Dates et agences, Options, Informations,
+  Récapitulatif) with a live summary of the server's quote, the profile completed inline,
+  the choices kept in `sessionStorage` across a refresh or the login detour, similar free
+  cars when the car is taken, and a confirmation screen with the reference.
+- `/espace/reservations`: tabs À venir, En cours, Passées, Annulées.
+- `/espace/reservations/:reference`: status timeline, agencies with phone and WhatsApp,
+  price breakdown, documents to bring, free cancellation with a confirmation dialog.
+
+Details in [frontend/DESIGN.md](frontend/DESIGN.md) ("Booking flow and reservations").
 
 ## VS Code
 
@@ -252,7 +307,7 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
   - [x] **1C Photos & navbar** (real car and site photos imported with their credits, floating desktop navbar; see [docs/image-credits.md](docs/image-credits.md))
 - [x] **Phase 2: Auth & roles** (Sanctum SPA login, registration, email verification, password reset, customer profile, admin role; see [Authentication and roles](#authentication-and-roles))
 - [x] **Phase 3: Catalogue** (public catalogue API, search and filters, car detail with availability, home, about and contact pages; see [Public catalogue and website](#public-catalogue-and-website-phase-3))
-- [ ] **Phase 4: Reservation** (availability, booking flow, pricing in MAD)
+- [x] **Phase 4: Reservation** (booking flow, pricing in MAD, my reservations, cancellation, new home hero photo; see [Reservations](#reservations-phase-4))
 - [ ] **Phase 5: Admin dashboard** (fleet, bookings, customers, statistics)
 - [ ] **Phase 6: Invoices & notifications** (PDF invoices, emails)
 - [ ] **Phase 7: Polish** (UX, accessibility, performance, tests)

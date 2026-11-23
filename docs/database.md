@@ -118,16 +118,19 @@ erDiagram
         smallint days
         decimal price_per_day
         decimal extras_total
+        decimal one_way_fee
         decimal total
         decimal deposit_amount
         string status
         text customer_notes
         text admin_notes
         text rejection_reason
+        text cancellation_reason
         datetime confirmed_at
         datetime picked_up_at
         datetime returned_at
         datetime cancelled_at
+        datetime rejected_at
     }
     extra_reservation {
         bigint id PK
@@ -298,15 +301,19 @@ A booking. Prices are **snapshots** taken at booking time, so later price change
 | `days`                                                        | smallint                               | Billed days.                                                                  |
 | `price_per_day`                                               | decimal(10,2)                          | Snapshot of the car price.                                                    |
 | `extras_total`                                                | decimal(10,2), default 0               | Sum of the `extra_reservation.total` lines.                                   |
-| `total`                                                       | decimal(10,2)                          | `days × price_per_day + extras_total` (TTC). The deposit is not included.     |
+| `one_way_fee`                                                 | decimal(10,2), default 0               | Snapshot of the fee when the return agency differs (300 DH, Phase 4).         |
+| `total`                                                       | decimal(10,2)                          | `days × price_per_day + extras_total + one_way_fee` (TTC). No deposit.        |
 | `deposit_amount`                                              | decimal(10,2)                          | Snapshot of the car deposit.                                                  |
 | `status`                                                      | string(20), default `pending`, indexed | `ReservationStatus`.                                                          |
-| `customer_notes`, `admin_notes`, `rejection_reason`           | text, nullable                         |                                                                               |
-| `confirmed_at`, `picked_up_at`, `returned_at`, `cancelled_at` | datetime, nullable                     | Lifecycle timestamps.                                                         |
+| `customer_notes`, `admin_notes`, `rejection_reason`           | text, nullable                         | "Demande expirée" when `reservations:expire` refused it.                      |
+| `cancellation_reason`                                         | text, nullable                         | Optional reason given by the customer who cancels.                            |
+| `confirmed_at`, `picked_up_at`, `returned_at`, `cancelled_at`, `rejected_at` | datetime, nullable      | Lifecycle timestamps (the status timeline of the reservation page).           |
 
 Indexes: `(car_id, start_at, end_at)` for availability checks, and `status`.
 
-Scopes: `withStatus(...$statuses)`, `blocking()`, `overlapping($start, $end)`, `upcoming()` (not started), `current()` (started, not ended), `past()` (ended). The time scopes only look at dates; combine them with a status scope when needed, e.g. `Reservation::current()->blocking()`.
+Scopes: `withStatus(...$statuses)`, `blocking()`, `overlapping($start, $end)`, `upcoming()` (not started), `current()` (started, not ended), `past()` (ended), `inTab(ReservationTab)`. The time scopes only look at dates; combine them with a status scope when needed, e.g. `Reservation::current()->blocking()`. `freeCancellationDeadline()` is the pick-up time minus 24 hours. The `extras` relation is ordered as booked.
+
+`ReservationTab` (tabs of "Mes réservations") puts every reservation in exactly one tab: **upcoming** (pending or confirmed, not started), **current** (active, or pending / confirmed inside its period), **past** (completed, or pending / confirmed whose period is over), **cancelled** (cancelled or rejected).
 
 ### `extra_reservation`
 
@@ -412,7 +419,19 @@ $car->isAvailableBetween($start, $end);              // booking check
 $car->isAvailableBetween($start, $end, $reservation->id); // changing the dates of a booking
 ```
 
-Pricing (number of days, extras, totals) will be computed by a pricing service in Phase 4.
+## Pricing (Phase 4)
+
+`App\Services\ReservationPricing` computes every price; the API never reads a price from the request.
+
+1. **days** = ceil(duration in hours / 24), at least 1 (Monday 10:00 → Wednesday 12:00 = 50 h = 3 days)
+2. **car** = days × `cars.price_per_day`
+3. **each extra** = price × days × quantity (`per_day`) or price × quantity (`per_rental`), with 1 ≤ quantity ≤ `max_quantity`
+4. **one-way fee** = 300 DH when the return agency differs from the pick-up agency
+5. **total** = car + extras + one-way fee. The deposit is shown apart, never added.
+
+It returns a `PriceBreakdown` (lines, extras total, fees, total, deposit) that the booking flow shows and saves as snapshots (`reservations` price columns and `extra_reservation` lines). `PriceBreakdown::fromReservation()` rebuilds the same shape from a saved reservation. Amounts are bcmath decimal strings.
+
+Booking a car (`App\Services\ReservationBooker`) runs in one transaction: it locks the car row (`SELECT … FOR UPDATE`), checks availability again, then creates the pending reservation. A second booking of the same car waits for the lock and then sees the first one (409).
 
 ## Demo data
 

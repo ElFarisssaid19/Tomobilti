@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Optional add-on (GPS, baby seat...). Read-only until the booking flow (Phase 4).
+ * Optional add-on (GPS, baby seat...), chosen with a quantity in the booking flow.
  *
  * @mixin Extra
  */

@@ -29,7 +29,9 @@ const ProfilePage = lazy(() => import('./pages/account/ProfilePage.jsx'))
 const CreditsPage = lazy(() => import('./pages/CreditsPage.jsx'))
 const CatalogPage = lazy(() => import('./pages/catalog/CatalogPage.jsx'))
 const CarDetailPage = lazy(() => import('./pages/catalog/CarDetailPage.jsx'))
-const ReservePlaceholderPage = lazy(() => import('./pages/catalog/ReservePlaceholderPage.jsx'))
+const BookingPage = lazy(() => import('./pages/booking/BookingPage.jsx'))
+const ReservationsPage = lazy(() => import('./pages/account/ReservationsPage.jsx'))
+const ReservationDetailPage = lazy(() => import('./pages/account/ReservationDetailPage.jsx'))
 const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'))
 const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'))
@@ -77,19 +79,27 @@ export default function App() {
 
           {/* Mon espace: signed-in users only. */}
           <Route element={<ProtectedRoute />}>
-            {/* Booking flow: placeholder until Phase 4. */}
-            <Route path="reserver/:slug" element={page(ReservePlaceholderPage)} />
+            {/* Booking flow (dates from the car page are kept in the URL). */}
+            <Route
+              path="reserver/:slug"
+              element={page(BookingPage, 'Chargement de la réservation…')}
+            />
             <Route path="espace" element={<ClientLayout />}>
               <Route index element={<Navigate to="profil" replace />} />
               <Route
                 path="reservations"
                 element={
-                  <ComingSoonPage
-                    title="Mes réservations"
-                    phase="phase 4 (réservation)"
-                    inContainer={false}
-                    titleAs="h2"
-                  />
+                  <Suspense fallback={<ContentSkeleton label="Chargement de vos réservations…" />}>
+                    <ReservationsPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="reservations/:reference"
+                element={
+                  <Suspense fallback={<ContentSkeleton label="Chargement de la réservation…" />}>
+                    <ReservationDetailPage />
+                  </Suspense>
                 }
               />
               <Route

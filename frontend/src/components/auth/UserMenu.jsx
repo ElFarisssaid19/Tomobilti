@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, UserRound } from 'lucide-react'
+import { CalendarCheck, LayoutDashboard, LogOut, UserRound } from 'lucide-react'
 import { useAuth } from '../../context/authContext.js'
 import useLogout from '../../hooks/useLogout.js'
 import { firstName } from '../../lib/auth.js'
@@ -6,8 +6,8 @@ import { cn } from '../../lib/cn.js'
 import { Avatar, DropdownMenu } from '../ui'
 
 /**
- * Avatar menu of a signed-in user (navbar and admin topbar): Mon espace,
- * Administration for admins, Déconnexion. `compact` shows the avatar alone.
+ * Avatar menu of a signed-in user (navbar and admin topbar): Mes réservations,
+ * Mon profil, Administration for admins, Déconnexion. `compact` shows the avatar alone.
  */
 export default function UserMenu({ compact = false, className }) {
   const { user, isAdmin } = useAuth()
@@ -16,7 +16,8 @@ export default function UserMenu({ compact = false, className }) {
   if (!user) return null
 
   const items = [
-    { label: 'Mon espace', icon: UserRound, to: '/espace/profil' },
+    { label: 'Mes réservations', icon: CalendarCheck, to: '/espace/reservations' },
+    { label: 'Mon profil', icon: UserRound, to: '/espace/profil' },
     ...(isAdmin ? [{ label: 'Administration', icon: LayoutDashboard, to: '/admin' }] : []),
     { divider: true },
     { label: 'Déconnexion', icon: LogOut, danger: true, onClick: handleLogout },

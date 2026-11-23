@@ -205,6 +205,7 @@ class ReservationSeeder extends Seeder
             'picked_up_at' => in_array($status, [ReservationStatus::Active, ReservationStatus::Completed], true) ? $start : null,
             'returned_at' => $status === ReservationStatus::Completed ? $end : null,
             'cancelled_at' => $cancelledAt,
+            'rejected_at' => $rejectedAt,
             'rejection_reason' => $rejectedAt ? fake()->randomElement(self::REJECTION_REASONS) : null,
             'updated_at' => collect([$createdAt, $confirmedAt, $cancelledAt, $rejectedAt])
                 ->push($status === ReservationStatus::Active ? $start : null)
@@ -240,6 +241,9 @@ class ReservationSeeder extends Seeder
             });
 
         $extrasTotal = $chosenExtras->reduce(fn (string $sum, array $line): string => bcadd($sum, $line['total'], 2), '0.00');
+        $oneWayFee = $plan['return_location_id'] === $car->location_id
+            ? '0.00'
+            : bcadd((string) config('tomobilti.booking.one_way_fee'), '0', 2);
 
         $reservation = new Reservation([
             'user_id' => $plan['user']->id,
@@ -251,7 +255,8 @@ class ReservationSeeder extends Seeder
             'days' => $days,
             'price_per_day' => (string) $car->price_per_day,
             'extras_total' => $extrasTotal,
-            'total' => bcadd(bcmul((string) $car->price_per_day, (string) $days, 2), $extrasTotal, 2),
+            'one_way_fee' => $oneWayFee,
+            'total' => bcadd(bcadd(bcmul((string) $car->price_per_day, (string) $days, 2), $extrasTotal, 2), $oneWayFee, 2),
             'deposit_amount' => (string) $car->deposit_amount,
             'status' => $plan['status'],
             'customer_notes' => fake()->boolean(30) ? fake()->randomElement(self::CUSTOMER_NOTES) : null,
@@ -261,6 +266,7 @@ class ReservationSeeder extends Seeder
             'picked_up_at' => $plan['picked_up_at'],
             'returned_at' => $plan['returned_at'],
             'cancelled_at' => $plan['cancelled_at'],
+            'rejected_at' => $plan['rejected_at'],
         ]);
         $reservation->created_at = $plan['created_at'];
         $reservation->updated_at = $plan['updated_at'];

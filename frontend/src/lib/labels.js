@@ -18,6 +18,14 @@ export const RESERVATION_STATUS = {
   rejected: 'Refusée',
 }
 
+/** Tabs of "Mes réservations" (backend ReservationTab), in display order. */
+export const RESERVATION_TAB = {
+  upcoming: 'À venir',
+  current: 'En cours',
+  past: 'Passées',
+  cancelled: 'Annulées',
+}
+
 export const TRANSMISSION = {
   manual: 'Manuelle',
   automatic: 'Automatique',

@@ -276,6 +276,51 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 - "Mon espace" (`/espace`) shows the warning Alert `EmailVerificationBanner` until the email
   address is verified.
 
+### Booking flow and reservations (Phase 4)
+
+- **`/reserver/:slug`** (`pages/booking`): the `Stepper` with the steps "Dates et agences",
+  "Options", "Informations", "Récapitulatif" (`BOOKING_STEPS` in `lib/booking.js`). Each step
+  has an "Étape n sur 4" caption and an `h2` that gets the focus on step change; the page
+  scrolls back to the Stepper. Step content fades (opacity only).
+- **Live summary** (`components/reservation/BookingSummary.jsx`): always the server's quote
+  (`POST /api/reservations/quote`, debounced 350 ms with `useDebouncedValue`). While the next
+  quote loads, the previous one stays, dimmed (`opacity-60`, `aria-busy`). From `lg` it is a
+  sticky card beside the steps and holds the step's lime action ("Continuer", then "Confirmer
+  la réservation"). Below `lg`, `MobileBookingBar` floats above the bottom nav (and near the
+  bottom edge from `md`) with the total and the same action; the page adds `pb-36`.
+- **Prices** are never computed in the SPA: `PriceBreakdown` prints the server's lines (car,
+  each option, one-way fee, total TTC, deposit apart).
+- **Draft**: `useBookingDraft` keeps the choices (dates, times, agencies, options, notes,
+  step) in `sessionStorage` (`tomobilti.booking-draft`, one car per tab), so a refresh or
+  the login detour keeps them. Dates from the URL win. A restored draft goes back to step 1
+  when its dates are no longer valid. It is cleared after confirmation.
+- **Step checks** (`stepErrors` in `lib/booking.js`) mirror the server rules (30-minute
+  slots from 08:00 to 20:00, 2 h lead time, 6 months ahead, 30 days max) to save a round
+  trip; the server checks everything again.
+- **Informations** shows the quote's `eligibility`: missing profile fields are completed
+  inline (`ProfileCompletionForm`, `PUT /api/profile`), an unverified email shows a warning
+  Alert with "Renvoyer l’e-mail" and "J’ai confirmé mon adresse", age or licence problems a
+  danger Alert with the server's reason.
+- **Car taken** (quote `available: false`, or a 409 on confirm): a warning (or danger) Alert
+  with the server's French message, and `SimilarAvailableCars` (3 cars of the same category
+  free for these days, from `GET /api/cars`).
+- **Confirmation**: a success circle that scales in with `spring` (only fades with reduced
+  motion), the reference in `text-accent-text`, "La suite" as a real numbered sequence, and
+  "Voir ma réservation".
+- **`/espace/reservations`**: `Tabs` À venir, En cours, Passées, Annulées (labels in
+  `RESERVATION_TAB`, tab and page in the URL), `CarListItem` rows (dates as `subtitle`,
+  reference as `meta`, `StatusBadge` and total as `trailing`), `CarListItemSkeleton` and one
+  `EmptyState` per tab with "Voir les voitures".
+- **`/espace/reservations/:reference`**: `ReservationTimeline` (request sent → confirmed →
+  picked up → returned, or cancelled / refused with the reason), car, `AgencyDetails`
+  (address, hours, phone, WhatsApp), price, `DocumentsToBring`, and the cancellation card:
+  "Annuler la réservation" with a `ConfirmDialog` (optional reason) when the server allows it,
+  otherwise an info Alert with the server's reason. "Télécharger la facture" stays disabled
+  with the tooltip "Disponible prochainement" until Phase 6.
+- **Nested routes under `/espace`**: `PageTransition` freezes the outlet only while a page
+  is leaving, so child routes of a layout that keeps one transition key (tabs, detail pages)
+  still render.
+
 ### Photos
 
 - **Car photos** (`CarImage`, used by `CarCard` and `CarListItem`): a real photo fills the
@@ -288,11 +333,21 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   A broken URL falls back to the local silhouette of the car's category.
 - **Sizes**: the API gives `thumbnail_url` (800px, cards) and `url` (1600px, detail page);
   `CarImage` builds the `srcset` and takes a `sizes` prop (cards by default).
-- **Site photos** live in `src/assets/photos/` as WebP crops (e.g. `hero-1920`, `hero-1280`,
-  `hero-mobile` 4:5). Use `<picture>` with a mobile crop and `fetchPriority="high"` for the
+- **Site photos** live in `src/assets/photos/` as WebP crops (e.g. `hero-2400`, `hero-1920`,
+  `hero-1280`, `hero-mobile` 4:5). Use `<picture>` with a mobile crop and `fetchPriority="high"` for the
   hero only. Text over a photo always sits on a gradient overlay that keeps it at WCAG AA
   (from the side on desktop, from the bottom on mobile, plus a top fade under the navbar).
   Glows may sit over the hero photo, never behind body text.
+- **Home hero** (Phase 4): a black city car parked by a road of southern Morocco at dusk. On
+  desktop the empty road on the left holds the text and the car sits on the right
+  (`object-[85%_62%]`); between `md` and `lg` the left gradient is stronger, because the
+  lead paragraph reaches the car. On mobile a closer 4:5 crop of the car is a top band
+  (`h-[28rem]`) above the headline, which starts lower (`pt-60`). Contrast was measured on
+  the pixels behind each text block at 375, 768, 1024 and 1280 px: headline ≥ 5.4:1, lead
+  paragraph ≥ 9.3:1, search labels ≥ 13:1. Re-measure after changing the photo or the overlays.
+- **Plates**: blur a readable plate with `blur` regions in `sources.json` (fractions of the
+  crop). Crops of different ratios put the plate in different places, so a variant can list
+  its own `blur`.
 - **Adding photos**: never hotlink. Add the source (Wikimedia Commons, Unsplash or Pexels;
   CC0, public domain, CC BY, CC BY-SA, Unsplash or Pexels License only; no recognizable people,
   watermarks or text) to the `sources.json` next to the files, then run
@@ -423,6 +478,9 @@ only: the backend computes the billed days). It shows 2 months from 768px, 1 bel
 <CarListItem car={r.car} subtitle="12 – 15 déc. 2026" trailing={<StatusBadge status={r.status} />} to={…} />
 ```
 
+`CarListItem` takes `meta` for a small third line (the reservation reference in "Mes
+réservations"), under `subtitle`.
+
 `estimate={{ days, total }}` (from `estimateRental(price_per_day, range)` in
 `lib/pricing.js`) replaces "à partir de" with "Total estimé, 7 jours" and the total, the
 price per day below it. Pass it when the visitor has chosen dates.
@@ -459,6 +517,21 @@ documented `static` + `AnimatePresence` pattern.
 <SectionHeading title="Voitures à la une" to="/voitures" />   // "Voir tout"
 <Stepper current={1} />                                       // Dates → Options → Informations → Confirmation
 ```
+
+### QuantityStepper
+
+```jsx
+<QuantityStepper
+  label="Siège bébé"
+  value={quantity}
+  max={extra.max_quantity}
+  onChange={setQuantity}
+/>
+```
+
+A − value + group for small quantities (booking options). The buttons are named with the
+action and the item ("Ajouter : Siège bébé", "Retirer : Siège bébé"), disable themselves at
+`min` (0 by default) and `max`, and the value is an `<output aria-live="polite">`.
 
 ### Data: Avatar, StatCard, Table
 
@@ -521,9 +594,14 @@ From Phase 3, every API read goes through **TanStack Query** (`@tanstack/react-q
   `ErrorState` with `onRetry={refetch}` (404 → an `EmptyState` with a way out), empty list →
   `EmptyState` with one action. Pass `{ signal }` from the query function to axios so
   abandoned requests are cancelled.
-- **Mutations** (forms) keep `useForm` + the `api/*.js` function for now (422 errors under
-  the fields, toast on success); use `useMutation` when a mutation must update cached data
-  (Phase 4 bookings), then invalidate the matching keys.
+- **Mutations** (forms) keep `useForm` + the `api/*.js` function (422 errors under the
+  fields, toast on success). Mutations that change cached data use `useMutation`
+  (`useCreateReservation`, `useCancelReservation` in `hooks/useReservations.js`), then
+  invalidate the matching keys (`reservations`, the car's `availability`).
+- **Reservations** (`api/reservations.js`, `hooks/useReservations.js`): `useBookingRules`
+  (10 min), `useReservationQuote(payload)` (stale time 0, previous quote kept),
+  `useReservations({ tab, page })`, `useReservation(reference)`. Keys:
+  `queryKeys.reservations.list(params)`, `.detail(reference)`, `.quote(payload)`.
 - **URL state.** Filters, sort and page of a list live in the query string, not in React
   state (`useCatalogFilters`, `lib/catalogParams.js`): links are shareable and the back
   button restores the previous filters. Each change pushes a history entry and resets the

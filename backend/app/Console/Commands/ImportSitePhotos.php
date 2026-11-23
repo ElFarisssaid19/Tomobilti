@@ -14,6 +14,9 @@ use Throwable;
  * frontend/src/assets/photos/sources.json and writes optimized WebP crops plus one
  * JSON manifest per photo next to it. The frontend imports the WebP files directly.
  *
+ * Each variant may list its own plate `blur` regions (fractions of that crop), since
+ * a 16:9 and a 4:5 crop of the same photo put the plate in different places.
+ *
  * The SPA lives in the same repository: this command is the PHP image pipeline for
  * both apps, so no image tool with install scripts is needed on the frontend side.
  */
@@ -82,7 +85,9 @@ class ImportSitePhotos extends Command
             'ratio' => $this->parseRatio($variant['ratio']),
             'focus' => $variant['focus'] ?? [0.5, 0.5],
             'zoom' => $variant['zoom'] ?? 1.0,
+            ...(isset($variant['blur']) ? ['blur' => $variant['blur']] : []),
         ], $photo['variants'] ?? self::DEFAULT_VARIANTS);
+        $plateBlurred = isset($photo['blur']) || array_filter($variants, fn (array $variant): bool => isset($variant['blur'])) !== [];
 
         $files = $this->renderVariants($this->downloadPhoto($photo['download']), $variants, $photo['blur'] ?? []);
         $names = [];
@@ -103,7 +108,7 @@ class ImportSitePhotos extends Command
             'author_url' => $photo['author_url'] ?? null,
             'license' => $license,
             'license_url' => $photo['license_url'] ?? $this->knownLicenseUrl($license),
-            'changes' => $this->describeChanges(),
+            'changes' => $this->describeChanges(plateBlurred: $plateBlurred),
             'derivative_license' => $this->derivativeLicense($license),
         ]);
     }

@@ -10,7 +10,7 @@ const COLUMNS = [
     title: 'Location',
     links: [
       { label: 'Toutes les voitures', to: '/voitures' },
-      { label: 'Mes réservations', to: '/mon-espace/reservations' },
+      { label: 'Mes réservations', to: '/espace/reservations' },
       { label: 'Créer un compte', to: '/inscription' },
     ],
   },

@@ -10,15 +10,17 @@ import Skeleton from './Skeleton.jsx'
 /**
  * Compact row (thumbnail, name, details, circular action), like a playlist row.
  * Used in lists and "Mes réservations". `subtitle` replaces the specs line (e.g. the
- * reservation dates); `trailing` adds content before the action (e.g. a StatusBadge).
+ * reservation dates); `meta` adds a small third line (e.g. the reference); `trailing`
+ * adds content before the action (e.g. a StatusBadge).
  *
  * @example
- * <CarListItem car={car} subtitle="12 – 15 déc. 2026" trailing={<StatusBadge status="confirmed" />} to="/mon-espace/reservations/TMB-2026-000012" />
+ * <CarListItem car={car} subtitle="12 – 15 déc. 2026" trailing={<StatusBadge status="confirmed" />} to="/espace/reservations/TMB-2026-000012" />
  */
 export default function CarListItem({
   car,
   title,
   subtitle,
+  meta,
   trailing,
   to,
   onAction,
@@ -59,6 +61,7 @@ export default function CarListItem({
         ) : (
           <CarSpecs car={car} compact className="flex-nowrap overflow-hidden" />
         )}
+        {meta && <p className="truncate text-xs text-fg-subtle tabular-nums">{meta}</p>}
         {trailing && <div className="mt-1 sm:hidden">{trailing}</div>}
       </div>
       {trailing && <div className="hidden shrink-0 sm:block">{trailing}</div>}

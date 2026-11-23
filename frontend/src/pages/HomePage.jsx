@@ -25,8 +25,9 @@ import {
 } from '../components/ui'
 import aeroport800 from '../assets/photos/aeroport-800.webp'
 import aeroport1600 from '../assets/photos/aeroport-1600.webp'
-import heroDesktopLarge from '../assets/photos/hero-1920.webp'
 import heroDesktop from '../assets/photos/hero-1280.webp'
+import heroDesktopLarge from '../assets/photos/hero-1920.webp'
+import heroDesktopXl from '../assets/photos/hero-2400.webp'
 import heroMobile from '../assets/photos/hero-mobile.webp'
 import desert800 from '../assets/photos/route-desert-800.webp'
 import desert1600 from '../assets/photos/route-desert-1600.webp'
@@ -114,9 +115,11 @@ export default function HomePage() {
 }
 
 /**
- * Full-bleed photo (a car on the road near Aït Ben Haddou) under the floating navbar,
- * with the search widget. Gradient overlays keep the text at WCAG AA: from the left on
- * desktop, from the bottom on mobile, plus a top fade for the navbar.
+ * Full-bleed photo (a black city car parked by a road of southern Morocco at dusk)
+ * under the floating navbar, with the search widget. On desktop the empty road on the
+ * left holds the text and the car sits on the right. On mobile a closer 4:5 crop of the
+ * car fills the top of the hero, above the headline. Gradient overlays keep the text at
+ * WCAG AA: from the left on desktop, from the bottom on mobile, plus a top fade for the navbar.
  */
 function Hero() {
   const navigate = useNavigate()
@@ -130,7 +133,7 @@ function Hero() {
       <picture>
         <source
           media="(min-width: 768px)"
-          srcSet={`${heroDesktop} 1280w, ${heroDesktopLarge} 1920w`}
+          srcSet={`${heroDesktop} 1280w, ${heroDesktopLarge} 1920w, ${heroDesktopXl} 2400w`}
           sizes="100vw"
         />
         <img
@@ -140,16 +143,16 @@ function Hero() {
           height={1000}
           fetchPriority="high"
           decoding="async"
-          className="absolute inset-0 -z-30 size-full object-cover object-[62%_45%] md:object-[60%_50%]"
+          className="absolute inset-x-0 top-0 -z-30 h-[28rem] w-full object-cover object-[50%_40%] md:inset-0 md:h-full md:object-[85%_62%]"
         />
       </picture>
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-20 bg-linear-to-t from-canvas from-45% via-canvas/75 via-65% to-canvas/5 md:bg-linear-to-r md:from-canvas md:from-15% md:via-canvas/75 md:via-50% md:to-canvas/10"
+        className="absolute inset-0 -z-20 bg-linear-to-t from-canvas from-50% via-canvas/70 via-62% to-transparent to-80% md:bg-linear-to-r md:from-canvas md:from-20% md:via-canvas/85 md:via-62% md:to-canvas/10 lg:from-15% lg:via-canvas/75 lg:via-50%"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 -z-20 h-36 bg-linear-to-b from-canvas/80 to-transparent"
+        className="absolute inset-x-0 top-0 -z-20 h-24 bg-linear-to-b from-canvas/70 to-transparent md:h-36 md:from-canvas/80"
       />
       <div
         aria-hidden="true"
@@ -161,7 +164,7 @@ function Hero() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="container-page flex flex-col items-start gap-6 pt-40 pb-12 md:pt-36 md:pb-20"
+        className="container-page flex flex-col items-start gap-6 pt-60 pb-12 md:pt-36 md:pb-20"
       >
         {import.meta.env.DEV && (
           <motion.div variants={staggerItem}>

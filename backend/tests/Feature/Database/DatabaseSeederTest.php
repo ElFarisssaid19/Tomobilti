@@ -111,7 +111,12 @@ class DatabaseSeederTest extends TestCase
 
             $this->assertSame($extrasTotal, $reservation->extras_total, $reservation->reference);
             $this->assertSame(
-                bcadd(bcmul($reservation->price_per_day, (string) $reservation->days, 2), $reservation->extras_total, 2),
+                $reservation->pickup_location_id === $reservation->return_location_id ? '0.00' : '300.00',
+                $reservation->one_way_fee,
+                $reservation->reference,
+            );
+            $this->assertSame(
+                bcadd(bcadd(bcmul($reservation->price_per_day, (string) $reservation->days, 2), $reservation->extras_total, 2), $reservation->one_way_fee, 2),
                 $reservation->total,
                 $reservation->reference,
             );

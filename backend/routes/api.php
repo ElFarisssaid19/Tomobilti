@@ -19,6 +19,10 @@ use App\Http\Controllers\Catalog\LocationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Profile\PasswordController;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Reservation\BookingRulesController;
+use App\Http\Controllers\Reservation\CancelReservationController;
+use App\Http\Controllers\Reservation\ReservationController;
+use App\Http\Controllers\Reservation\ReservationQuoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.health');
@@ -98,6 +102,33 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [PasswordController::class, 'update'])->name('profile.password.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Reservations (Phase 4)
+|--------------------------------------------------------------------------
+|
+| The quote and the booking rules are public ("booking" limiter: 120 requests
+| per minute, the booking summary asks for a new quote when a choice changes).
+| The quote adds the eligibility of a signed-in customer. Booking needs a
+| verified email; a customer only ever reaches their own reservations (the
+| ReservationPolicy answers 404 for anyone else's).
+|
+*/
+
+Route::middleware('throttle:booking')->group(function () {
+    Route::get('/booking-rules', BookingRulesController::class)->name('booking.rules');
+    Route::post('/reservations/quote', ReservationQuoteController::class)->name('reservations.quote');
+});
+
+Route::prefix('reservations')->name('reservations.')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [ReservationController::class, 'index'])->name('index');
+    Route::post('/', [ReservationController::class, 'store'])
+        ->middleware(['verified', 'throttle:10,1'])
+        ->name('store');
+    Route::get('/{reservation:reference}', [ReservationController::class, 'show'])->name('show');
+    Route::post('/{reservation:reference}/cancel', CancelReservationController::class)->name('cancel');
 });
 
 /*

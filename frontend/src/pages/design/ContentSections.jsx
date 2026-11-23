@@ -545,7 +545,7 @@ export default function ContentSections() {
                 car={reservation.car}
                 subtitle={period(reservation)}
                 trailing={<StatusBadge status={reservation.status} />}
-                to="/mon-espace/reservations"
+                to="/espace/reservations"
               />
             ))}
             <CarListItem

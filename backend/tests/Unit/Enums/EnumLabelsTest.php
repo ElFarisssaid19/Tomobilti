@@ -9,6 +9,7 @@ use App\Enums\InvoiceStatus;
 use App\Enums\LocationType;
 use App\Enums\PaymentMethod;
 use App\Enums\ReservationStatus;
+use App\Enums\ReservationTab;
 use App\Enums\Transmission;
 use App\Enums\UserRole;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -32,6 +33,7 @@ class EnumLabelsTest extends TestCase
             'LocationType' => [LocationType::class],
             'ExtraPricing' => [ExtraPricing::class],
             'ReservationStatus' => [ReservationStatus::class],
+            'ReservationTab' => [ReservationTab::class],
             'InvoiceStatus' => [InvoiceStatus::class],
             'PaymentMethod' => [PaymentMethod::class],
         ];
@@ -71,6 +73,7 @@ class EnumLabelsTest extends TestCase
             'per rental' => [ExtraPricing::PerRental, 'Par location'],
             'unpaid' => [InvoiceStatus::Unpaid, 'Non payée'],
             'bank transfer' => [PaymentMethod::BankTransfer, 'Virement bancaire'],
+            'upcoming tab' => [ReservationTab::Upcoming, 'À venir'],
         ];
     }
 

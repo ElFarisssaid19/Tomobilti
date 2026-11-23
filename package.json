@@ -4,9 +4,10 @@
   "private": true,
   "description": "Tomobilti: location de voitures (React SPA + API Laravel).",
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail --names api,queue,web --prefix-colors blue,magenta,green \"npm:dev:api\" \"npm:dev:queue\" \"npm:dev:web\"",
+    "dev": "concurrently --kill-others-on-fail --names api,queue,schedule,web --prefix-colors blue,magenta,yellow,green \"npm:dev:api\" \"npm:dev:queue\" \"npm:dev:schedule\" \"npm:dev:web\"",
     "dev:api": "cd backend && php artisan serve --host=localhost --port=8000",
     "dev:queue": "cd backend && php artisan queue:listen --tries=1 --timeout=0",
+    "dev:schedule": "cd backend && php artisan schedule:work",
     "dev:web": "npm --prefix frontend run dev",
     "services:up": "docker compose up -d --wait",
     "services:down": "docker compose down",

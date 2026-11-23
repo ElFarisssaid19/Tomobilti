@@ -1,18 +1,44 @@
 [
   {
     "name": "hero",
-    "description": "Voiture sur la route d’Aït Ben Haddou sous un ciel d’orage, avec un arc-en-ciel",
-    "source": "Pexels",
-    "title": "Blue Car Travelling on Gray Asphalt Road",
-    "url": "https://www.pexels.com/photo/blue-car-travelling-on-gray-asphalt-road-570018/",
-    "download": "https://images.pexels.com/photos/570018/pexels-photo-570018.jpeg?auto=compress&cs=tinysrgb&w=2600",
-    "author": "Loubna Belmekki",
-    "author_url": "https://www.pexels.com/@loubna-belmekki-155664/",
-    "license": "Pexels License",
+    "description": "Citadine noire garée au bord d’une route du Sud marocain, au crépuscule",
+    "source": "Unsplash",
+    "title": "A car parked on the side of a desert road",
+    "url": "https://unsplash.com/photos/o55Tq9W0xOc",
+    "download": "https://images.unsplash.com/photo-1776319678983-12866f838800?fm=jpg&q=90",
+    "author": "Margo Evardson",
+    "author_url": "https://unsplash.com/@stadinstudio",
+    "license": "Unsplash License",
     "variants": [
-      { "suffix": "1920", "width": 1920, "ratio": "16:9", "focus": [0.55, 0.5] },
-      { "suffix": "1280", "width": 1280, "ratio": "16:9", "focus": [0.55, 0.5] },
-      { "suffix": "mobile", "width": 800, "ratio": "4:5", "focus": [0.62, 0.5] }
+      {
+        "suffix": "2400",
+        "width": 2400,
+        "ratio": "16:9",
+        "focus": [0.5, 0.62],
+        "blur": [[0.798, 0.6326, 0.068, 0.0423]]
+      },
+      {
+        "suffix": "1920",
+        "width": 1920,
+        "ratio": "16:9",
+        "focus": [0.5, 0.62],
+        "blur": [[0.798, 0.6326, 0.068, 0.0423]]
+      },
+      {
+        "suffix": "1280",
+        "width": 1280,
+        "ratio": "16:9",
+        "focus": [0.5, 0.62],
+        "blur": [[0.798, 0.6326, 0.068, 0.0423]]
+      },
+      {
+        "suffix": "mobile",
+        "width": 800,
+        "ratio": "4:5",
+        "focus": [0.791, 0.703],
+        "zoom": 1.686,
+        "blur": [[0.524, 0.4436, 0.228, 0.064]]
+      }
     ]
   },
   {
@@ -26,8 +52,18 @@
     "author_url": "https://unsplash.com/@bpj2608",
     "license": "Unsplash License",
     "variants": [
-      { "suffix": "1600", "width": 1600, "ratio": "16:9", "focus": [0.5, 0.6] },
-      { "suffix": "800", "width": 800, "ratio": "16:9", "focus": [0.5, 0.6] }
+      {
+        "suffix": "1600",
+        "width": 1600,
+        "ratio": "16:9",
+        "focus": [0.5, 0.6]
+      },
+      {
+        "suffix": "800",
+        "width": 800,
+        "ratio": "16:9",
+        "focus": [0.5, 0.6]
+      }
     ]
   },
   {
@@ -41,8 +77,18 @@
     "author_url": "https://www.pexels.com/@desert-morocco-adventure-tours-2165350666/",
     "license": "Pexels License",
     "variants": [
-      { "suffix": "1600", "width": 1600, "ratio": "16:9", "focus": [0.45, 0.5] },
-      { "suffix": "800", "width": 800, "ratio": "16:9", "focus": [0.45, 0.5] }
+      {
+        "suffix": "1600",
+        "width": 1600,
+        "ratio": "16:9",
+        "focus": [0.45, 0.5]
+      },
+      {
+        "suffix": "800",
+        "width": 800,
+        "ratio": "16:9",
+        "focus": [0.45, 0.5]
+      }
     ]
   },
   {
@@ -67,8 +113,18 @@
     "author_url": "https://www.pexels.com/@zoogaa/",
     "license": "Pexels License",
     "variants": [
-      { "suffix": "1600", "width": 1600, "ratio": "16:9", "focus": [0.45, 0.62] },
-      { "suffix": "800", "width": 800, "ratio": "16:9", "focus": [0.45, 0.62] }
+      {
+        "suffix": "1600",
+        "width": 1600,
+        "ratio": "16:9",
+        "focus": [0.45, 0.62]
+      },
+      {
+        "suffix": "800",
+        "width": 800,
+        "ratio": "16:9",
+        "focus": [0.45, 0.62]
+      }
     ]
   }
 ]

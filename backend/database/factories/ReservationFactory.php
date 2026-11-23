@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * Reservations with consistent snapshots: price_per_day and deposit come from the car,
- * total = days × price_per_day + extras_total.
+ * total = days × price_per_day + extras_total + one_way_fee (when the return agency differs).
  *
  * @extends Factory<Reservation>
  */
@@ -38,9 +38,12 @@ class ReservationFactory extends Factory
             'days' => $days,
             'price_per_day' => fn (array $attributes) => $this->car($attributes)->price_per_day,
             'extras_total' => '0.00',
+            'one_way_fee' => fn (array $attributes) => $attributes['return_location_id'] === $attributes['pickup_location_id']
+                ? '0.00'
+                : bcadd((string) config('tomobilti.booking.one_way_fee'), '0', 2),
             'total' => fn (array $attributes) => bcadd(
-                bcmul((string) $attributes['price_per_day'], (string) $attributes['days'], 2),
-                (string) $attributes['extras_total'],
+                bcadd(bcmul((string) $attributes['price_per_day'], (string) $attributes['days'], 2), (string) $attributes['extras_total'], 2),
+                (string) $attributes['one_way_fee'],
                 2,
             ),
             'deposit_amount' => fn (array $attributes) => $this->car($attributes)->deposit_amount,
@@ -110,6 +113,7 @@ class ReservationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => ReservationStatus::Rejected,
             'rejection_reason' => 'Véhicule indisponible pour ces dates.',
+            'rejected_at' => now(),
         ]);
     }
 

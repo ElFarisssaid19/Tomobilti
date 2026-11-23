@@ -188,8 +188,9 @@ trait ProcessesPhotos
      * Crop the photo to each variant's ratio around a focus point, resize it and encode
      * it as WebP.
      *
-     * @param  list<array{suffix: string, width: int, ratio: float, focus?: array{0: float, 1: float}, zoom?: float}>  $variants
-     * @param  list<array{0: float, 1: float, 2: float, 3: float}>  $blurRegions  [x, y, width, height] as fractions of the cropped output (same for every variant)
+     * @param  list<array{suffix: string, width: int, ratio: float, focus?: array{0: float, 1: float}, zoom?: float, blur?: list<array{0: float, 1: float, 2: float, 3: float}>}>  $variants
+     * @param  list<array{0: float, 1: float, 2: float, 3: float}>  $blurRegions  [x, y, width, height] as fractions of the cropped output, for every variant
+     *                                                                            that has no `blur` of its own (crops of different ratios need their own regions)
      * @return array<string, string> WebP bytes keyed by variant suffix
      */
     protected function renderVariants(string $bytes, array $variants, array $blurRegions = []): array
@@ -210,7 +211,7 @@ trait ProcessesPhotos
     }
 
     /**
-     * @param  array{suffix: string, width: int, ratio: float, focus?: array{0: float, 1: float}, zoom?: float}  $variant
+     * @param  array{suffix: string, width: int, ratio: float, focus?: array{0: float, 1: float}, zoom?: float, blur?: list<array{0: float, 1: float, 2: float, 3: float}>}  $variant
      * @param  list<array{0: float, 1: float, 2: float, 3: float}>  $blurRegions
      */
     private function cropResizeEncode(GdImage $source, array $variant, array $blurRegions): string
@@ -237,7 +238,7 @@ trait ProcessesPhotos
         $target = imagecreatetruecolor($width, $height);
         imagecopyresampled($target, $source, 0, 0, $cropX, $cropY, $width, $height, (int) round($cropWidth), (int) round($cropHeight));
 
-        foreach ($blurRegions as $region) {
+        foreach ($variant['blur'] ?? $blurRegions as $region) {
             $this->pixelate($target, $region);
         }
 
