@@ -25,12 +25,14 @@ import {
   Input,
   PasswordInput,
   RadioGroup,
+  RangeSlider,
   Select,
   StatusBadge,
   Switch,
   Textarea,
 } from '../../components/ui'
 import { FUEL_TYPE, RESERVATION_STATUS, toOptions, TRANSMISSION } from '../../lib/labels.js'
+import { formatPrice } from '../../utils/format.js'
 import { UNAVAILABLE_RANGES, VALIDATION_ERROR } from './demoData.js'
 import { Code, DemoGroup, DemoPanel, DemoSection, Specimen } from './parts.jsx'
 
@@ -283,6 +285,48 @@ function FormsDemo() {
   )
 }
 
+function RangeSliderDemo() {
+  const [range, setRange] = useState([300, 900])
+  const [applied, setApplied] = useState([300, 900])
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <DemoPanel className="flex flex-col gap-4">
+        <RangeSlider
+          label="Prix par jour"
+          min={200}
+          max={2000}
+          step={10}
+          value={range}
+          onChange={setRange}
+          onChangeEnd={setApplied}
+          formatValue={formatPrice}
+          minLabel="Prix minimum par jour"
+          maxLabel="Prix maximum par jour"
+        />
+        <p className="text-sm text-fg-muted tabular-nums">
+          <Code>onChangeEnd</Code> (relâché ou touche du clavier) : {formatPrice(applied[0])} –{' '}
+          {formatPrice(applied[1])}
+        </p>
+      </DemoPanel>
+      <DemoPanel className="flex flex-col gap-4">
+        <RangeSlider
+          label="Désactivé"
+          min={200}
+          max={2000}
+          value={[400, 1200]}
+          formatValue={formatPrice}
+          disabled
+        />
+        <p className="text-sm text-fg-muted">
+          Deux <Code>input type=&quot;range&quot;</Code> natifs superposés : flèches, Page
+          précédente / suivante, Début / Fin et lecteurs d’écran fonctionnent sans code en plus. Le
+          minimum ne dépasse jamais le maximum.
+        </p>
+      </DemoPanel>
+    </div>
+  )
+}
+
 function DatesDemo() {
   const [range, setRange] = useState()
   const [inlineRange, setInlineRange] = useState()
@@ -401,6 +445,14 @@ export default function ControlSections() {
         description="react-day-picker en français (lundi en premier), dates passées désactivées, périodes déjà réservées barrées et impossibles à inclure, nombre de jours affiché."
       >
         <DatesDemo />
+      </DemoSection>
+
+      <DemoSection
+        id="curseurs"
+        title="Curseur de plage"
+        description="RangeSlider : un minimum et un maximum sur la même piste (prix du catalogue), chaque poignée avec son libellé et sa valeur lue en DH."
+      >
+        <RangeSliderDemo />
       </DemoSection>
 
       <DemoSection

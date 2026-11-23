@@ -1,7 +1,9 @@
-import { Camera, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { Mail, MapPin, Phone } from 'lucide-react'
 import { Link } from 'react-router'
+import { AGENCY, whatsappUrl } from '../../config/agency.js'
 import { IconButton } from '../ui'
 import Logo from './Logo.jsx'
+import { FacebookIcon, InstagramIcon, WhatsAppIcon } from './SocialIcons.jsx'
 
 const COLUMNS = [
   {
@@ -16,19 +18,31 @@ const COLUMNS = [
     title: 'L’agence',
     links: [
       { label: 'À propos', to: '/a-propos' },
+      { label: 'Nos agences', to: '/a-propos#agences' },
       { label: 'Contact', to: '/contact' },
     ],
   },
 ]
 
-// lucide-react no longer ships brand logos: generic icons with explicit labels.
+// Brand logos from Simple Icons (CC0): the documented exception to lucide-only icons.
 const SOCIAL = [
-  { label: 'WhatsApp', icon: MessageCircle, href: '#' },
-  { label: 'Instagram', icon: Camera, href: '#' },
-  { label: 'E-mail', icon: Mail, href: 'mailto:contact@tomobilti.ma' },
+  { label: 'WhatsApp (nouvel onglet)', icon: WhatsAppIcon, href: whatsappUrl(), external: true },
+  {
+    label: 'Instagram (nouvel onglet)',
+    icon: InstagramIcon,
+    href: AGENCY.social.instagram,
+    external: true,
+  },
+  {
+    label: 'Facebook (nouvel onglet)',
+    icon: FacebookIcon,
+    href: AGENCY.social.facebook,
+    external: true,
+  },
+  { label: `E-mail : ${AGENCY.email}`, icon: Mail, href: `mailto:${AGENCY.email}` },
 ]
 
-/** Site footer. Agency details are placeholders until the real ones are provided. */
+/** Site footer, with the agency contact details from config/agency.js. */
 export default function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-line bg-surface/40">
@@ -40,18 +54,29 @@ export default function SiteFooter() {
           </p>
           <ul className="flex flex-col gap-2 text-sm text-fg-muted">
             <li className="flex items-center gap-2">
-              <MapPin className="size-4 text-fg-subtle" aria-hidden="true" />
-              Adresse de l’agence à compléter
+              <MapPin className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
+              {AGENCY.address}
             </li>
             <li className="flex items-center gap-2">
-              <Phone className="size-4 text-fg-subtle" aria-hidden="true" />
-              <span className="tabular-nums">+212 5 00 00 00 00</span>
+              <Phone className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
+              <a
+                href={`tel:${AGENCY.phone}`}
+                className="link-underline rounded-xs tabular-nums hover:text-fg"
+              >
+                {AGENCY.phoneDisplay}
+              </a>
             </li>
           </ul>
           <ul className="flex gap-2" aria-label="Réseaux sociaux">
-            {SOCIAL.map(({ label, icon, href }) => (
+            {SOCIAL.map(({ label, icon, href, external }) => (
               <li key={label}>
-                <IconButton icon={icon} label={label} href={href} size="sm" />
+                <IconButton
+                  icon={icon}
+                  label={label}
+                  href={href}
+                  size="sm"
+                  {...(external && { target: '_blank', rel: 'noreferrer noopener' })}
+                />
               </li>
             ))}
           </ul>

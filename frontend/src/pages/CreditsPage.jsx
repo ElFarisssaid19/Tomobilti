@@ -2,6 +2,7 @@ import { ExternalLink } from 'lucide-react'
 import { PageHeader } from '../components/ui'
 import { cn } from '../lib/cn.js'
 import credits from '../data/image-credits.json'
+import usePageMeta from '../hooks/usePageMeta.js'
 
 /*
  * Photo credits, generated from the photo manifests by
@@ -80,6 +81,7 @@ function CreditLine({ photo, label, stacked = false }) {
 }
 
 export default function CreditsPage() {
+  usePageMeta('Crédits photos', 'Auteurs, licences et sources des photos du site Tomobilti.')
   const cars = groupByModel(credits.cars)
 
   return (

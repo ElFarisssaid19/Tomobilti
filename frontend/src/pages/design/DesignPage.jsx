@@ -15,6 +15,7 @@ const SECTIONS = [
   { id: 'chips', label: 'Chips' },
   { id: 'formulaires', label: 'Formulaires' },
   { id: 'dates', label: 'Dates' },
+  { id: 'curseurs', label: 'Curseur de plage' },
   { id: 'badges', label: 'Badges' },
   { id: 'cartes', label: 'Cartes' },
   { id: 'overlays', label: 'Superpositions' },

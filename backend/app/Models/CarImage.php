@@ -35,6 +35,18 @@ class CarImage extends Model
     public const THUMBNAIL_WIDTH = 800;
 
     /**
+     * License pages for licenses that are not Creative Commons BY / BY-SA.
+     *
+     * @var array<string, string>
+     */
+    private const KNOWN_LICENSE_URLS = [
+        'CC0' => 'https://creativecommons.org/publicdomain/zero/1.0/',
+        'Public domain' => 'https://creativecommons.org/publicdomain/mark/1.0/',
+        'Pexels License' => 'https://www.pexels.com/license/',
+        'Unsplash License' => 'https://unsplash.com/license',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -93,5 +105,26 @@ class CarImage extends Model
         return Attribute::make(
             get: fn (): string => Storage::disk('public')->url($this->thumbnailPath()),
         );
+    }
+
+    /**
+     * Page of the photo's license: "CC BY-SA 3.0 de" becomes
+     * https://creativecommons.org/licenses/by-sa/3.0/de/. Null when unknown.
+     *
+     * @return Attribute<string|null, never>
+     */
+    protected function licenseUrl(): Attribute
+    {
+        return Attribute::make(get: function (): ?string {
+            $license = trim((string) $this->license);
+
+            if (preg_match('/^CC (BY(?:-SA)?) (\d\.\d)(?: ([a-z]{2}))?$/i', $license, $parts) === 1) {
+                $path = Str::lower($parts[1]).'/'.$parts[2].'/'.(isset($parts[3]) ? Str::lower($parts[3]).'/' : '');
+
+                return 'https://creativecommons.org/licenses/'.$path;
+            }
+
+            return self::KNOWN_LICENSE_URLS[$license] ?? null;
+        });
     }
 }

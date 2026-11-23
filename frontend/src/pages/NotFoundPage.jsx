@@ -1,5 +1,6 @@
 import { motion } from 'motion/react'
 import { Button, Glow } from '../components/ui'
+import usePageMeta from '../hooks/usePageMeta.js'
 
 /** A tyre stands in for the "0": it rolls in once and settles. */
 function Wheel() {
@@ -42,6 +43,7 @@ function Wheel() {
 }
 
 export default function NotFoundPage() {
+  usePageMeta('Page introuvable')
   return (
     <section className="relative isolate flex flex-1 items-center overflow-hidden">
       <Glow variant="empty" className="-top-1/4 bottom-1/2" />

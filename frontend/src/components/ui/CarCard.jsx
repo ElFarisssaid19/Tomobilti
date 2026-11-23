@@ -2,6 +2,7 @@ import { Cog, Fuel, Heart, Snowflake, Users } from 'lucide-react'
 import { Link } from 'react-router'
 import { relationName } from '../../lib/cars.js'
 import { cn } from '../../lib/cn.js'
+import { formatDays } from '../../lib/dates.js'
 import { FUEL_TYPE, label, TRANSMISSION } from '../../lib/labels.js'
 import { formatPrice } from '../../utils/format.js'
 import Button from './Button.jsx'
@@ -42,6 +43,8 @@ export function CarSpecs({ car, compact = false, className }) {
  *
  * The whole card is clickable through the title link (`to`); the favorite button sits
  * above it. Without `to`, the CTA becomes a real button calling `onReserve`.
+ * `estimate` (`{ days, total }`, from `estimateRental`) replaces "à partir de" with the
+ * estimated total of the chosen dates.
  *
  * @example <CarCard car={car} to={`/voitures/${car.slug}`} isFavorite={fav} onToggleFavorite={toggle} />
  */
@@ -52,6 +55,7 @@ export default function CarCard({
   isFavorite = false,
   onToggleFavorite,
   ctaLabel = 'Réserver',
+  estimate,
   eager = false,
   className,
 }) {
@@ -114,15 +118,29 @@ export default function CarCard({
         <CarSpecs car={car} />
 
         <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-4">
-          <p className="flex flex-col">
-            <span className="text-xs font-medium text-fg-subtle">à partir de</span>
-            <span className="text-fg-muted">
-              <span className="text-xl font-bold text-accent-text tabular-nums">
-                {formatPrice(car.price_per_day)}
+          {estimate ? (
+            <p className="flex flex-col">
+              <span className="text-xs font-medium text-fg-subtle">
+                Total estimé, {formatDays(estimate.days)}
               </span>
-              <span className="text-sm"> / jour</span>
-            </span>
-          </p>
+              <span className="text-xl font-bold text-accent-text tabular-nums">
+                {formatPrice(estimate.total)}
+              </span>
+              <span className="text-sm text-fg-muted tabular-nums">
+                {formatPrice(car.price_per_day)} / jour
+              </span>
+            </p>
+          ) : (
+            <p className="flex flex-col">
+              <span className="text-xs font-medium text-fg-subtle">à partir de</span>
+              <span className="text-fg-muted">
+                <span className="text-xl font-bold text-accent-text tabular-nums">
+                  {formatPrice(car.price_per_day)}
+                </span>
+                <span className="text-sm"> / jour</span>
+              </span>
+            </p>
+          )}
           {to ? (
             // Decorative: the stretched title link already makes the card clickable.
             <span

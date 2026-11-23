@@ -27,6 +27,11 @@ const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage.jsx'
 const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage.jsx'))
 const ProfilePage = lazy(() => import('./pages/account/ProfilePage.jsx'))
 const CreditsPage = lazy(() => import('./pages/CreditsPage.jsx'))
+const CatalogPage = lazy(() => import('./pages/catalog/CatalogPage.jsx'))
+const CarDetailPage = lazy(() => import('./pages/catalog/CarDetailPage.jsx'))
+const ReservePlaceholderPage = lazy(() => import('./pages/catalog/ReservePlaceholderPage.jsx'))
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
+const ContactPage = lazy(() => import('./pages/ContactPage.jsx'))
 const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'))
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage.jsx'))
 
@@ -53,12 +58,10 @@ export default function App() {
       <Route element={<RootLayout />}>
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
-          <Route
-            path="voitures"
-            element={<ComingSoonPage title="Voitures" phase="phase 3 (catalogue)" />}
-          />
-          <Route path="a-propos" element={<ComingSoonPage title="À propos" phase="phase 7" />} />
-          <Route path="contact" element={<ComingSoonPage title="Contact" phase="phase 7" />} />
+          <Route path="voitures" element={page(CatalogPage, 'Chargement des voitures…')} />
+          <Route path="voitures/:slug" element={page(CarDetailPage, 'Chargement de la voiture…')} />
+          <Route path="a-propos" element={page(AboutPage)} />
+          <Route path="contact" element={page(ContactPage)} />
           <Route path="credits" element={page(CreditsPage)} />
 
           {/* Visitors only: signed-in users are sent to their space. */}
@@ -74,6 +77,8 @@ export default function App() {
 
           {/* Mon espace: signed-in users only. */}
           <Route element={<ProtectedRoute />}>
+            {/* Booking flow: placeholder until Phase 4. */}
+            <Route path="reserver/:slug" element={page(ReservePlaceholderPage)} />
             <Route path="espace" element={<ClientLayout />}>
               <Route index element={<Navigate to="profil" replace />} />
               <Route

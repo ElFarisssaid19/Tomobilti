@@ -5,9 +5,11 @@ import LicenseForm from './LicenseForm.jsx'
 import PasswordForm from './PasswordForm.jsx'
 import PersonalInfoForm from './PersonalInfoForm.jsx'
 import ProfileSection from './ProfileSection.jsx'
+import usePageMeta from '../../hooks/usePageMeta.js'
 
 /** /espace/profil: personal information, driving licence and ID, password. */
 export default function ProfilePage() {
+  usePageMeta('Mon profil')
   const { user } = useAuth()
 
   return (

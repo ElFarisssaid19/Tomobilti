@@ -22,7 +22,9 @@ export default function PublicLayout() {
         Aller au contenu
       </a>
       <SiteHeader />
-      <main id="contenu" className="flex flex-1 flex-col">
+      {/* At least one screen tall: while a lazy page or its data loads, the footer stays
+          below the fold instead of jumping down when the content arrives (no layout shift). */}
+      <main id="contenu" className="flex min-h-dvh flex-1 flex-col">
         <PageTransition transitionKey={transitionKey} className="flex flex-1 flex-col" />
       </main>
       <SiteFooter />

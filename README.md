@@ -35,7 +35,7 @@ The SPA and the API both run on **`localhost`** (never `127.0.0.1`) so Sanctum's
 | Layer    | Tools                                                                                     |
 | -------- | ----------------------------------------------------------------------------------------- |
 | Backend  | PHP 8.3+, Laravel 13, Laravel Sanctum, laravel-lang (French translations), Pint, PHPUnit |
-| Frontend | React 19, Vite 8, Tailwind CSS 4, React Router 8, axios, lucide-react, Motion, Headless UI, react-day-picker, sonner, ESLint, Prettier, Vitest + Testing Library |
+| Frontend | React 19, Vite 8, Tailwind CSS 4, React Router 8, axios, TanStack Query 5, lucide-react, Motion, Headless UI, react-day-picker, sonner, ESLint, Prettier, Vitest + Testing Library |
 | Services | MySQL 8.4, phpMyAdmin, Mailpit (Docker Compose)                                           |
 
 ## Prerequisites
@@ -97,8 +97,8 @@ The seed is reproducible (fixed Faker seed): 32 cars with real photos (committed
 
 | Email                 | Password   | Role   |
 | --------------------- | ---------- | ------ |
-| `admin@tomobilti.ma`  | `password` | Admin  |
-| `client@tomobilti.ma` | `password` | Client |
+| `admin@tomobilti.ma`  | `Tomobilti2026!` | Admin  |
+| `client@tomobilti.ma` | `Tomobilti2026!` | Client |
 
 ## URLs and ports
 
@@ -204,6 +204,40 @@ GET  /api/user                       ───▶   UserResource (401 for guests
 - **SPA** (`frontend/src`): `context/AuthContext.jsx` loads the user on start and exposes `useAuth()` (`user`, `status`, `isAdmin`, `isVerified`, `login`, `register`, `logout`, `refreshUser`). The axios client retries once after a 419 with a fresh CSRF cookie and clears the user on 401. Guards: `GuestRoute`, `ProtectedRoute` (→ `/connexion?redirect=…`), `AdminRoute` (clients see a 403 page).
 - **Pages**: `/connexion`, `/inscription`, `/mot-de-passe-oublie`, `/reinitialiser-mot-de-passe`, `/verifier-email`, `/espace/profil`, `/espace/reservations`, `/admin`. After login, admins land on `/admin`, clients on `?redirect=` or `/espace/profil`.
 
+## Public catalogue and website (Phase 3)
+
+No authentication. JSON through API Resources, French messages, **60 requests per minute** per
+visitor (`catalog` limiter in `AppServiceProvider`). Only cars with the status `available` are
+public, and no endpoint exposes customers or reservation details.
+
+| Endpoint                                   | Notes                                                                                                                                                                                                                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/cars`                            | 12 per page (`meta`, `links`). Filters: `category`, `brand`, `fuel`, `slug` (one or more, comma separated), `transmission`, `seats_min`, `price_min`, `price_max`, `location`, `air_conditioning`, `q` (brand and model), `start_at` + `end_at` (YYYY-MM-DD, free for the whole days). `sort`: `price_asc` (default), `price_desc`, `newest` (model year), `popular` (completed reservations) |
+| `GET /api/cars/featured`                   | Featured available cars, cheapest first                                                                                                                                                                                                                                         |
+| `GET /api/cars/{slug}`                     | Detail: every photo (800 / 1600 px URLs, alt, author, license, license URL, source), specs, description, deposit, home agency with hours, and `similar` (4 cars of the same category, closest in price). 404 for cars in maintenance, out of service or soft deleted          |
+| `GET /api/cars/{slug}/availability`        | `?from=&to=` (default today → 6 months, 6 months max): `unavailable` date ranges of blocking reservations, dates only                                                                                                                                                           |
+| `GET /api/catalog/filters`                 | Categories, brands and locations with their available car counts, transmission and fuel options, seat counts, min / max price per day                                                                                                                                         |
+| `GET /api/categories`                      | In display order, with `cars_count` (available cars)                                                                                                                                                                                                                            |
+| `GET /api/locations`                       | Active pick-up points with address, phone and opening hours                                                                                                                                                                                                                     |
+| `GET /api/extras`                          | Active options (read-only until Phase 4)                                                                                                                                                                                                                                        |
+| `POST /api/contact`                        | `name`, `email`, `phone` (optional), `subject`, `message`. Queues a French email to `AGENCY_EMAIL` (default `contact@tomobilti.ma`, Mailpit in development) with the visitor as Reply-To. **3 per 10 minutes per IP** (`contact` limiter)                                         |
+
+- Filtering lives in `app/Filters/CarFilter.php`: one small method per query parameter, each
+  adding an `AND` condition, validated first by `app/Http/Requests/Catalog/CarIndexRequest.php`.
+- Dates are whole days: a blocking reservation (`pending`, `confirmed`, `active`) touching the
+  first or the last day excludes the car, which matches the days struck through in its calendar.
+- Lists eager-load `brand`, `category`, `location` and the primary image (a test checks that
+  the number of queries does not grow with the number of cars).
+
+**SPA pages:** `/` (search by agency and dates, categories, featured cars, how it works,
+agencies, FAQ), `/voitures` (catalogue; every filter, the sort and the page live in the URL),
+`/voitures/:slug` (gallery and lightbox with photo credits, specs, availability calendar,
+estimated total, options, similar cars), `/a-propos`, `/contact`, and `/reserver/:slug`
+(signed-in users, "Bientôt disponible" until Phase 4). Guests who press "Réserver" go to
+`/connexion?redirect=…` and come back to the car with their dates. Favorites are kept in the
+browser (`localStorage`) for now. Server state uses TanStack Query (conventions in
+[frontend/DESIGN.md](frontend/DESIGN.md), "Data").
+
 ## VS Code
 
 Open the repository root. Install the recommended extensions when VS Code suggests them (`.vscode/extensions.json`).
@@ -217,7 +251,7 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
   - [x] **1B Design system (frontend)** (tokens, motion, UI kit, layouts, style guide at `/design` in development; see [frontend/DESIGN.md](frontend/DESIGN.md))
   - [x] **1C Photos & navbar** (real car and site photos imported with their credits, floating desktop navbar; see [docs/image-credits.md](docs/image-credits.md))
 - [x] **Phase 2: Auth & roles** (Sanctum SPA login, registration, email verification, password reset, customer profile, admin role; see [Authentication and roles](#authentication-and-roles))
-- [ ] **Phase 3: Catalogue** (cars, categories, images, search and filters)
+- [x] **Phase 3: Catalogue** (public catalogue API, search and filters, car detail with availability, home, about and contact pages; see [Public catalogue and website](#public-catalogue-and-website-phase-3))
 - [ ] **Phase 4: Reservation** (availability, booking flow, pricing in MAD)
 - [ ] **Phase 5: Admin dashboard** (fleet, bookings, customers, statistics)
 - [ ] **Phase 6: Invoices & notifications** (PDF invoices, emails)

@@ -442,7 +442,7 @@ The seeders use a fixed Faker seed (`DatabaseSeeder::FAKER_SEED`), so seeding tw
 
 | Email                 | Password   | Role                                                                 |
 | --------------------- | ---------- | -------------------------------------------------------------------- |
-| `admin@tomobilti.ma`  | `password` | Admin                                                                |
-| `client@tomobilti.ma` | `password` | Client (Salma Bennani, with past, current and upcoming reservations) |
+| `admin@tomobilti.ma`  | `Tomobilti2026!` | Admin                                                                |
+| `client@tomobilti.ma` | `Tomobilti2026!` | Client (Salma Bennani, with past, current and upcoming reservations) |
 
-All generated customers also use the password `password` and `@example.com` addresses.
+All generated customers also use the password `Tomobilti2026!` and `@example.com` addresses. (Not `password`: Chrome flags it as leaked, and its warning blocks clicks during browser checks.)

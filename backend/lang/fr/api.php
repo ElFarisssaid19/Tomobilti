@@ -37,6 +37,20 @@ return [
         'password_updated' => 'Mot de passe modifié.',
     ],
 
+    'contact' => [
+        'sent' => 'Merci, votre message a bien été envoyé. L’agence vous répondra par e-mail.',
+        'throttled' => 'Vous avez déjà envoyé plusieurs messages. Réessayez dans :minutes minutes ou appelez l’agence.',
+        'phone' => 'Saisissez un numéro de téléphone valide, par exemple 06 12 34 56 78 ou +33 6 12 34 56 78.',
+    ],
+
+    'catalog' => [
+        'price_range' => 'Le prix maximum doit être supérieur ou égal au prix minimum.',
+        'availability_window' => 'La période demandée ne peut pas dépasser :months mois.',
+        'start_in_past' => 'La date de départ ne peut pas être dans le passé.',
+        'end_before_start' => 'La date de retour doit être après la date de départ.',
+        'window_end_before_start' => 'La date de fin doit être après la date de début.',
+    ],
+
     'admin' => [
         'pong' => 'Espace administrateur opérationnel. Bonjour, :name.',
     ],

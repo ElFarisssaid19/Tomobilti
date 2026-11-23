@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Reservation;
 use App\Models\User;
 use Database\Seeders\CarSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -45,8 +46,8 @@ class DatabaseSeederTest extends TestCase
         $client = User::where('email', 'client@tomobilti.ma')->sole();
         $this->assertTrue($admin->isAdmin());
         $this->assertTrue($client->isClient());
-        $this->assertTrue(Hash::check('password', $admin->password));
-        $this->assertTrue(Hash::check('password', $client->password));
+        $this->assertTrue(Hash::check(UserSeeder::DEMO_PASSWORD, $admin->password));
+        $this->assertTrue(Hash::check(UserSeeder::DEMO_PASSWORD, $client->password));
         $this->assertTrue($client->reservations()->exists());
     }
 

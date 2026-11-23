@@ -13,7 +13,7 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 
 - **Components**: `frontend/src/components/ui` (import from `components/ui/index.js`).
   Button, IconButton, Chip/ChipGroup, Input (+ `trailing` slot), PasswordInput, Textarea,
-  Select, Checkbox, RadioGroup,
+  Select, Checkbox, RadioGroup, RangeSlider,
   Switch, FormField, DateRangePicker/DateRangeCalendar, Badge, StatusBadge, Card,
   PromoCard, CarCard(+Skeleton), CarListItem(+Skeleton), Modal, ConfirmDialog,
   Drawer/BottomSheet, DropdownMenu, Tabs, Tooltip, Accordion, Skeleton, Spinner,
@@ -36,7 +36,22 @@ http://localhost:5173/design (dev server only), and it shows every token and com
   `rounded-input`, `shadow-pop`, `shadow-glow-violet`, `z-(--z-overlay)`, `container-page`.
   Tailwind's default palette is disabled on purpose: no hex values, no `bg-gray-*`,
   no arbitrary radii or shadows in components. Merge classes with `cn()` (`src/lib/cn.js`).
-- **Icons**: lucide-react only, at the default stroke width.
+- **Icons**: lucide-react only, at the default stroke width. Only exception: the WhatsApp,
+  Instagram and Facebook logos (Simple Icons, CC0) in `components/layout/SocialIcons.jsx`.
+  API icon names go through `iconFor()` (`src/lib/icons.js`).
+
+## Data (server state)
+
+- Every API read uses **TanStack Query** (see DESIGN.md, "Data"): axios functions in
+  `src/api/*.js`, keys in `src/api/queryKeys.js` (per resource, general to specific:
+  `['cars', 'list', params]`, `['cars', 'detail', slug]`), hooks in `src/hooks/useCatalog.js`.
+  Pages call hooks, never axios directly.
+- Defaults: 60 s stale time, no refetch on focus, no retry on 4xx. Reference data 10 min,
+  booked days 0. Lists use `placeholderData: keepPreviousData` and dim the old cards while
+  loading; skeletons only on the first load.
+- List filters, sort and page live in the URL (`useCatalogFilters`, `lib/catalogParams.js`),
+  never in React state. Each public page sets its French title and description with
+  `usePageMeta`.
 
 ## Color rules
 

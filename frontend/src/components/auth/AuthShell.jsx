@@ -1,5 +1,6 @@
 import { Glow } from '../ui'
 import { AUTH_PHOTOS } from './authPhotos.js'
+import usePageMeta from '../../hooks/usePageMeta.js'
 
 /**
  * Frame of the auth pages. Desktop: a tall Moroccan road photo on the left (the one
@@ -9,6 +10,7 @@ import { AUTH_PHOTOS } from './authPhotos.js'
  * @param {'login'|'register'|'password'|'verify'} photo
  */
 export default function AuthShell({ photo = 'login', title, description, footer, children }) {
+  usePageMeta(title, description)
   const image = AUTH_PHOTOS[photo]
 
   return (

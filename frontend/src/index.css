@@ -2,6 +2,7 @@
 @import 'tailwindcss';
 @import 'react-day-picker/style.css' layer(components);
 @import './styles/daypicker.css';
+@import './styles/range-slider.css';
 
 /*
  * Tomobilti design tokens. Source of truth: frontend/DESIGN.md.

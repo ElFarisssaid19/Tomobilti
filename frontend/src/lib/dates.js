@@ -43,3 +43,14 @@ export function toInputDate(date) {
 export function latestBirthDateForAge(years, today = new Date()) {
   return toInputDate(new Date(today.getFullYear() - years, today.getMonth(), today.getDate()))
 }
+
+/**
+ * True when the picked range touches one of the unavailable ranges (whole days,
+ * inclusive), e.g. dates kept in a link that someone has booked since.
+ */
+export function overlapsUnavailable(range, unavailable = []) {
+  const from = toDay(range?.from)
+  const to = toDay(range?.to)
+  if (!from || !to) return false
+  return toDateRanges(unavailable).some((blocked) => from <= blocked.to && to >= blocked.from)
+}

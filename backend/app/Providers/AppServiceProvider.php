@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configurePasswordRules();
         $this->configureAuthorization();
+        $this->configureRateLimiting();
     }
 
     /**
@@ -43,5 +47,24 @@ class AppServiceProvider extends ServiceProvider
     private function configureAuthorization(): void
     {
         Gate::define('access-admin', fn (User $user): bool => $user->isAdmin());
+    }
+
+    /**
+     * Public endpoints:
+     * - "catalog": 60 requests per minute per visitor (cars, filters, locations...);
+     * - "contact": 3 messages per 10 minutes per IP address, with a French message.
+     */
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for('contact', fn (Request $request): Limit => Limit::perMinutes(10, 3)
+            ->by($request->ip())
+            ->response(fn (Request $request, array $headers) => response()->json(
+                ['message' => __('api.contact.throttled', ['minutes' => (int) ceil(($headers['Retry-After'] ?? 60) / 60)])],
+                429,
+                $headers,
+            )));
     }
 }

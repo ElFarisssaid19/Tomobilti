@@ -1,9 +1,11 @@
 import { ShieldX } from 'lucide-react'
 import Logo from '../components/layout/Logo.jsx'
 import { Button, Glow } from '../components/ui'
+import usePageMeta from '../hooks/usePageMeta.js'
 
 /** 403 for a signed-in client who opens an admin page (AdminRoute). */
 export default function ForbiddenPage() {
+  usePageMeta('Accès refusé')
   return (
     <div className="relative isolate flex min-h-dvh flex-col overflow-hidden">
       <Glow variant="empty" className="-top-1/3 bottom-1/2" />

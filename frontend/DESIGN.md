@@ -135,8 +135,16 @@ On dark surfaces, hierarchy comes from **borders and lighter surfaces**, not hea
 lucide-react only, at the default stroke width (2). Never change it per icon (the
 checkbox tick, which uses 3, is the only exception). Sizes: `size-4` in text and chips,
 `size-[1.125rem]` in md buttons and inputs, `size-5` in lg buttons and the bottom nav.
-Decorative icons get `aria-hidden="true"`. lucide no longer ships brand logos, so
-social links use generic icons with an explicit `aria-label`.
+Decorative icons get `aria-hidden="true"`.
+
+**One exception: brand logos.** lucide no longer ships them, so the WhatsApp, Instagram
+and Facebook logos are small inline SVGs copied from [Simple Icons](https://simpleicons.org)
+(CC0 1.0) in `src/components/layout/SocialIcons.jsx` (`WhatsAppIcon`, `InstagramIcon`,
+`FacebookIcon`). They use `currentColor`, take the same `size-*` classes as lucide icons
+and work as `icon` of `IconButton`. Use them only for links to these services; the link
+carries the accessible name (e.g. "WhatsApp (nouvel onglet)"). Every other icon stays lucide.
+Icon names sent by the API (`categories.icon`, `extras.icon`) go through `iconFor(name)`
+(`src/lib/icons.js`), which bundles only the icons listed there.
 
 ## 3. Motion and interaction rules
 
@@ -291,8 +299,13 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   `php artisan tomobilti:import-site-photos` (site) or `tomobilti:import-car-photos` (cars)
   from `backend/`. They crop, optimize, strip metadata and write the manifest, then
   regenerate `docs/image-credits.md` and `src/data/image-credits.json` (the `/credits` page).
-- Demo cars (`src/data/demoCars.js`, home page and `/design`) use 800px copies of the seeded
-  photos in `src/assets/cars/photos/` until the catalogue API (Phase 3).
+- The public pages use the catalogue API. Demo cars (`src/data/demoCars.js`, 800px copies of
+  the seeded photos in `src/assets/cars/photos/`) remain only for `/design`.
+- **Detail page gallery** (`components/catalog/CarGallery.jsx`): the 1600px `url` with an
+  800w/1600w `srcset`, fixed 1600 × 1000 in a 16:10 box, thumbnails at 800px, a lightbox
+  (arrows, Escape, swipe) and, under the photo, the credit the license requires
+  (`PhotoCredit`: author, license link, source link). Never show a car photo in a large
+  format without its credit.
 
 ## 6. Components
 
@@ -313,6 +326,30 @@ Every component accepts `className` (merged with `cn`, so your classes win).
 Variants: `primary | secondary | outline | ghost | danger | link`. Sizes: `sm | md | lg`.
 `loading` disables the button, sets `aria-busy` and keeps the width. To style another
 element like a button, use `buttonClasses({ variant, size })`.
+
+### RangeSlider
+
+```jsx
+<RangeSlider
+  label="Prix par jour"
+  min={230}
+  max={1800}
+  step={10}
+  value={range}
+  onChange={setRange}
+  onChangeEnd={applyRange}
+  formatValue={formatPrice}
+  minLabel="Prix minimum par jour"
+  maxLabel="Prix maximum par jour"
+/>
+```
+
+Dual-range slider built on two stacked native `<input type="range">` (styles in
+`src/styles/range-slider.css`), so arrows, Page Up / Page Down, Home / End and screen
+readers work natively. Each thumb has its own label and a spoken value (`aria-valuetext`
+from `formatValue`), the current range is shown in an `<output>`, and the minimum never
+passes the maximum. `onChange` follows the drag; `onChangeEnd` fires on release or on a key
+press: run the search there, not on every pixel. Thumbs are lime with the standard focus ring.
 
 ### Chip, ChipGroup
 
@@ -386,6 +423,10 @@ only: the backend computes the billed days). It shows 2 months from 768px, 1 bel
 <CarListItem car={r.car} subtitle="12 – 15 déc. 2026" trailing={<StatusBadge status={r.status} />} to={…} />
 ```
 
+`estimate={{ days, total }}` (from `estimateRental(price_per_day, range)` in
+`lib/pricing.js`) replaces "à partir de" with "Total estimé, 7 jours" and the total, the
+price per day below it. Pass it when the visitor has chosen dates.
+
 `car` follows the API fields: `brand` (object or string), `model`, `year`, `category`,
 `seats`, `transmission`, `fuel`, `air_conditioning`, `price_per_day` ("250.00"), and an
 image as `image_url`, `primary_image { url | path, alt }` or `images[]`. Full URLs
@@ -448,7 +489,51 @@ for feedback after an action, an Alert for a state the user must read on the pag
 toast.success('Réservation envoyée')
 ```
 
-## 7. Changes from the original brief
+## 7. Data (server state)
+
+From Phase 3, every API read goes through **TanStack Query** (`@tanstack/react-query`).
+`QueryClientProvider` wraps the app in `main.jsx`; the client is built in
+`src/lib/queryClient.js`.
+
+- **Layers.** `src/api/*.js` holds plain axios functions that return the payload
+  (`fetchCars`, `fetchCar`…). `src/api/queryKeys.js` holds the keys. `src/hooks/useCatalog.js`
+  holds one hook per resource (`useCars`, `useCar`, `useFeaturedCars`, `useCarAvailability`,
+  `useCatalogOptions`, `useCategories`, `useLocations`, `useExtras`). Pages call hooks,
+  never axios directly.
+- **Query keys, per resource**, general to specific, so a whole resource can be
+  invalidated at once:
+
+  ```js
+  queryKeys.cars.list(params) // ['cars', 'list', { category: 'suv', page: '2' }]
+  queryKeys.cars.detail(slug) // ['cars', 'detail', 'dacia-logan-2024']
+  queryKeys.cars.availability(slug) // ['cars', 'availability', 'dacia-logan-2024']
+  queryKeys.locations() // ['locations']
+  queryClient.invalidateQueries({ queryKey: queryKeys.cars.all }) // every car query
+  ```
+
+- **Stale times.** Default 60 s, no refetch on window focus, retries only for network and
+  5xx errors (never 4xx). Reference data (categories, agencies, filter options, extras):
+  10 minutes. Booked days (`useCarAvailability`): 0, refetched each time the page opens.
+- **Lists keep the previous data while filters change** (`placeholderData: keepPreviousData`):
+  the current cards stay on screen, dimmed (`opacity-60`, `aria-busy`), until the new page
+  arrives. Skeletons only appear on the very first load (`isPending`).
+- **States.** `isPending` → skeleton shaped like the content (`LoadingRegion`), `isError` →
+  `ErrorState` with `onRetry={refetch}` (404 → an `EmptyState` with a way out), empty list →
+  `EmptyState` with one action. Pass `{ signal }` from the query function to axios so
+  abandoned requests are cancelled.
+- **Mutations** (forms) keep `useForm` + the `api/*.js` function for now (422 errors under
+  the fields, toast on success); use `useMutation` when a mutation must update cached data
+  (Phase 4 bookings), then invalidate the matching keys.
+- **URL state.** Filters, sort and page of a list live in the query string, not in React
+  state (`useCatalogFilters`, `lib/catalogParams.js`): links are shareable and the back
+  button restores the previous filters. Each change pushes a history entry and resets the
+  page to 1. The query key is built from the parsed URL, so the cache and the URL agree.
+- **Local preferences** that do not belong to the server yet (favorites) use a small
+  `useSyncExternalStore` hook over `localStorage` wrapped in try/catch (`useFavorites`).
+- **Page titles.** Every public page calls `usePageMeta(title, description)` (French title
+  "… | Tomobilti" and meta description).
+
+## 8. Changes from the original brief
 
 The brief's palette is kept. These refinements came out of the contrast audit and the build:
 
@@ -466,7 +551,7 @@ The brief's palette is kept. These refinements came out of the contrast audit an
 7. The **card image zoom takes 500ms**, as the brief specifies. It is the only exception to
    the 400ms limit.
 
-## 8. Adding a light theme later
+## 9. Adding a light theme later
 
 Components only use semantic tokens, so a light theme means redefining the variables:
 

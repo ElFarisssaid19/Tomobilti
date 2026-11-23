@@ -9,11 +9,47 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Catalog\CarAvailabilityController;
+use App\Http\Controllers\Catalog\CarController;
+use App\Http\Controllers\Catalog\CatalogFilterController;
+use App\Http\Controllers\Catalog\CategoryController;
+use App\Http\Controllers\Catalog\ExtraController;
+use App\Http\Controllers\Catalog\FeaturedCarController;
+use App\Http\Controllers\Catalog\LocationController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Profile\PasswordController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.health');
+
+/*
+|--------------------------------------------------------------------------
+| Public catalogue and website (no authentication)
+|--------------------------------------------------------------------------
+|
+| 60 requests per minute per visitor ("catalog" limiter, AppServiceProvider).
+| Cars are found by slug; only cars with the "available" status are public.
+| No endpoint exposes customers or reservation details.
+|
+*/
+
+Route::middleware('throttle:catalog')->group(function () {
+    Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
+    Route::get('/cars/featured', FeaturedCarController::class)->name('cars.featured');
+    Route::get('/cars/{car}', [CarController::class, 'show'])->name('cars.show');
+    Route::get('/cars/{car}/availability', CarAvailabilityController::class)->name('cars.availability');
+
+    Route::get('/catalog/filters', CatalogFilterController::class)->name('catalog.filters');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
+    Route::get('/extras', [ExtraController::class, 'index'])->name('extras.index');
+});
+
+// 3 messages per 10 minutes per IP address ("contact" limiter).
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('throttle:contact')
+    ->name('contact.store');
 
 /*
 |--------------------------------------------------------------------------

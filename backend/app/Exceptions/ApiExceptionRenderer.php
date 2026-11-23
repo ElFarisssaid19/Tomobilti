@@ -3,10 +3,12 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
@@ -25,10 +27,16 @@ class ApiExceptionRenderer
         return $request->is('api', 'api/*') || $request->expectsJson();
     }
 
-    public function __invoke(Throwable $e, Request $request): ?JsonResponse
+    public function __invoke(Throwable $e, Request $request): ?Response
     {
         if (! static::shouldRender($request)) {
             return null;
+        }
+
+        // A ready-made response (e.g. a rate limiter with its own French message)
+        // is sent as it is.
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
         }
 
         if ($e instanceof ValidationException) {

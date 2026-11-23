@@ -5,18 +5,21 @@ namespace App\Models;
 use App\Enums\CarStatus;
 use App\Enums\FuelType;
 use App\Enums\Transmission;
+use Carbon\CarbonInterface;
 use Database\Factories\CarFactory;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * A car of the rental fleet.
@@ -139,6 +142,15 @@ class Car extends Model
     }
 
     /**
+     * Cars chosen by the agency for the home page.
+     */
+    #[Scope]
+    protected function featured(Builder $query): void
+    {
+        $query->where('is_featured', true);
+    }
+
+    /**
      * Available cars with no blocking reservation overlapping the given period.
      *
      * Overlap rule: existing.start_at < $end AND existing.end_at > $start, so a return
@@ -173,5 +185,59 @@ class Car extends Model
             ->overlapping($start, $end)
             ->when($ignoreReservationId, fn (Builder $query, int $id) => $query->whereKeyNot($id))
             ->doesntExist();
+    }
+
+    /**
+     * Other available cars of the same category, the closest in price first.
+     *
+     * @return Collection<int, Car>
+     */
+    public function similarCars(int $limit): Collection
+    {
+        return static::query()
+            ->available()
+            ->where('category_id', $this->category_id)
+            ->whereKeyNot($this->getKey())
+            ->orderByRaw('ABS(price_per_day - ?)', [$this->price_per_day])
+            ->orderBy('id')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Days on which this car cannot be booked between $from and $to, as inclusive
+     * date ranges (["from" => "2026-12-01", "to" => "2026-12-05"]).
+     *
+     * Only the dates of blocking reservations are read (no customer data). A day
+     * touched by a reservation counts as unavailable: pick-up and return times are
+     * chosen in the booking flow. Overlapping or adjacent ranges are merged.
+     *
+     * @return list<array{from: string, to: string}>
+     */
+    public function unavailableDateRanges(CarbonInterface $from, CarbonInterface $to): array
+    {
+        $reservations = $this->reservations()
+            ->blocking()
+            ->overlapping($from->copy()->startOfDay(), $to->copy()->endOfDay())
+            ->orderBy('start_at')
+            ->get(['start_at', 'end_at']);
+
+        $ranges = [];
+
+        foreach ($reservations as $reservation) {
+            $start = $reservation->start_at->toDateString();
+            $end = $reservation->end_at->toDateString();
+            $last = array_key_last($ranges);
+
+            if ($last !== null && $start <= Carbon::parse($ranges[$last]['to'])->addDay()->toDateString()) {
+                $ranges[$last]['to'] = max($ranges[$last]['to'], $end);
+
+                continue;
+            }
+
+            $ranges[] = ['from' => $start, 'to' => $end];
+        }
+
+        return $ranges;
     }
 }
