@@ -232,7 +232,9 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   tabs. Child pages use `PageHeader titleAs="h2"`.
 - **AdminLayout** (lazy-loaded behind `AdminRoute`): collapsible sidebar (`lg`+, remembered in localStorage, icons with
   tooltips when collapsed), glass topbar with the page title and the avatar menu,
-  left drawer on mobile. No bottom nav.
+  left drawer on mobile. No bottom nav. Items: Tableau de bord, Réservations (warning
+  badge with the requests to answer, refreshed every 60 s, `usePendingCount`), Planning,
+  Voitures, Clients, Paramètres.
 - Navigation items live in `src/config/navigation.js`.
 
 ### Floating navbar (public site)
@@ -320,6 +322,59 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 - **Nested routes under `/espace`**: `PageTransition` freezes the outlet only while a page
   is leaving, so child routes of a layout that keeps one transition key (tabs, detail pages)
   still render.
+
+### Admin back office (Phase 5)
+
+Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
+`hooks/useAdmin.js` (`api/admin.js`, keys under `queryKeys.admin`).
+
+- **The bold element is the agency's day.** On `/admin` the "Départs et retours" card
+  lists today's and tomorrow's handovers with large tabular times (`text-2xl`). Everything
+  else stays quiet: StatCards, emphasis charts, meter lists. KPI grid: the two amounts on
+  the first row and the three counts on the second (`lg`), one row of five from `2xl`.
+- **Lists** (reservations, cars, clients): the URL holds filters, sort, page and tab
+  (`useUrlFilters` + a schema in `lib/admin*.js`, parsed by `lib/urlFilters.js`; invalid
+  values fall back to defaults; any change goes back to page 1). Search fields write to
+  the URL 350 ms after the last key, replacing the history entry (`SearchField`). Filters
+  wrap in a row from `md` and open in a bottom sheet below (`FilterPanel`). `Table` from
+  `lg` (row click opens the item, the first cell is a real link), cards below. Previous
+  results stay dimmed while the next page loads; skeletons on the first load only.
+- **Tables** keep a row action column sticky on the right (`sticky right-0 bg-surface`)
+  so actions stay reachable when a narrow screen scrolls the table. `Table`'s wrapper is
+  `relative`, so its `sr-only` caption cannot stretch the page.
+- **Reservation actions** come from the status (`actionsForStatus` in
+  `lib/adminReservations.js`, mirroring `ReservationStatus::allowedTransitions()`): one lime
+  primary per status (Confirmer, Marquer comme récupérée, Marquer comme rendue), Refuser
+  and Annuler as secondary buttons. Each runs behind a `ConfirmDialog`; refusing and
+  cancelling use `ReasonDialog` (required reason, 3 characters, shown to the customer;
+  server 422 errors under the field). Toasts reuse the server's message. The detail page
+  shows the `StatusHistory` timeline (author icon: agency shield, customer, or the
+  scheduler).
+- **Planning** (`PlanningTimeline`): CSS grid, sticky car column, 14 day columns, bars
+  positioned in percent of the window (`lib/planning.js`), colored with the StatusBadge
+  tones plus their icon, square ends when a bar runs past the window, a 2 px lime line
+  at the current time, today's column tinted and its date in a lime circle. Hover or focus
+  shows a fixed-position tooltip (never clipped by the scroll container); a click opens
+  the reservation. Scrolls sideways under 52 rem; no calendar library.
+- **Charts** (`components/admin/charts`, Recharts, only in the dashboard chunk) follow the
+  dataviz method: single series in the emphasis form (marks in `fg-subtle`, the current
+  period in lime, the only accent; colors from the CSS variables in `chartTheme.js`),
+  columns ≤ 24 px with a 4 px rounded top, 2 px lines with a 10 % wash, hairline
+  horizontal grid, a tooltip in the popover style, a caption that names the highlighted
+  mark by position, and a visually hidden data table (wrapped in a `div.sr-only`: a table
+  ignores `sr-only`'s 1 px width). Part-to-whole data (category, agency, top cars) uses
+  ranked horizontal bars (`MeterList`), never a donut.
+- **Car form** (`CarForm`): sections Identité, Caractéristiques, Tarifs, Agence et statut,
+  Description; client checks from `validateCar` (same rules as `Admin\CarRequest`), plate
+  normalized to `12345-A-6`. The status is chosen on create only; later it changes in
+  `CarStatusDialog`, which lists the reservations a non-available status affects before
+  confirming. Photos (`ImageManager`) appear after the first save: drop zone with one
+  progress bar per file (transform `scaleX`, no width animation), numbered 16:10 cards,
+  reorder by drag and drop or by the arrow buttons (keyboard), "Principale" lime badge,
+  alt text saved on blur, delete behind a ConfirmDialog, credit under each photo.
+- **Settings** (`SettingsPanel`): one config per resource (columns, fields, payload);
+  modal form with server 422 errors; a 409 "in use" refusal is a toast with the reason.
+  API icon names render through `ApiIcon`.
 
 ### Photos
 
@@ -538,6 +593,7 @@ action and the item ("Ajouter : Siège bébé", "Retirer : Siège bébé"), disa
 ```jsx
 <Avatar name="Salma Bennani" />
 <StatCard icon={CalendarCheck} label="Réservations ce mois" value={128} format="number" trend={{ value: 12, label: 'vs octobre' }} />
+<StatCard icon={Gauge} label="Taux d’utilisation" value={4.8} format="percent" hint="46 jours loués sur 960" />  // `hint`: what the number counts
 <Table caption="Réservations" columns={[{ key, header, render, align }]} rows={rows} rowKey="reference" loading={isLoading} empty={<EmptyState … />} />
 ```
 

@@ -39,3 +39,6 @@ const ICONS = {
 export function iconFor(name, fallback = Plus) {
   return ICONS[name] ?? fallback
 }
+
+/** Icon names the SPA can draw, offered by the settings forms (categories, options). */
+export const ICON_NAMES = Object.keys(ICONS)

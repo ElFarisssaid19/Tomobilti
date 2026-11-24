@@ -23,7 +23,7 @@ export function AdminPageSkeleton({ label = 'Chargement de l’administration…
     <LoadingRegion label={label} className="flex min-h-dvh">
       <div className="hidden w-64 shrink-0 flex-col gap-3 border-r border-line bg-surface/60 p-4 lg:flex">
         <Skeleton className="mb-6 h-8 w-32" />
-        {[1, 2, 3, 4, 5].map((item) => (
+        {[1, 2, 3, 4, 5, 6].map((item) => (
           <Skeleton key={item} className="h-11 w-full rounded-input" />
         ))}
       </div>

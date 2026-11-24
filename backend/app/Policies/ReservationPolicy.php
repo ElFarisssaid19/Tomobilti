@@ -2,15 +2,22 @@
 
 namespace App\Policies;
 
+use App\Enums\ReservationStatus;
+use App\Exceptions\ReservationTransitionException;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 /**
- * What a customer may do with reservations (discovered automatically for Reservation).
+ * What a customer and the agency may do with reservations (discovered automatically
+ * for Reservation).
  *
  * A customer only ever sees their own reservations: someone else's answers 404,
- * so its existence is not revealed. The agency's actions come in Phase 5.
+ * so its existence is not revealed.
+ *
+ * Agency actions (admins only) follow ReservationStatus::allowedTransitions(): a
+ * forbidden move answers 403 with the French reason ("Impossible de confirmer une
+ * réservation « terminée »."). ReservationWorkflow checks again under a row lock.
  */
 class ReservationPolicy
 {
@@ -64,6 +71,54 @@ class ReservationPolicy
         }
 
         return Response::allow();
+    }
+
+    /**
+     * Back office: list, read, export and annotate every reservation.
+     */
+    public function manage(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    public function confirm(User $user, Reservation $reservation): Response
+    {
+        return $this->adminTransition($user, $reservation, ReservationStatus::Confirmed);
+    }
+
+    public function reject(User $user, Reservation $reservation): Response
+    {
+        return $this->adminTransition($user, $reservation, ReservationStatus::Rejected);
+    }
+
+    public function markPickedUp(User $user, Reservation $reservation): Response
+    {
+        return $this->adminTransition($user, $reservation, ReservationStatus::Active);
+    }
+
+    public function markReturned(User $user, Reservation $reservation): Response
+    {
+        return $this->adminTransition($user, $reservation, ReservationStatus::Completed);
+    }
+
+    /**
+     * The agency may cancel any pending or confirmed reservation, at any time (the
+     * 24-hour rule only limits the customer), with a reason.
+     */
+    public function cancelAsAdmin(User $user, Reservation $reservation): Response
+    {
+        return $this->adminTransition($user, $reservation, ReservationStatus::Cancelled);
+    }
+
+    private function adminTransition(User $user, Reservation $reservation, ReservationStatus $to): Response
+    {
+        if (! $user->isAdmin()) {
+            return Response::deny();
+        }
+
+        return $reservation->status->canTransitionTo($to)
+            ? Response::allow()
+            : Response::deny(ReservationTransitionException::notAllowedMessage($reservation->status, $to));
     }
 
     private function owns(User $user, Reservation $reservation): bool

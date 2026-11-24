@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
@@ -141,6 +142,16 @@ class Reservation extends Model
     }
 
     /**
+     * Every status change, oldest first (the first row is the creation).
+     *
+     * @return HasMany<ReservationStatusHistory, $this>
+     */
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(ReservationStatusHistory::class)->orderBy('created_at')->orderBy('id');
+    }
+
+    /**
      * @return HasOne<Invoice, $this>
      */
     public function invoice(): HasOne
@@ -202,6 +213,15 @@ class Reservation extends Model
     protected function current(Builder $query): void
     {
         $query->where('start_at', '<=', now())->where('end_at', '>', now());
+    }
+
+    /**
+     * Reservations whose period is not over yet (upcoming or in progress).
+     */
+    #[Scope]
+    protected function notEnded(Builder $query): void
+    {
+        $query->where('end_at', '>', now());
     }
 
     /**

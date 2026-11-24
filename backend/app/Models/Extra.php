@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ExtraPricing;
+use App\Models\Concerns\HasUniqueSlug;
 use Database\Factories\ExtraFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Extra extends Model
 {
     /** @use HasFactory<ExtraFactory> */
-    use HasFactory;
+    use HasFactory, HasUniqueSlug;
 
     /**
      * Get the attributes that should be cast.

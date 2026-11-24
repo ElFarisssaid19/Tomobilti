@@ -89,7 +89,7 @@ Rebuild the database with the demo data at any time (from `backend/`):
 php artisan migrate:fresh --seed
 ```
 
-The seed is reproducible (fixed Faker seed): 32 cars with real photos (committed in `backend/database/seeders/assets/cars`, credits in [docs/image-credits.md](docs/image-credits.md)), 5 pick-up locations, 27 users and 64 reservations in every status, with their invoices. Reservation dates are relative to the day you seed.
+The seed is reproducible (fixed Faker seed): 32 cars with real photos (committed in `backend/database/seeders/assets/cars`, credits in [docs/image-credits.md](docs/image-credits.md)), 5 pick-up locations, 27 users and 64 reservations in every status, with their status history and invoices. Reservation dates are relative to the day you seed.
 
 ### Demo accounts
 
@@ -122,7 +122,7 @@ Run from the repository root:
 
 | Command                 | What it does                                                     |
 | ----------------------- | ---------------------------------------------------------------- |
-| `npm run dev`           | API (`php artisan serve`) + queue worker + scheduler (`php artisan schedule:work`) + Vite, colored output |
+| `npm run dev`           | API (`php artisan serve`, with `backend/php/dev.ini` for photo uploads) + queue worker + scheduler (`php artisan schedule:work`) + Vite, colored output |
 | `npm run services:up`   | Start the Docker services and wait until healthy                 |
 | `npm run services:down` | Stop the Docker services (data is kept in Docker volumes)        |
 | `npm run services:logs` | Follow the Docker services logs                                  |
@@ -293,6 +293,105 @@ and the double-booking protection are described in [docs/database.md](docs/datab
 
 Details in [frontend/DESIGN.md](frontend/DESIGN.md) ("Booking flow and reservations").
 
+## Admin back office (Phase 5)
+
+The agency's back office at `/admin` (admins only; clients get the 403 page). The SPA
+loads it lazily, so visitors and clients never download it (Recharts included).
+
+### What the agency can do
+
+- **Tableau de bord**: period switch (30 jours, 90 jours, 12 mois, in the URL), KPIs
+  (revenue, expected revenue, requests to answer, active rentals, fleet utilisation),
+  reservations received per status, today's and tomorrow's pick-ups and returns, alerts
+  (pending requests within 48 h, cars in maintenance or out of service), revenue per month
+  and reservations per week charts, top 5 cars, share per category and per agency, latest
+  reservations.
+- **Réservations**: tabs À traiter / Aujourd'hui / En cours / Toutes with counts, filters
+  in the URL (status, agency, car, dates, search on reference, name, email or phone),
+  sort, table on desktop and cards on mobile, CSV export of the filtered list. The detail
+  page shows the client, the car, the agencies, the price breakdown, the notes and the full
+  status history, with the actions the status allows: Confirmer, Refuser (reason
+  required), Marquer comme récupérée, Marquer comme rendue, Annuler (reason required).
+- **Planning**: one row per car, the reservations as bars colored by status over two weeks
+  (week navigation, today marker, tooltips, click to open). No calendar library.
+- **Voitures**: search, filters, status badges; create and edit in sections; photos
+  uploaded by drag and drop (progress per file), reordered, set as primary, described
+  (alt text) or deleted; status change that lists the affected reservations first;
+  removal (soft delete, refused while reservations still need the car) and restore.
+- **Clients**: search and filters, reservation count and total spent, detail page with
+  the history, activate / deactivate.
+- **Paramètres**: categories, brands, agencies and options, with modal forms. Anything
+  still in use cannot be deleted (409 with the reason); agencies and options are
+  deactivated instead.
+
+### Rules the server enforces
+
+- Every route below is behind `auth:sanctum` + `admin` (401 for guests, 403 for clients,
+  checked before route model binding) and each action also has a policy
+  (`app/Policies`: `CarPolicy`, `UserPolicy`, `ReservationPolicy`, settings policies).
+- **Every status change goes through `App\Services\ReservationWorkflow`**: it locks the
+  reservation row, checks `ReservationStatus::canTransitionTo()`, saves the timestamp and
+  reason, and writes a `reservation_status_histories` row with the author (customer,
+  admin, or none for the scheduler). Confirming also locks the car row and checks again
+  that the car is rentable and that no other blocking reservation overlaps (409
+  otherwise). A move the status does not allow answers 403 with the French reason.
+- **Deactivating a client** deletes their database sessions, replaces their remember-me
+  token and revokes API tokens: their next request answers 401 and they cannot sign in
+  again. An admin cannot deactivate themselves or another admin.
+- **Photos** (`App\Services\CarPhotoUploader`) use the same GD pipeline as the demo
+  photos: EXIF orientation applied, 16:10 crop, `-1600.webp` and `-800.webp`, metadata
+  removed, credited "Tomobilti". JPG, PNG or WebP, 5 MB each. The first real photo
+  replaces the SVG placeholder.
+- **Dashboard figures** are defined in `App\Services\DashboardStats` (one aggregate query
+  each): revenue = completed reservations returned in the period; expected revenue =
+  confirmed + active; utilisation = hours of confirmed, active and completed rentals
+  inside the period / (cars not removed and not out of service × days).
+
+### Endpoints
+
+All under `/api/admin`, JSON, French messages. Cars and settings are found by id,
+reservations by reference.
+
+| Endpoint                                                | Notes                                                                                                                                                                                                                                    |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /dashboard?period=30d\|90d\|12m`                   | KPIs, `today`, `charts`, `alerts`, `recent`                                                                                                                                                                                              |
+| `GET /reservations`                                     | `tab` (`pending`, `today`, `active`, `all`), `status` (comma separated), `from`, `to`, `car`, `location`, `q`, `sort` (`start_at`, `end_at`, `created_at`, `total`, `reference`), `direction`, `page`, `per_page`; `meta.counts` per tab |
+| `GET /reservations/export`                              | Same filters, every page, CSV: UTF-8 with BOM, `;` separators, decimal commas, French headers                                                                                                                                            |
+| `GET /reservations/{reference}`                         | Client, car, agencies, extras, `pricing`, notes, `timeline`, `invoice`, `history`                                                                                                                                                        |
+| `POST /reservations/{reference}/confirm`                | pending → confirmed (car locked, availability checked again)                                                                                                                                                                             |
+| `POST /reservations/{reference}/reject`                 | `reason` required; pending → rejected                                                                                                                                                                                                    |
+| `POST /reservations/{reference}/pick-up`                | confirmed → active, `picked_up_at`                                                                                                                                                                                                       |
+| `POST /reservations/{reference}/return`                 | active → completed, `returned_at`                                                                                                                                                                                                        |
+| `POST /reservations/{reference}/cancel`                 | `reason` required; pending or confirmed → cancelled (no 24 h limit for the agency)                                                                                                                                                       |
+| `PATCH /reservations/{reference}/notes`                 | `admin_notes` (never shown to the customer)                                                                                                                                                                                              |
+| `GET /planning?from=&to=`                               | Per car, its reservations in the range (cancelled and refused left out); 31 days max, default this week + next                                                                                                                           |
+| `GET /cars`                                             | `q`, `status`, `category`, `brand`, `location`, `deleted` (`with`, `only`), `sort`, `direction`, `page`, `per_page`                                                                                                                      |
+| `POST /cars`, `GET\|PUT /cars/{id}`                     | Form request; plate normalized to `12345-A-6` and unique; slug from brand + model + year, unique                                                                                                                                         |
+| `DELETE /cars/{id}`, `POST /cars/{id}/restore`          | Soft delete, 409 with the reservations while upcoming or current ones need the car                                                                                                                                                       |
+| `GET /cars/{id}/status-conflicts`                       | Pending and confirmed reservations not over yet                                                                                                                                                                                          |
+| `PATCH /cars/{id}/status`                               | `status`, `force`; without `force`, 409 with the affected reservations                                                                                                                                                                   |
+| `POST /cars/{id}/images`                                | Multipart `images[]` (1 to 10)                                                                                                                                                                                                           |
+| `PUT /cars/{id}/images/order`                           | `ids`: every photo, once                                                                                                                                                                                                                 |
+| `PATCH\|DELETE /cars/{id}/images/{image}`               | `alt`, `is_primary` / delete with the files                                                                                                                                                                                              |
+| `GET /clients`, `GET /clients/{id}`                     | `q`, `active`, `verified`, `sort`; detail with `stats` and `reservations`                                                                                                                                                                |
+| `POST /clients/{id}/activate`, `/deactivate`            | Deactivation ends every session                                                                                                                                                                                                          |
+| `GET\|POST /categories`, `PUT\|DELETE /categories/{id}` | Same for `/brands`, `/locations`, `/extras`; 409 when in use                                                                                                                                                                             |
+
+### SPA routes
+
+`/admin`, `/admin/reservations`, `/admin/reservations/:reference`, `/admin/planning`,
+`/admin/voitures`, `/admin/voitures/nouvelle`, `/admin/voitures/:id`, `/admin/clients`,
+`/admin/clients/:id`, `/admin/parametres` (`?onglet=categories|brands|locations|extras`).
+The sidebar badge on Réservations shows the requests to answer, refreshed every 60 seconds.
+Details in [frontend/DESIGN.md](frontend/DESIGN.md) ("Admin back office").
+
+### Photo uploads in development
+
+PHP's defaults (2 MB per file, 8 MB per request) are below the 5 MB photo limit, so
+`npm run dev:api` loads `backend/php/dev.ini` through `PHP_INI_SCAN_DIR` (the system
+`php.ini` is not changed). In production, set the same limits (`upload_max_filesize`,
+`post_max_size`) in PHP-FPM and the web server.
+
 ## VS Code
 
 Open the repository root. Install the recommended extensions when VS Code suggests them (`.vscode/extensions.json`).
@@ -308,7 +407,7 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
 - [x] **Phase 2: Auth & roles** (Sanctum SPA login, registration, email verification, password reset, customer profile, admin role; see [Authentication and roles](#authentication-and-roles))
 - [x] **Phase 3: Catalogue** (public catalogue API, search and filters, car detail with availability, home, about and contact pages; see [Public catalogue and website](#public-catalogue-and-website-phase-3))
 - [x] **Phase 4: Reservation** (booking flow, pricing in MAD, my reservations, cancellation, new home hero photo; see [Reservations](#reservations-phase-4))
-- [ ] **Phase 5: Admin dashboard** (fleet, bookings, customers, statistics)
+- [x] **Phase 5: Admin back office** (dashboard and statistics, reservations with status history, planning, fleet and photos, customers, catalogue settings; see [Admin back office](#admin-back-office-phase-5))
 - [ ] **Phase 6: Invoices & notifications** (PDF invoices, emails)
 - [ ] **Phase 7: Polish** (UX, accessibility, performance, tests)
 - [ ] **Phase 8: Deployment** (production hosting, CI/CD)

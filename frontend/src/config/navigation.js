@@ -1,9 +1,10 @@
 import {
   CalendarCheck,
+  CalendarRange,
   CarFront,
   House,
   LayoutDashboard,
-  Tags,
+  Settings,
   UserRound,
   Users,
 } from 'lucide-react'
@@ -33,11 +34,15 @@ export const CLIENT_LINKS = [
   { label: 'Profil', to: '/espace/profil', icon: UserRound },
 ]
 
-/** Admin sidebar. */
+/**
+ * Admin sidebar. `badge: 'pending'` shows the number of requests to answer
+ * (refreshed every 60 seconds, see usePendingCount).
+ */
 export const ADMIN_LINKS = [
   { label: 'Tableau de bord', to: '/admin', icon: LayoutDashboard, end: true },
+  { label: 'Réservations', to: '/admin/reservations', icon: CalendarCheck, badge: 'pending' },
+  { label: 'Planning', to: '/admin/planning', icon: CalendarRange },
   { label: 'Voitures', to: '/admin/voitures', icon: CarFront },
-  { label: 'Catégories', to: '/admin/categories', icon: Tags },
-  { label: 'Réservations', to: '/admin/reservations', icon: CalendarCheck },
   { label: 'Clients', to: '/admin/clients', icon: Users },
+  { label: 'Paramètres', to: '/admin/parametres', icon: Settings },
 ]

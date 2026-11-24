@@ -1,6 +1,19 @@
 <?php
 
+use App\Http\Controllers\Admin\CarController as AdminCarController;
+use App\Http\Controllers\Admin\CarImageController;
+use App\Http\Controllers\Admin\CarStatusController;
+use App\Http\Controllers\Admin\ClientActivationController;
+use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PingController;
+use App\Http\Controllers\Admin\PlanningController;
+use App\Http\Controllers\Admin\ReservationActionController;
+use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
+use App\Http\Controllers\Admin\Settings\BrandController as AdminBrandController;
+use App\Http\Controllers\Admin\Settings\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\Settings\ExtraController as AdminExtraController;
+use App\Http\Controllers\Admin\Settings\LocationController as AdminLocationController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\CurrentUserController;
@@ -135,8 +148,60 @@ Route::prefix('reservations')->name('reservations.')->middleware('auth:sanctum')
 |--------------------------------------------------------------------------
 | Admin area (auth:sanctum + admin): 401 for guests, 403 for clients
 |--------------------------------------------------------------------------
+|
+| Every action also checks its policy (app/Policies). Cars and catalogue settings
+| are found by id here (slugs are for public URLs), reservations by reference.
+| Removed (soft deleted) cars stay reachable, so they can be viewed and restored.
+|
 */
 
 Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/ping', PingController::class)->name('ping');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/planning', PlanningController::class)->name('planning');
+
+    Route::prefix('cars')->name('cars.')->group(function () {
+        Route::get('/', [AdminCarController::class, 'index'])->name('index');
+        Route::post('/', [AdminCarController::class, 'store'])->name('store');
+
+        Route::withoutScopedBindings()->group(function () {
+            Route::get('/{car:id}', [AdminCarController::class, 'show'])->withTrashed()->name('show');
+            Route::put('/{car:id}', [AdminCarController::class, 'update'])->withTrashed()->name('update');
+            Route::delete('/{car:id}', [AdminCarController::class, 'destroy'])->name('destroy');
+            Route::post('/{car:id}/restore', [AdminCarController::class, 'restore'])->withTrashed()->name('restore');
+            Route::get('/{car:id}/status-conflicts', [CarStatusController::class, 'conflicts'])->withTrashed()->name('status.conflicts');
+            Route::patch('/{car:id}/status', [CarStatusController::class, 'update'])->withTrashed()->name('status.update');
+        });
+
+        Route::post('/{car:id}/images', [CarImageController::class, 'store'])->withTrashed()->name('images.store');
+        Route::put('/{car:id}/images/order', [CarImageController::class, 'reorder'])->withTrashed()->name('images.reorder');
+        Route::scopeBindings()->group(function () {
+            Route::patch('/{car:id}/images/{image}', [CarImageController::class, 'update'])->withTrashed()->name('images.update');
+            Route::delete('/{car:id}/images/{image}', [CarImageController::class, 'destroy'])->withTrashed()->name('images.destroy');
+        });
+    });
+
+    Route::prefix('reservations')->name('reservations.')->group(function () {
+        Route::get('/', [AdminReservationController::class, 'index'])->name('index');
+        Route::get('/export', [AdminReservationController::class, 'export'])->name('export');
+        Route::get('/{reservation:reference}', [AdminReservationController::class, 'show'])->name('show');
+        Route::post('/{reservation:reference}/confirm', [ReservationActionController::class, 'confirm'])->name('confirm');
+        Route::post('/{reservation:reference}/reject', [ReservationActionController::class, 'reject'])->name('reject');
+        Route::post('/{reservation:reference}/pick-up', [ReservationActionController::class, 'pickUp'])->name('pick-up');
+        Route::post('/{reservation:reference}/return', [ReservationActionController::class, 'return'])->name('return');
+        Route::post('/{reservation:reference}/cancel', [ReservationActionController::class, 'cancel'])->name('cancel');
+        Route::patch('/{reservation:reference}/notes', [ReservationActionController::class, 'notes'])->name('notes');
+    });
+
+    Route::prefix('clients')->name('clients.')->group(function () {
+        Route::get('/', [ClientController::class, 'index'])->name('index');
+        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
+        Route::post('/{client}/activate', [ClientActivationController::class, 'activate'])->name('activate');
+        Route::post('/{client}/deactivate', [ClientActivationController::class, 'deactivate'])->name('deactivate');
+    });
+
+    Route::apiResource('categories', AdminCategoryController::class)->except('show')->parameters(['categories' => 'category:id']);
+    Route::apiResource('brands', AdminBrandController::class)->except('show')->parameters(['brands' => 'brand:id']);
+    Route::apiResource('locations', AdminLocationController::class)->except('show')->parameters(['locations' => 'location:id']);
+    Route::apiResource('extras', AdminExtraController::class)->except('show')->parameters(['extras' => 'extra:id']);
 });

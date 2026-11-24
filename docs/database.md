@@ -23,6 +23,8 @@ erDiagram
     reservations ||--o{ extra_reservation : "includes"
     extras ||--o{ extra_reservation : "is booked in"
     reservations ||--o| invoices : "is billed by"
+    reservations ||--o{ reservation_status_histories : "changes"
+    users |o--o{ reservation_status_histories : "makes"
 
     users {
         bigint id PK
@@ -141,6 +143,15 @@ erDiagram
         string pricing
         decimal total
     }
+    reservation_status_histories {
+        bigint id PK
+        bigint reservation_id FK
+        string from_status
+        string to_status
+        bigint user_id FK
+        text note
+        timestamp created_at
+    }
     invoices {
         bigint id PK
         bigint reservation_id FK,UK
@@ -156,7 +167,7 @@ erDiagram
     }
 ```
 
-Every table also has `created_at` and `updated_at`.
+Every table also has `created_at` and `updated_at` (except `reservation_status_histories`, which only has `created_at`).
 
 ## Tables
 
@@ -315,6 +326,24 @@ Scopes: `withStatus(...$statuses)`, `blocking()`, `overlapping($start, $end)`, `
 
 `ReservationTab` (tabs of "Mes réservations") puts every reservation in exactly one tab: **upcoming** (pending or confirmed, not started), **current** (active, or pending / confirmed inside its period), **past** (completed, or pending / confirmed whose period is over), **cancelled** (cancelled or rejected).
 
+### `reservation_status_histories` (Phase 5)
+
+One row per step of a reservation's life, oldest first (`Reservation::statusHistories()`), model `ReservationStatusHistory`. Rows are only inserted, never edited (no `updated_at`).
+
+| Column           | Type                                   | Notes                                                                                                                         |
+| ---------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `reservation_id` | FK, cascade on delete                  |                                                                                                                               |
+| `from_status`    | string(20), nullable                   | `ReservationStatus`; null on the first row (the booking itself).                                                              |
+| `to_status`      | string(20)                             | `ReservationStatus`.                                                                                                          |
+| `user_id`        | FK → `users`, nullable, null on delete | Who made the change: the customer (booking, free cancellation), an admin, or null for the scheduler (`reservations:expire`). |
+| `note`           | text, nullable                         | The reason of a refusal or a cancellation ("Demande expirée" for an expired request).                                         |
+| `created_at`     | timestamp                              | When the change was made. Index `(reservation_id, created_at)`.                                                               |
+
+Who writes it:
+
+- `ReservationBooker` writes the first row (null → pending, the customer) in the booking transaction.
+- **`App\Services\ReservationWorkflow` is the only way a status changes**: customer cancellation, admin actions (confirm, reject, pick up, return, cancel) and the expiry of unanswered requests. Each change locks the reservation row (`SELECT … FOR UPDATE`), reads the status again, checks `ReservationStatus::canTransitionTo()`, saves the status with its timestamp and reason, and inserts the history row, in one transaction. Confirming also locks the car row and checks again that the car is available and that no other blocking reservation overlaps; otherwise `ReservationTransitionException` answers 409 with a French message.
+
 ### `extra_reservation`
 
 Pivot between reservations and extras (model `ExtraReservation`), with the price snapshot. Unique on `(reservation_id, extra_id)`.
@@ -398,6 +427,8 @@ stateDiagram-v2
 - `canBeCancelled()`: true for `pending` and `confirmed`.
 - `allowedTransitions()`, `canTransitionTo($status)`, `isFinal()`.
 
+Every transition goes through `ReservationWorkflow` and is recorded in `reservation_status_histories` (see that table).
+
 ## Availability rule
 
 A car can be booked for a period when:
@@ -454,6 +485,7 @@ The seeders use a fixed Faker seed (`DatabaseSeeder::FAKER_SEED`), so seeding tw
 | `reservations`      | 64   | Every status, past/current/upcoming, no overlapping blocking reservation on a car                                      |
 | `extra_reservation` | ≈ 70 |                                                                                                                        |
 | `invoices`          | 36   | Paid for every completed reservation, unpaid for every other confirmed one                                             |
+| `reservation_status_histories` | ≈ 190 | One row per lifecycle timestamp (created by the customer; confirmed, refused, picked up, returned by the admin; cancelled by the customer or, one in three, by the agency with a reason) |
 
 ### Demo accounts
 

@@ -13,6 +13,7 @@ use App\Models\Extra;
 use App\Models\Invoice;
 use App\Models\Location;
 use App\Models\Reservation;
+use App\Models\ReservationStatusHistory;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -26,6 +27,11 @@ use Illuminate\Support\Collection;
  *  - an older one, 32 to 90 days ago (completed, cancelled or rejected);
  *  - a recent one: in progress, upcoming, or finished in the last 3 weeks.
  * Cars in maintenance only get past reservations.
+ *
+ * Each reservation also gets its status history (reservation_status_histories), one
+ * row per lifecycle timestamp: created by the customer, confirmed / refused / picked
+ * up / returned by the agency's admin, cancelled by the customer (or, for one in
+ * three, by the agency with a reason).
  */
 class ReservationSeeder extends Seeder
 {
@@ -60,6 +66,11 @@ class ReservationSeeder extends Seeder
     ];
 
     /**
+     * Reason given when the agency cancels a reservation.
+     */
+    private const AGENCY_CANCELLATION_REASON = 'Véhicule immobilisé pour un entretien imprévu. Le client a été prévenu par téléphone.';
+
+    /**
      * Pick-up hours offered by the agency.
      *
      * @var list<array{0: int, 1: int}>
@@ -76,6 +87,7 @@ class ReservationSeeder extends Seeder
         $extras = Extra::orderBy('id')->get();
         $locationIds = Location::orderBy('id')->pluck('id')->all();
         $demoClient = User::where('email', UserSeeder::CLIENT_EMAIL)->firstOrFail();
+        $admin = User::where('role', UserRole::Admin)->orderBy('id')->firstOrFail();
         $clients = User::where('role', UserRole::Client)
             ->where('is_active', true)
             ->whereKeyNot($demoClient->id)
@@ -102,6 +114,8 @@ class ReservationSeeder extends Seeder
         usort($plans, fn (array $a, array $b): int => $a['created_at'] <=> $b['created_at']);
 
         $reservations = collect($plans)->map(fn (array $plan): Reservation => $this->createReservation($plan, $extras));
+
+        $reservations->each(fn (Reservation $reservation) => $this->createHistory($reservation, $admin));
 
         $this->createInvoices($reservations);
     }
@@ -282,6 +296,46 @@ class ReservationSeeder extends Seeder
         }
 
         return $reservation;
+    }
+
+    /**
+     * History rows matching the lifecycle timestamps. One cancellation in three is the
+     * agency's (with a reason): the row's author is the admin, and the reason is saved.
+     */
+    private function createHistory(Reservation $reservation, User $admin): void
+    {
+        $agencyCancels = $reservation->status === ReservationStatus::Cancelled && $reservation->id % 3 === 0;
+
+        if ($agencyCancels) {
+            $reservation->forceFill(['cancellation_reason' => self::AGENCY_CANCELLATION_REASON])->saveQuietly();
+        }
+
+        $steps = [[null, ReservationStatus::Pending, $reservation->user_id, null, $reservation->created_at]];
+        $previous = ReservationStatus::Pending;
+
+        foreach ([
+            [ReservationStatus::Confirmed, $reservation->confirmed_at, $admin->id, null],
+            [ReservationStatus::Active, $reservation->picked_up_at, $admin->id, null],
+            [ReservationStatus::Completed, $reservation->returned_at, $admin->id, null],
+            [ReservationStatus::Rejected, $reservation->rejected_at, $admin->id, $reservation->rejection_reason],
+            [ReservationStatus::Cancelled, $reservation->cancelled_at, $agencyCancels ? $admin->id : $reservation->user_id, $reservation->cancellation_reason],
+        ] as [$status, $at, $userId, $note]) {
+            if ($at === null) {
+                continue;
+            }
+
+            $steps[] = [$previous, $status, $userId, $note, $at];
+            $previous = $status;
+        }
+
+        ReservationStatusHistory::insert(array_map(fn (array $step): array => [
+            'reservation_id' => $reservation->id,
+            'from_status' => $step[0]?->value,
+            'to_status' => $step[1]->value,
+            'user_id' => $step[2],
+            'note' => $step[3],
+            'created_at' => $step[4],
+        ], $steps));
     }
 
     /**

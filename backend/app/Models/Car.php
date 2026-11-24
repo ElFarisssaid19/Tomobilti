@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * A car of the rental fleet.
@@ -185,6 +186,39 @@ class Car extends Model
             ->overlapping($start, $end)
             ->when($ignoreReservationId, fn (Builder $query, int $id) => $query->whereKeyNot($id))
             ->doesntExist();
+    }
+
+    /**
+     * A free slug for brand + model + year ("renault-clio-5-2025"), with "-2", "-3"…
+     * when another car (removed ones included) already has it.
+     */
+    public static function uniqueSlug(string $brand, string $model, int $year, ?int $ignoreId = null): string
+    {
+        $base = Str::slug("{$brand} {$model} {$year}");
+        $taken = static::withTrashed()
+            ->where(fn (Builder $query) => $query->where('slug', $base)->orWhere('slug', 'like', "{$base}-%"))
+            ->when($ignoreId, fn (Builder $query, int $id) => $query->whereKeyNot($id))
+            ->pluck('slug')
+            ->all();
+
+        $slug = $base;
+
+        for ($suffix = 2; in_array($slug, $taken, true); $suffix++) {
+            $slug = "{$base}-{$suffix}";
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Blocking reservations (pending, confirmed, active) that are not over yet: what
+     * still needs this car.
+     *
+     * @return HasMany<Reservation, $this>
+     */
+    public function upcomingReservations(): HasMany
+    {
+        return $this->reservations()->blocking()->notEnded();
     }
 
     /**

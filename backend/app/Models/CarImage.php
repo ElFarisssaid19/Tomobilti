@@ -96,6 +96,14 @@ class CarImage extends Model
     }
 
     /**
+     * Whether this is a generated SVG placeholder rather than a photo.
+     */
+    public function isPlaceholder(): bool
+    {
+        return Str::endsWith($this->path, '.svg');
+    }
+
+    /**
      * Public URL of the card-size version (falls back to `url` for placeholders).
      *
      * @return Attribute<string, never>

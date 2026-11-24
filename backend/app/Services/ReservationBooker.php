@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\DB;
  *   1. lock the car row (SELECT … FOR UPDATE): a second booking of the same car
  *      waits here until the first transaction ends;
  *   2. check availability again, now that nobody else can book this car;
- *   3. save the reservation with its price snapshots and its extras.
+ *   3. save the reservation with its price snapshots, its extras and the first row
+ *      of its status history (created by the customer, pending).
  *
  * So when two customers confirm the same car for overlapping times at the same
  * moment, the second one sees the first reservation in step 2 and gets a 409.
@@ -76,6 +77,13 @@ class ReservationBooker
                         'deposit_amount' => $price->depositAmount,
                         'status' => ReservationStatus::Pending,
                         'customer_notes' => $customerNotes,
+                    ]);
+
+                    $reservation->statusHistories()->create([
+                        'from_status' => null,
+                        'to_status' => ReservationStatus::Pending,
+                        'user_id' => $user->id,
+                        'created_at' => $reservation->created_at,
                     ]);
 
                     foreach ($price->extras as $line) {

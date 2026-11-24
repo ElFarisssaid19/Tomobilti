@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -155,6 +157,26 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return true;
+    }
+
+    /**
+     * Disable the account and end every way it is signed in, so its next request
+     * answers 401: the database sessions holding its id are deleted, the "remember
+     * me" token is replaced (old cookies no longer match) and API tokens are revoked.
+     */
+    public function deactivateAndSignOut(): void
+    {
+        DB::transaction(function (): void {
+            $this->forceFill(['is_active' => false, 'remember_token' => Str::random(60)])->save();
+            $this->tokens()->delete();
+
+            if (config('session.driver') === 'database') {
+                DB::connection(config('session.connection'))
+                    ->table(config('session.table', 'sessions'))
+                    ->where('user_id', $this->getKey())
+                    ->delete();
+            }
+        });
     }
 
     /**

@@ -32,7 +32,8 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    // The SPA reads the file name of downloads (CSV export of the back office).
+    'exposed_headers' => ['Content-Disposition'],
 
     'max_age' => 0,
 

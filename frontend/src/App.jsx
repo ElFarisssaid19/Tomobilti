@@ -11,7 +11,6 @@ import {
 import ClientLayout from './layouts/ClientLayout.jsx'
 import PublicLayout from './layouts/PublicLayout.jsx'
 import RootLayout from './layouts/RootLayout.jsx'
-import ComingSoonPage from './pages/ComingSoonPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
@@ -36,6 +35,16 @@ const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'))
 const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'))
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage.jsx'))
+const AdminReservationsPage = lazy(() => import('./pages/admin/AdminReservationsPage.jsx'))
+const AdminReservationDetailPage = lazy(
+  () => import('./pages/admin/AdminReservationDetailPage.jsx'),
+)
+const AdminPlanningPage = lazy(() => import('./pages/admin/AdminPlanningPage.jsx'))
+const AdminCarsPage = lazy(() => import('./pages/admin/AdminCarsPage.jsx'))
+const AdminCarFormPage = lazy(() => import('./pages/admin/AdminCarFormPage.jsx'))
+const AdminClientsPage = lazy(() => import('./pages/admin/AdminClientsPage.jsx'))
+const AdminClientDetailPage = lazy(() => import('./pages/admin/AdminClientDetailPage.jsx'))
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage.jsx'))
 
 // Living style guide: development only. The condition is static, so Vite drops the
 // import (and the whole style guide) from the production build.
@@ -50,8 +59,13 @@ function page(Page, label) {
   )
 }
 
-function adminPlaceholder(title) {
-  return <ComingSoonPage title={title} phase="phase 5" inContainer={false} />
+/** A lazy admin page, under the admin topbar, with its loading skeleton. */
+function adminPage(Page, label) {
+  return (
+    <Suspense fallback={<ContentSkeleton label={label} />}>
+      <Page />
+    </Suspense>
+  )
 }
 
 export default function App() {
@@ -129,16 +143,43 @@ export default function App() {
           >
             <Route
               index
-              element={
-                <Suspense fallback={<ContentSkeleton label="Chargement du tableau de bord…" />}>
-                  <AdminDashboardPage />
-                </Suspense>
-              }
+              element={adminPage(AdminDashboardPage, 'Chargement du tableau de bord…')}
             />
-            <Route path="voitures" element={adminPlaceholder('Voitures')} />
-            <Route path="categories" element={adminPlaceholder('Catégories')} />
-            <Route path="reservations" element={adminPlaceholder('Réservations')} />
-            <Route path="clients" element={adminPlaceholder('Clients')} />
+            <Route
+              path="reservations"
+              element={adminPage(AdminReservationsPage, 'Chargement des réservations…')}
+            />
+            <Route
+              path="reservations/:reference"
+              element={adminPage(AdminReservationDetailPage, 'Chargement de la réservation…')}
+            />
+            <Route
+              path="planning"
+              element={adminPage(AdminPlanningPage, 'Chargement du planning…')}
+            />
+            <Route path="voitures" element={adminPage(AdminCarsPage, 'Chargement de la flotte…')} />
+            <Route
+              path="voitures/nouvelle"
+              element={adminPage(AdminCarFormPage, 'Chargement du formulaire…')}
+            />
+            <Route
+              path="voitures/:id"
+              element={adminPage(AdminCarFormPage, 'Chargement de la voiture…')}
+            />
+            <Route
+              path="clients"
+              element={adminPage(AdminClientsPage, 'Chargement des clients…')}
+            />
+            <Route
+              path="clients/:id"
+              element={adminPage(AdminClientDetailPage, 'Chargement du client…')}
+            />
+            <Route
+              path="parametres"
+              element={adminPage(AdminSettingsPage, 'Chargement des paramètres…')}
+            />
+            <Route path="categories" element={<Navigate to="/admin/parametres" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
 

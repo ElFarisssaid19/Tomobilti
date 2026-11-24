@@ -31,7 +31,12 @@ export default function Table({
   if (!loading && rows.length === 0 && empty) return empty
 
   return (
-    <div className={cn('overflow-x-auto rounded-card border border-line bg-surface', className)}>
+    <div
+      className={cn(
+        'relative overflow-x-auto rounded-card border border-line bg-surface',
+        className,
+      )}
+    >
       <table className="w-full min-w-[40rem] border-collapse text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>

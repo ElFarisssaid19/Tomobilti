@@ -26,6 +26,14 @@ export const RESERVATION_TAB = {
   cancelled: 'Annulées',
 }
 
+/** Tabs of the back-office reservations list (backend AdminReservationTab), in display order. */
+export const ADMIN_RESERVATION_TAB = {
+  pending: 'À traiter',
+  today: 'Aujourd’hui',
+  active: 'En cours',
+  all: 'Toutes',
+}
+
 export const TRANSMISSION = {
   manual: 'Manuelle',
   automatic: 'Automatique',

@@ -15,7 +15,7 @@ import { formatNumber, formatPrice } from '../../utils/format.js'
 const FORMATTERS = {
   number: (value) => formatNumber(Math.round(value)),
   price: (value) => formatPrice(Math.round(value)),
-  percent: (value) => `${formatNumber(Math.round(value))} %`,
+  percent: (value) => `${formatNumber(value, { maximumFractionDigits: 1 })} %`,
 }
 
 /**
@@ -49,8 +49,10 @@ export function CountUp({ value, format = 'number', className }) {
 }
 
 /**
- * Admin metric: icon, label, animated value and an optional trend.
+ * Admin metric: icon, label, animated value, an optional trend and an optional `hint`
+ * (one short line that says what the number counts).
  * @example <StatCard icon={CalendarCheck} label="Réservations ce mois" value={128} trend={{ value: 12, label: 'vs octobre' }} />
+ * @example <StatCard icon={Gauge} label="Taux d’utilisation" value={64} format="percent" hint="46 jours loués sur 960" />
  */
 export default function StatCard({
   icon: Icon,
@@ -58,6 +60,7 @@ export default function StatCard({
   value,
   format = 'number',
   trend,
+  hint,
   className,
 }) {
   const up = trend && trend.value >= 0
@@ -79,6 +82,7 @@ export default function StatCard({
         )}
       </div>
       <CountUp value={value} format={format} className="text-3xl font-bold text-fg" />
+      {hint && <p className="text-sm text-fg-subtle">{hint}</p>}
       {trend && (
         <p className="flex items-center gap-1.5 text-sm">
           <span

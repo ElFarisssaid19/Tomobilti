@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LocationType;
+use App\Models\Concerns\HasUniqueSlug;
 use Database\Factories\LocationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Location extends Model
 {
     /** @use HasFactory<LocationFactory> */
-    use HasFactory;
+    use HasFactory, HasUniqueSlug;
 
     /**
      * Get the attributes that should be cast.

@@ -24,4 +24,28 @@ export const queryKeys = {
     detail: (reference) => ['reservations', 'detail', reference],
     quote: (payload) => ['reservations', 'quote', payload],
   },
+  /* Back office: every admin query starts with 'admin', so they can be refreshed together. */
+  admin: {
+    all: ['admin'],
+    dashboard: (period) => ['admin', 'dashboard', period],
+    reservations: {
+      all: ['admin', 'reservations'],
+      list: (params) => ['admin', 'reservations', 'list', params],
+      detail: (reference) => ['admin', 'reservations', 'detail', reference],
+      pendingCount: () => ['admin', 'reservations', 'pending-count'],
+    },
+    planning: (params) => ['admin', 'planning', params],
+    cars: {
+      all: ['admin', 'cars'],
+      list: (params) => ['admin', 'cars', 'list', params],
+      detail: (id) => ['admin', 'cars', 'detail', String(id)],
+      conflicts: (id) => ['admin', 'cars', 'conflicts', String(id)],
+    },
+    clients: {
+      all: ['admin', 'clients'],
+      list: (params) => ['admin', 'clients', 'list', params],
+      detail: (id) => ['admin', 'clients', 'detail', String(id)],
+    },
+    settings: (resource) => ['admin', 'settings', resource],
+  },
 }
