@@ -3,13 +3,10 @@ import { carPayload, validateCar } from '../../lib/adminCars.js'
 import { CAR_STATUS, FUEL_TYPE, toOptions, TRANSMISSION } from '../../lib/labels.js'
 import { Button, Card, Input, Select, Switch, Textarea } from '../ui'
 
-function Section({ title, description, children }) {
+function Section({ title, children }) {
   return (
     <Card padding="lg" as="section" className="flex flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-bold text-fg">{title}</h2>
-        {description && <p className="text-sm text-fg-muted">{description}</p>}
-      </div>
+      <h2 className="text-lg font-bold text-fg">{title}</h2>
       {children}
     </Card>
   )
@@ -45,10 +42,7 @@ export default function CarForm({
 
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-6">
-      <Section
-        title="Identité"
-        description="Le nom public de la voiture vient de la marque, du modèle et de l’année."
-      >
+      <Section title="Identité">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <Select
             label="Marque"
@@ -72,7 +66,6 @@ export default function CarForm({
             label="Immatriculation"
             required
             placeholder="12345-A-6"
-            hint="Chiffres, lettre, code de la préfecture."
             autoCapitalize="characters"
             {...form.field('plate_number')}
           />
@@ -148,10 +141,7 @@ export default function CarForm({
         />
       </Section>
 
-      <Section
-        title="Tarifs"
-        description="Les nouveaux prix s’appliquent aux prochaines réservations ; les réservations existantes gardent le leur."
-      >
+      <Section title="Tarifs">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <Input
             label="Prix par jour"
@@ -159,6 +149,7 @@ export default function CarForm({
             inputMode="decimal"
             suffix="DH"
             placeholder="300"
+            info="Un nouveau prix s’applique aux prochaines réservations. Les réservations existantes gardent le leur."
             {...form.field('price_per_day')}
           />
           <Input
@@ -167,7 +158,7 @@ export default function CarForm({
             inputMode="decimal"
             suffix="DH"
             placeholder="6000"
-            hint="Bloquée au départ, jamais incluse dans le total."
+            info="Bloquée au départ, jamais incluse dans le total."
             {...form.field('deposit_amount')}
           />
         </div>
@@ -200,7 +191,7 @@ export default function CarForm({
               value={values.status}
               onChange={set('status')}
               errors={errors}
-              hint="Seules les voitures disponibles sont visibles sur le site."
+              info="Seules les voitures disponibles sont visibles sur le site."
             />
           )}
         </div>

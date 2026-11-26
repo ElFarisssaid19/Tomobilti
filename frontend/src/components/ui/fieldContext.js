@@ -12,12 +12,12 @@ export function useFieldContext() {
  * Shared logic of the form controls: when a control is not inside a <FormField>,
  * it wraps itself in one if it received a label, hint or error.
  */
-export function useControlState({ label, hint, error, errors, name }) {
+export function useControlState({ label, hint, info, error, errors, name }) {
   const field = useFieldContext()
   const ownError = toErrorMessage(error) ?? getFieldError(errors, name)
   return {
     wrapped: Boolean(field),
-    needsField: !field && Boolean(label || hint || ownError),
+    needsField: !field && Boolean(label || hint || info || ownError),
     invalid: field ? field.invalid : Boolean(ownError),
   }
 }

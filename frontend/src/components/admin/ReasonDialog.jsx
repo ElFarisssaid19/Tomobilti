@@ -44,26 +44,16 @@ export default function ReasonDialog({
   }
 
   return (
-    <Modal open={open} onClose={close} title={title} description={description} size="md" hideClose>
-      <form onSubmit={submit} noValidate className="flex flex-col gap-6">
-        <Textarea
-          label={label}
-          name="reason"
-          required
-          rows={3}
-          maxLength={500}
-          value={reason}
-          placeholder={placeholder}
-          onChange={(event) => {
-            setReason(event.target.value)
-            if (clientError && event.target.value.trim().length >= MIN_REASON_LENGTH)
-              setClientError(null)
-          }}
-          error={clientError}
-          errors={clientError ? undefined : errors}
-          autoFocus
-        />
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+    <Modal
+      open={open}
+      onClose={close}
+      title={title}
+      description={description}
+      size="md"
+      hideClose
+      onSubmit={submit}
+      footer={
+        <>
           <Button variant="ghost" onClick={close} disabled={loading}>
             Retour
           </Button>
@@ -74,8 +64,26 @@ export default function ReasonDialog({
           >
             {confirmLabel}
           </Button>
-        </div>
-      </form>
+        </>
+      }
+    >
+      <Textarea
+        label={label}
+        name="reason"
+        required
+        rows={3}
+        maxLength={500}
+        value={reason}
+        placeholder={placeholder}
+        onChange={(event) => {
+          setReason(event.target.value)
+          if (clientError && event.target.value.trim().length >= MIN_REASON_LENGTH)
+            setClientError(null)
+        }}
+        error={clientError}
+        errors={clientError ? undefined : errors}
+        autoFocus
+      />
     </Modal>
   )
 }

@@ -44,8 +44,8 @@ export default function EmailVerificationBanner({ className }) {
         </Button>
       }
     >
-      Nous avons envoyé un lien à <span className="font-semibold text-fg">{user.email}</span>. Il
-      faut confirmer cette adresse avant de réserver une voiture.
+      Ouvrez le lien envoyé à <span className="font-semibold text-fg">{user.email}</span> pour
+      pouvoir réserver.
     </Alert>
   )
 }

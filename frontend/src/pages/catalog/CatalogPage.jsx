@@ -83,10 +83,7 @@ export default function CatalogPage() {
 
   return (
     <div className="container-page flex flex-1 flex-col gap-6 pt-24 pb-16 md:pt-32">
-      <PageHeader
-        title="Nos voitures"
-        description="Choisissez une agence et vos dates pour ne voir que les voitures libres, avec le prix total estimé."
-      />
+      <PageHeader title="Nos voitures" />
 
       <div className="rounded-card-lg border border-line bg-surface p-4 sm:p-5">
         <SearchWidget
@@ -295,7 +292,7 @@ function Results({
       <EmptyState
         icon={Heart}
         title="Aucun favori pour l’instant"
-        text="Touchez le cœur d’une voiture pour la retrouver ici. Vos favoris restent sur cet appareil."
+        text="Touchez le cœur d’une voiture pour l’ajouter ici."
         action={
           <Button variant="secondary" onClick={onShowAll}>
             Voir toutes les voitures
@@ -342,7 +339,7 @@ function Results({
     return (
       <EmptyState
         icon={SearchX}
-        title="Aucune voiture ne correspond à votre recherche"
+        title="Aucune voiture trouvée"
         text="Essayez d’autres dates, une autre agence ou moins de filtres."
         action={<Button onClick={onReset}>Réinitialiser les filtres</Button>}
       />

@@ -93,15 +93,13 @@ export default function BookingSummary({
         ) : quoteError ? (
           <p className="text-sm text-danger">{quoteError}</p>
         ) : (
-          <p className="text-sm text-fg-muted">
-            Choisissez vos dates, vos horaires et vos agences pour voir le prix.
-          </p>
+          <p className="text-sm text-fg-muted">Choisissez vos dates pour voir le prix.</p>
         )}
       </div>
 
       <p className="flex gap-2.5 rounded-card bg-raised/60 p-3 text-sm text-fg-muted">
         <Banknote className="mt-0.5 size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
-        <span>Paiement à l’agence lors de la prise en charge. Aucun paiement en ligne.</span>
+        <span>Paiement à l’agence, rien en ligne.</span>
       </p>
 
       {onAction && (

@@ -124,9 +124,7 @@ export default function ImageManager({ carId, images = [] }) {
         <span className="text-base font-semibold text-fg">
           Déposez des photos ici ou choisissez-les
         </span>
-        <span className="text-sm text-fg-subtle">
-          JPG, PNG ou WebP, 5 Mo maximum chacune. Recadrées au format 16:10.
-        </span>
+        <span className="text-sm text-fg-subtle">JPG, PNG ou WebP, 5 Mo max, format 16:10</span>
       </button>
       <input
         ref={inputRef}

@@ -27,22 +27,18 @@ const EMPTY = {
   upcoming: {
     icon: CalendarClock,
     title: 'Aucune réservation à venir',
-    text: 'Choisissez une voiture et vos dates : votre demande apparaîtra ici.',
   },
   current: {
     icon: KeyRound,
     title: 'Aucune location en cours',
-    text: 'Vos locations apparaissent ici le jour de la prise en charge.',
   },
   past: {
     icon: Flag,
     title: 'Aucune location passée',
-    text: 'Vos locations terminées resteront ici, avec leur détail.',
   },
   cancelled: {
     icon: CalendarX,
     title: 'Aucune réservation annulée',
-    text: 'Les réservations annulées ou refusées par l’agence apparaissent ici.',
   },
 }
 
@@ -124,7 +120,6 @@ function ReservationList({ tab, query, onPageChange }) {
       <EmptyState
         icon={empty.icon}
         title={empty.title}
-        text={empty.text}
         action={<Button to="/voitures">Voir les voitures</Button>}
       />
     )

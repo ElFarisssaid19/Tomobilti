@@ -20,6 +20,7 @@ import {
   Chip,
   ChipGroup,
   ErrorState,
+  InfoTip,
   LoadingRegion,
   PageHeader,
   Skeleton,
@@ -58,8 +59,8 @@ export default function AdminDashboardPage() {
         title={`Bonjour, ${firstName(user)}`}
         description={
           data
-            ? `Chiffres du ${formatShortDate(data.period.from)} au ${formatShortDate(data.period.to)}.`
-            : 'Les chiffres de l’agence.'
+            ? `${formatShortDate(data.period.from)} – ${formatShortDate(data.period.to)}`
+            : undefined
         }
         actions={
           <ChipGroup
@@ -103,14 +104,14 @@ export default function AdminDashboardPage() {
             <Card padding="lg" className="flex min-w-0 flex-col gap-4">
               <CardTitle
                 title="Chiffre d’affaires par mois"
-                text="Locations terminées, sur les 12 derniers mois."
+                info="Locations terminées, sur les 12 derniers mois."
               />
               <RevenueChart data={data.charts.revenue_by_month} />
             </Card>
             <Card padding="lg" className="flex min-w-0 flex-col gap-4">
               <CardTitle
                 title="Réservations par semaine"
-                text={`Demandes reçues sur ${data.period.label}.`}
+                info={`Demandes reçues sur ${data.period.label}.`}
               />
               <WeeklyChart data={data.charts.reservations_by_week} />
             </Card>
@@ -120,7 +121,7 @@ export default function AdminDashboardPage() {
             <Card padding="lg" className="flex flex-col gap-5">
               <CardTitle
                 title="Top 5 des voitures"
-                text="Chiffre d’affaires des locations terminées."
+                info="Chiffre d’affaires des locations terminées."
               />
               <MeterList
                 label="Voitures qui rapportent le plus"
@@ -136,7 +137,7 @@ export default function AdminDashboardPage() {
             <Card padding="lg" className="flex flex-col gap-5">
               <CardTitle
                 title="Par catégorie"
-                text="Réservations reçues, hors annulées et refusées."
+                info="Réservations reçues, hors annulées et refusées."
               />
               <MeterList
                 label="Réservations par catégorie"
@@ -146,7 +147,7 @@ export default function AdminDashboardPage() {
             <Card padding="lg" className="flex flex-col gap-5">
               <CardTitle
                 title="Par agence de départ"
-                text="Réservations reçues, hors annulées et refusées."
+                info="Réservations reçues, hors annulées et refusées."
               />
               <MeterList
                 label="Réservations par agence"
@@ -173,12 +174,13 @@ function shareItems(rows) {
   }))
 }
 
-function CardTitle({ title, text, action }) {
+/** Card heading; `info` (what the numbers count) sits in a tooltip next to it. */
+function CardTitle({ title, info, action }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1">
         <h2 className="text-lg font-bold text-fg">{title}</h2>
-        {text && <p className="text-sm text-fg-muted">{text}</p>}
+        {info && <InfoTip content={info} label={`À propos : ${title}`} />}
       </div>
       {action}
     </div>
@@ -222,14 +224,12 @@ function Kpis({ kpis, period }) {
           icon={Hourglass}
           label="Demandes à traiter"
           value={kpis.pending_requests}
-          hint="En attente de votre réponse"
         />
         <StatCard
           className={NARROW}
           icon={KeyRound}
           label="Locations en cours"
           value={kpis.active_rentals}
-          hint="Voitures chez un client"
         />
         <StatCard
           className={cn(NARROW, 'sm:col-span-2')}
@@ -268,7 +268,6 @@ function Agenda({ days }) {
     <Card padding="lg" size="lg" className="flex min-w-0 flex-col gap-6">
       <CardTitle
         title="Départs et retours"
-        text="Les remises de clés d’aujourd’hui et de demain."
         action={
           <Button to="/admin/reservations?tab=today" variant="ghost" size="sm">
             Voir la journée

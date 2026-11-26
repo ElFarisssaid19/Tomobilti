@@ -282,6 +282,21 @@
   }
 }
 
+/*
+ * Every overlay fits the viewport: dialogs, sheets and popovers are capped at the
+ * dynamic viewport height minus a margin and the safe areas, and only their body
+ * scrolls (header and footer stay visible). `vh` is the fallback without `dvh`.
+ */
+@utility max-h-overlay {
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+
+  @variant sm {
+    max-height: calc(100vh - 3rem);
+    max-height: calc(100dvh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
 /* Hide scrollbars on horizontal chip rows (they stay scrollable). */
 @utility scrollbar-none {
   scrollbar-width: none;

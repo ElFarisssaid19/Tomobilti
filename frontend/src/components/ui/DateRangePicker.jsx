@@ -147,19 +147,24 @@ export default function DateRangePicker({
                   animate="visible"
                   exit="exit"
                   anchor={{ to: 'bottom start', gap: 8, padding: 16 }}
-                  className="z-(--z-popover) origin-top rounded-card-lg border border-line bg-surface p-4 shadow-pop sm:p-5"
+                  // Headless UI flips the panel above the trigger when there is more room
+                  // there, and caps it at the space left: only the calendar scrolls, the
+                  // buttons stay visible.
+                  className="z-(--z-popover) flex origin-top flex-col rounded-card-lg border border-line bg-surface shadow-pop data-[anchor^=top]:origin-bottom"
                 >
                   {({ close }) => (
                     <>
-                      <DateRangeCalendar
-                        value={value}
-                        onChange={onChange}
-                        unavailable={unavailable}
-                        numberOfMonths={numberOfMonths}
-                        minDays={minDays}
-                        maxDays={maxDays}
-                      />
-                      <div className="mt-4 flex items-center justify-end gap-2 border-t border-line pt-4">
+                      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-0 sm:p-5 sm:pb-0">
+                        <DateRangeCalendar
+                          value={value}
+                          onChange={onChange}
+                          unavailable={unavailable}
+                          numberOfMonths={numberOfMonths}
+                          minDays={minDays}
+                          maxDays={maxDays}
+                        />
+                      </div>
+                      <div className="mx-4 flex shrink-0 items-center justify-end gap-2 border-t border-line py-4 sm:mx-5">
                         <Button
                           variant="ghost"
                           size="sm"

@@ -118,7 +118,6 @@ export default function FiltersPanel({ filters, options, onChange, onReset }) {
 
       <Switch
         label="Climatisation"
-        hint="Seulement les voitures climatisées"
         checked={filters.air_conditioning}
         onChange={(air_conditioning) => onChange({ air_conditioning })}
       />

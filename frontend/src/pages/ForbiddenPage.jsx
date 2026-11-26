@@ -21,11 +21,10 @@ export default function ForbiddenPage() {
         </span>
         <p className="text-sm font-semibold text-fg-subtle tabular-nums">Erreur 403</p>
         <h1 className="max-w-xl text-3xl font-bold text-fg sm:text-4xl">
-          Cette page est réservée à l’équipe de l’agence
+          Accès réservé à l’agence
         </h1>
         <p className="max-w-md text-lg text-fg-muted">
-          Votre compte client n’a pas accès à l’administration. Vos réservations et votre profil
-          sont dans votre espace.
+          Votre compte client n’a pas accès à l’administration.
         </p>
         <div className="mt-2 flex flex-wrap gap-3">
           <Button to="/espace/profil" size="lg">

@@ -36,19 +36,25 @@ const PANELS = [
       singular: 'la catégorie',
       addLabel: 'Ajouter une catégorie',
       emptyText: 'Aucune catégorie',
-      description: 'Les familles de voitures du catalogue, dans l’ordre d’affichage.',
       deleteHint: 'Une catégorie utilisée par une voiture ne peut pas être supprimée.',
       columns: [
-        { key: 'icon', header: 'Icône', render: (item) => <IconCell name={item.icon} /> },
+        {
+          key: 'icon',
+          header: 'Icône',
+          card: false,
+          render: (item) => <IconCell name={item.icon} />,
+        },
         {
           key: 'name',
           header: 'Nom',
+          card: 'title',
           render: (item) => <span className="font-semibold">{item.name}</span>,
         },
         {
           key: 'description',
           header: 'Description',
           className: 'max-w-xs truncate',
+          card: 'wide',
           render: (item) => <span className="text-fg-muted">{item.description}</span>,
         },
         {
@@ -67,7 +73,13 @@ const PANELS = [
       fields: [
         { name: 'name', label: 'Nom', required: true },
         { name: 'icon', label: 'Icône', type: 'icon' },
-        { name: 'sort_order', label: 'Ordre d’affichage', type: 'number', required: true },
+        {
+          name: 'sort_order',
+          label: 'Ordre d’affichage',
+          type: 'number',
+          required: true,
+          hint: 'Le plus petit en premier.',
+        },
         { name: 'description', label: 'Description', type: 'textarea' },
       ],
       empty: { name: '', icon: '', sort_order: '0', description: '' },
@@ -94,12 +106,12 @@ const PANELS = [
       singular: 'la marque',
       addLabel: 'Ajouter une marque',
       emptyText: 'Aucune marque',
-      description: 'Les constructeurs proposés dans la fiche d’une voiture.',
       deleteHint: 'Une marque utilisée par une voiture ne peut pas être supprimée.',
       columns: [
         {
           key: 'name',
           header: 'Nom',
+          card: 'title',
           render: (item) => <span className="font-semibold">{item.name}</span>,
         },
         {
@@ -124,8 +136,6 @@ const PANELS = [
       singular: 'l’agence',
       addLabel: 'Ajouter une agence',
       emptyText: 'Aucune agence',
-      description:
-        'Les points de départ et de retour. Une agence désactivée disparaît de la réservation en ligne.',
       deleteHint:
         'Une agence utilisée par des voitures ou des réservations ne peut pas être supprimée : désactivez-la plutôt.',
       columns: [
@@ -149,6 +159,7 @@ const PANELS = [
         {
           key: 'opening_hours',
           header: 'Horaires',
+          card: 'wide',
           render: (item) => <span className="text-fg-muted">{item.opening_hours}</span>,
         },
         {
@@ -160,6 +171,7 @@ const PANELS = [
         {
           key: 'is_active',
           header: 'État',
+          card: 'status',
           render: (item) => <ActiveBadge active={item.is_active} />,
         },
       ],
@@ -176,21 +188,21 @@ const PANELS = [
         {
           name: 'phone',
           label: 'Téléphone',
-          hint: 'Par exemple 05 24 00 01 02.',
+          hint: 'Ex. 05 24 00 01 02',
           inputMode: 'tel',
         },
         { name: 'address', label: 'Adresse', required: true, wide: true },
         {
           name: 'opening_hours',
           label: 'Horaires',
-          hint: 'Par exemple « Lun – Sam, 08:30 – 19:30 ».',
+          hint: 'Ex. Lun – Sam, 08:30 – 19:30',
           wide: true,
         },
         {
           name: 'is_active',
           label: 'Agence active',
           type: 'switch',
-          hint: 'Proposée dans la réservation en ligne.',
+          info: 'Une agence désactivée disparaît de la réservation en ligne. Ses réservations restent.',
         },
       ],
       empty: {
@@ -227,14 +239,18 @@ const PANELS = [
       singular: 'l’option',
       addLabel: 'Ajouter une option',
       emptyText: 'Aucune option',
-      description:
-        'Les options proposées pendant la réservation. Un nouveau prix ne change pas les réservations existantes.',
       deleteHint: 'Une option déjà réservée ne peut pas être supprimée : désactivez-la plutôt.',
       columns: [
-        { key: 'icon', header: 'Icône', render: (item) => <IconCell name={item.icon} /> },
+        {
+          key: 'icon',
+          header: 'Icône',
+          card: false,
+          render: (item) => <IconCell name={item.icon} />,
+        },
         {
           key: 'name',
           header: 'Nom',
+          card: 'title',
           render: (item) => <span className="font-semibold">{item.name}</span>,
         },
         {
@@ -265,13 +281,21 @@ const PANELS = [
         {
           key: 'is_active',
           header: 'État',
+          card: 'status',
           render: (item) => <ActiveBadge active={item.is_active} />,
         },
       ],
       fields: [
         { name: 'name', label: 'Nom', required: true },
         { name: 'icon', label: 'Icône', type: 'icon' },
-        { name: 'price', label: 'Prix', required: true, inputMode: 'decimal', suffix: 'DH' },
+        {
+          name: 'price',
+          label: 'Prix',
+          required: true,
+          inputMode: 'decimal',
+          suffix: 'DH',
+          info: 'Un nouveau prix ne change pas les réservations existantes.',
+        },
         {
           name: 'pricing',
           label: 'Tarification',
@@ -285,7 +309,7 @@ const PANELS = [
           name: 'is_active',
           label: 'Option active',
           type: 'switch',
-          hint: 'Proposée dans la réservation en ligne.',
+          info: 'Une option désactivée disparaît de la réservation en ligne. Ses réservations restent.',
         },
       ],
       empty: {
@@ -328,10 +352,7 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Paramètres"
-        description="Le catalogue : catégories, marques, agences et options."
-      />
+      <PageHeader title="Paramètres" />
       <Tabs
         label="Paramètres du catalogue"
         selectedIndex={PANELS.findIndex((panel) => panel.key === filters.onglet)}

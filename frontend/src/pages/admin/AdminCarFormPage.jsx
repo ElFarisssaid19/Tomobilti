@@ -12,6 +12,7 @@ import {
   Card,
   EmptyState,
   ErrorState,
+  InfoTip,
   LoadingRegion,
   PageHeader,
   Skeleton,
@@ -57,7 +58,6 @@ export default function AdminCarFormPage() {
         <EmptyState
           icon={CarFront}
           title="Voiture introuvable"
-          text="Elle a peut-être été supprimée."
           action={<Button to="/admin/voitures">Voir la flotte</Button>}
         />
       )
@@ -92,9 +92,7 @@ export default function AdminCarFormPage() {
           { label: isNew ? 'Nouvelle voiture' : `${current.name} ${current.year}` },
         ]}
         title={isNew ? 'Nouvelle voiture' : `${current.name} ${current.year}`}
-        description={
-          isNew ? 'Les photos s’ajoutent après le premier enregistrement.' : current.plate_number
-        }
+        description={isNew ? undefined : current.plate_number}
         actions={
           !isNew && !current.is_deleted && current.status === 'available' ? (
             <Button
@@ -170,11 +168,12 @@ export default function AdminCarFormPage() {
       />
 
       <Card padding="lg" as="section" id="photos" className="flex scroll-mt-24 flex-col gap-5">
-        <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1">
           <h2 className="text-lg font-bold text-fg">Photos</h2>
-          <p className="text-sm text-fg-muted">
-            La photo principale illustre la voiture dans le catalogue.
-          </p>
+          <InfoTip
+            label="À propos des photos"
+            content="La photo principale illustre la voiture dans le catalogue."
+          />
         </div>
         {isNew ? (
           <p className="text-sm text-fg-muted">Enregistrez la voiture pour ajouter ses photos.</p>

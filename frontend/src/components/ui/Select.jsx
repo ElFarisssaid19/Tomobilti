@@ -10,12 +10,15 @@ import FormField from './FormField.jsx'
  * Select built on Headless UI's Listbox (keyboard navigation, typeahead, ARIA).
  * `options` is a `[{ value, label, disabled? }]` list, e.g. `toOptions(FUEL_TYPE)`.
  *
+ * `hideLabel` keeps the label for screen readers only (e.g. the Select that replaces Tabs).
+ *
  * @example
  * <Select label="Carburant" name="fuel" options={toOptions(FUEL_TYPE)} value={fuel} onChange={setFuel} />
  */
 export default function Select({
   label,
   hint,
+  info,
   error,
   errors,
   name,
@@ -26,10 +29,11 @@ export default function Select({
   defaultValue,
   onChange,
   placeholder = 'Choisir…',
+  hideLabel = false,
   className,
   ...props
 }) {
-  const { needsField, invalid } = useControlState({ label, hint, error, errors, name })
+  const { needsField, invalid } = useControlState({ label, hint, info, error, errors, name })
 
   const control = (
     <Listbox
@@ -69,7 +73,7 @@ export default function Select({
                   animate="visible"
                   exit="exit"
                   anchor={{ to: 'bottom start', gap: 8, padding: 16 }}
-                  className="z-(--z-popover) max-h-72 w-(--button-width) min-w-48 origin-top overflow-y-auto rounded-input border border-line bg-raised p-1.5 shadow-pop focus-visible:outline-none"
+                  className="z-(--z-popover) max-h-72 w-(--button-width) min-w-48 origin-top overflow-y-auto rounded-input border border-line bg-raised p-1.5 shadow-pop focus-visible:outline-none data-[anchor^=top]:origin-bottom"
                 >
                   {options.map((option) => (
                     <ListboxOption
@@ -100,6 +104,8 @@ export default function Select({
     <FormField
       label={label}
       hint={hint}
+      info={info}
+      hideLabel={hideLabel}
       error={error}
       errors={errors}
       name={name}

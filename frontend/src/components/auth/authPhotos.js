@@ -16,7 +16,7 @@ export const AUTH_PHOTOS = {
     srcSet: `${atlas800} 800w, ${atlas1600} 1600w`,
     src: atlas800,
     headline: 'Vos trajets et vos réservations, au même endroit.',
-    place: 'Vallée du Drâa, Haut Atlas',
+    place: 'Gorges du Dadès, Haut Atlas',
   },
   register: {
     srcSet: `${marrakech800} 800w, ${marrakech1600} 1600w`,

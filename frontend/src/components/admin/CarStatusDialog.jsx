@@ -93,7 +93,7 @@ export default function CarStatusDialog({ car, open, onClose }) {
                 ? `${affected.length} réservations à venir ou en cours concernent cette voiture. Elles ne sont pas annulées : prévenez les clients.`
                 : 'Une réservation à venir ou en cours concerne cette voiture. Elle n’est pas annulée : prévenez le client.'}
             </p>
-            <ul className="flex max-h-60 flex-col divide-y divide-line overflow-y-auto rounded-input border border-line">
+            <ul className="flex flex-col divide-y divide-line rounded-input border border-line">
               {affected.map((reservation) => (
                 <li
                   key={reservation.reference}

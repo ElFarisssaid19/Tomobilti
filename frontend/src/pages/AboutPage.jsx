@@ -11,22 +11,22 @@ const VALUES = [
   {
     icon: HandCoins,
     title: 'Des prix sans surprise',
-    text: 'Le prix par jour est TTC, en dirhams, et le montant de la caution est affiché sur chaque voiture avant de réserver.',
+    text: 'Prix TTC en dirhams, caution affichée avant de réserver.',
   },
   {
     icon: MapPinned,
     title: 'Là où vous arrivez',
-    text: 'Des comptoirs dans les aéroports de Marrakech, Casablanca et Agadir, et des agences en ville pour ceux qui y vivent.',
+    text: 'Comptoirs dans trois aéroports, agences en ville.',
   },
   {
     icon: BadgeCheck,
     title: 'Des voitures prêtes à partir',
-    text: 'Chaque voiture du catalogue est disponible à la location : celles en maintenance n’y apparaissent pas.',
+    text: 'Les voitures en maintenance ne sont pas proposées.',
   },
   {
     icon: Headset,
     title: 'Une vraie équipe au bout du fil',
-    text: 'Une question avant ou pendant la location ? L’agence répond par téléphone, sur WhatsApp ou par e-mail.',
+    text: 'Téléphone, WhatsApp ou e-mail, avant et pendant la location.',
   },
 ]
 
@@ -42,15 +42,9 @@ export default function AboutPage() {
       <section className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
         <div className="flex flex-col gap-5">
           <PageHeader
-            title="Une agence de location marocaine"
-            description="Tomobilti loue des voitures à Marrakech, Casablanca et Agadir, aux voyageurs qui atterrissent comme à ceux qui vivent ici."
+            title="Une agence marocaine"
+            description="Location de voitures à Marrakech, Casablanca et Agadir."
           />
-          <p className="max-w-xl text-base leading-relaxed text-fg-muted">
-            Nous voulons qu’une location se prépare comme un billet d’avion : vous voyez les
-            voitures libres pour vos dates, le prix total et la caution, puis vous récupérez les
-            clés à l’aéroport ou en agence. De la citadine pour la ville au 4×4 pour les routes de
-            l’Atlas, la flotte couvre tous les trajets.
-          </p>
           <div className="flex flex-wrap gap-3">
             <Button to="/voitures">Voir les voitures</Button>
             <Button to="/contact" variant="secondary">
@@ -62,7 +56,7 @@ export default function AboutPage() {
           src={atlas800}
           srcSet={`${atlas800} 800w, ${atlas1600} 1600w`}
           sizes="(min-width: 1024px) 600px, 100vw"
-          alt="Route en lacets dans la vallée du Drâa, dans l’Atlas"
+          alt="Route en lacets des gorges du Dadès, dans le Haut Atlas"
           width={800}
           height={500}
           loading="lazy"
@@ -91,11 +85,7 @@ export default function AboutPage() {
       </section>
 
       <section aria-labelledby="agences" className="flex flex-col gap-6">
-        <SectionHeading
-          id="agences"
-          title="Nos agences"
-          description="Adresses, horaires et téléphones de chaque point de prise en charge."
-        />
+        <SectionHeading id="agences" title="Nos agences" />
         <AgencyList />
       </section>
     </div>

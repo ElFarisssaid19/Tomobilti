@@ -1,7 +1,7 @@
 [
   {
     "name": "hero",
-    "description": "Citadine noire garée au bord d’une route du Sud marocain, au crépuscule",
+    "description": "Citadine noire garée au bord d’une route désertique du Maroc, au crépuscule",
     "source": "Unsplash",
     "title": "A car parked on the side of a desert road",
     "url": "https://unsplash.com/photos/o55Tq9W0xOc",
@@ -93,7 +93,7 @@
   },
   {
     "name": "aeroport",
-    "description": "Piste d’aéroport vue du ciel au crépuscule",
+    "description": "Piste de l’aéroport de Skellefteå (Suède) vue du ciel, au crépuscule",
     "source": "Unsplash",
     "title": "An aerial view of an airport runway at sunset",
     "url": "https://unsplash.com/photos/3p3HtGKvGLM",
@@ -104,7 +104,7 @@
   },
   {
     "name": "route-atlas",
-    "description": "Route en lacets dans la vallée du Drâa, dans l’Atlas",
+    "description": "Route en lacets des gorges du Dadès, dans le Haut Atlas",
     "source": "Pexels",
     "title": "Scenic Draa Valley Road in Morocco’s Atlas Mountains",
     "url": "https://www.pexels.com/photo/scenic-draa-valley-road-in-morocco-s-atlas-mountains-39320882/",

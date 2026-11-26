@@ -63,8 +63,7 @@ export default function ForgotPasswordPage() {
         footer={backToLogin}
       >
         <Alert tone="success" title="Demande envoyée">
-          {sentMessage} Le lien est valable 60 minutes. Pensez à regarder dans les courriers
-          indésirables.
+          {sentMessage} Lien valable 60 minutes. Regardez aussi dans les courriers indésirables.
         </Alert>
         <Button variant="secondary" leftIcon={MailCheck} onClick={() => setSentMessage(null)}>
           Utiliser une autre adresse
@@ -77,7 +76,7 @@ export default function ForgotPasswordPage() {
     <AuthShell
       photo="password"
       title="Mot de passe oublié"
-      description="Saisissez l’adresse de votre compte : nous vous envoyons un lien pour choisir un nouveau mot de passe."
+      description="Recevez un lien par e-mail."
       footer={backToLogin}
     >
       {formError && (

@@ -34,9 +34,6 @@ export default function StepExtras({ extras, draft, update, quote }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-fg-muted">
-        Toutes les options sont facultatives. Elles sont installées avant votre arrivée.
-      </p>
       <ul className="flex flex-col gap-3">
         {data.map((extra) => {
           const Icon = iconFor(extra.icon)

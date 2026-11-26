@@ -34,9 +34,7 @@ export default function StepInformation({ quote, quoteLoading, refreshEligibilit
   if (eligibility.eligible) {
     return (
       <div className="flex flex-col gap-5">
-        <Alert tone="success" title="Vous pouvez réserver">
-          Votre profil est complet et répond aux conditions de location pour ces dates.
-        </Alert>
+        <Alert tone="success" title="Vous pouvez réserver" />
         <DriverSummary user={user} />
       </div>
     )
@@ -54,14 +52,9 @@ export default function StepInformation({ quote, quoteLoading, refreshEligibilit
       )}
       {reasons.profile_incomplete && (
         <section aria-labelledby="profil-manquant" className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <h3 id="profil-manquant" className="text-lg font-bold text-fg">
-              Complétez votre profil
-            </h3>
-            <p className="text-sm text-fg-muted">
-              L’agence en a besoin pour préparer le contrat. Vous ne les saisirez qu’une fois.
-            </p>
-          </div>
+          <h3 id="profil-manquant" className="text-lg font-bold text-fg">
+            Complétez votre profil
+          </h3>
           <ProfileCompletionForm
             missingFields={eligibility.missing_fields}
             onSaved={refreshEligibility}
@@ -124,8 +117,8 @@ function EmailNotVerified({ email, refreshEligibility }) {
   return (
     <Alert tone="warning" title="Confirmez votre adresse e-mail">
       <p>
-        Nous avons envoyé un lien à <span className="font-semibold text-fg">{email}</span>.
-        Ouvrez-le, puis revenez ici : votre réservation est gardée.
+        Ouvrez le lien envoyé à <span className="font-semibold text-fg">{email}</span>, puis revenez
+        ici : votre réservation est gardée.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button

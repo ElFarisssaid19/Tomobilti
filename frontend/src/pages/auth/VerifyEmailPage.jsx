@@ -85,11 +85,7 @@ export default function VerifyEmailPage() {
 
   if (result.status === 'loading') {
     return (
-      <AuthShell
-        photo="verify"
-        title="Vérification en cours"
-        description="Un instant, nous confirmons votre adresse e-mail."
-      >
+      <AuthShell photo="verify" title="Vérification en cours">
         <LoadingRegion
           label="Vérification de votre adresse e-mail…"
           className="flex flex-col gap-3"
@@ -123,7 +119,7 @@ export default function VerifyEmailPage() {
         )}
         {!succeeded && !isSignedIn && (
           <Button to={`/connexion?redirect=${encodeURIComponent('/espace/profil')}`}>
-            Se connecter pour recevoir un nouveau lien
+            Se connecter
           </Button>
         )}
         <Button to="/voitures" variant="secondary">

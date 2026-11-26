@@ -88,7 +88,7 @@ export default function CreditsPage() {
     <div className="container-page flex flex-1 flex-col gap-12 pt-24 pb-16 md:pt-32">
       <PageHeader
         title="Crédits photos"
-        description="Les photos du site et des voitures viennent de Wikimedia Commons, Unsplash et Pexels, sous licences libres. Toutes ont été recadrées, redimensionnées et converties en WebP, et certaines ont une plaque floutée : les modifications sont indiquées pour chaque photo. Les versions modifiées des photos sous licence CC BY-SA sont partagées sous la même licence."
+        description="Photos sous licences libres, modifiées comme indiqué pour chacune. Les versions modifiées des photos CC BY-SA sont partagées sous la même licence."
       />
 
       <section aria-labelledby="credits-site" className="flex flex-col gap-4">
@@ -107,7 +107,7 @@ export default function CreditsPage() {
           Photos des voitures
         </h2>
         <p className="max-w-2xl text-base text-fg-muted">
-          Photos non contractuelles : elles montrent le modèle, pas forcément le véhicule loué.
+          Photos non contractuelles : elles montrent le modèle, pas le véhicule loué.
         </p>
         <div className="grid gap-4 lg:grid-cols-2">
           {cars.map((group) => (

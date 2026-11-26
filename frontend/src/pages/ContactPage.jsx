@@ -55,10 +55,7 @@ export default function ContactPage() {
 
   return (
     <div className="container-page flex flex-1 flex-col gap-10 pt-24 pb-20 md:pt-32">
-      <PageHeader
-        title="Contact"
-        description="Une question sur une voiture, une réservation ou une agence ? Écrivez-nous ou appelez-nous."
-      />
+      <PageHeader title="Contact" />
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-12">
         <section

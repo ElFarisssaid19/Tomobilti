@@ -34,7 +34,9 @@ export default function DropdownMenu({ trigger, items = [], align = 'end', heade
                 anchor={{ to: `bottom ${align}`, gap: 8, padding: 16 }}
                 className={cn(
                   'z-(--z-popover) min-w-56 rounded-input border border-line bg-raised p-1.5 shadow-pop focus-visible:outline-none',
-                  align === 'end' ? 'origin-top-right' : 'origin-top-left',
+                  align === 'end'
+                    ? 'origin-top-right data-[anchor^=top]:origin-bottom-right'
+                    : 'origin-top-left data-[anchor^=top]:origin-bottom-left',
                   className,
                 )}
               >

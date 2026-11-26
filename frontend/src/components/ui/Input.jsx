@@ -14,6 +14,7 @@ import FormField from './FormField.jsx'
 export function Input({
   label,
   hint,
+  info,
   error,
   errors,
   name,
@@ -26,7 +27,7 @@ export function Input({
   inputClassName,
   ...props
 }) {
-  const { needsField, invalid } = useControlState({ label, hint, error, errors, name })
+  const { needsField, invalid } = useControlState({ label, hint, info, error, errors, name })
 
   const control = (
     <div className={cn('relative', !needsField && className)}>
@@ -68,6 +69,7 @@ export function Input({
     <FormField
       label={label}
       hint={hint}
+      info={info}
       error={error}
       errors={errors}
       name={name}
@@ -84,6 +86,7 @@ export function Input({
 export function Textarea({
   label,
   hint,
+  info,
   error,
   errors,
   name,
@@ -94,7 +97,7 @@ export function Textarea({
   inputClassName,
   ...props
 }) {
-  const { needsField, invalid } = useControlState({ label, hint, error, errors, name })
+  const { needsField, invalid } = useControlState({ label, hint, info, error, errors, name })
 
   const control = (
     <HeadlessTextarea
@@ -119,6 +122,7 @@ export function Textarea({
     <FormField
       label={label}
       hint={hint}
+      info={info}
       error={error}
       errors={errors}
       name={name}

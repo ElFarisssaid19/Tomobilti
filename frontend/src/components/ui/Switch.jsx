@@ -1,13 +1,16 @@
 import { Description, Field, Switch as HeadlessSwitch, Label } from '@headlessui/react'
 import { cn } from '../../lib/cn.js'
+import { InfoTip } from './Tooltip.jsx'
 
 /**
- * On/off switch with a label (and optional hint) on the left.
+ * On/off switch with a label (and optional hint) on the left. `info` adds an "i" next
+ * to the label with the consequence of the switch in a tooltip.
  * @example <Switch label="Voiture à la une" checked={featured} onChange={setFeatured} />
  */
 export default function Switch({
   label,
   hint,
+  info,
   name,
   checked,
   defaultChecked,
@@ -21,9 +24,12 @@ export default function Switch({
       {(label || hint) && (
         <span className="flex flex-col gap-1">
           {label && (
-            <Label className="text-sm font-medium text-fg data-disabled:text-fg-disabled">
-              {label}
-            </Label>
+            <span className="flex items-center gap-1">
+              <Label className="text-sm font-medium text-fg data-disabled:text-fg-disabled">
+                {label}
+              </Label>
+              {info && <InfoTip content={info} label={`À propos : ${label}`} className="-my-1" />}
+            </span>
           )}
           {hint && (
             <Description className="text-sm text-fg-subtle data-disabled:text-fg-disabled">

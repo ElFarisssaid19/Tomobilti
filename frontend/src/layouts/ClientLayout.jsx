@@ -19,10 +19,7 @@ export default function ClientLayout() {
 
   return (
     <div className="container-page flex flex-1 flex-col gap-8 pt-24 pb-16 md:pt-32">
-      <PageHeader
-        title={`Bonjour, ${firstName(user)}`}
-        description="Mon espace : vos réservations et vos informations personnelles."
-      />
+      <PageHeader title={`Bonjour, ${firstName(user)}`} />
 
       <EmailVerificationBanner />
 

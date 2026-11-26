@@ -219,6 +219,8 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 | Write sentence-case labels                                | Use ALL-CAPS eyebrows above headings                                     |
 | Put text over photos only on a gradient overlay (AA)      | Put text straight on a photo, or hotlink an image                        |
 | Import photos through the PHP commands (credits kept)     | Add an image without its author, license and source                      |
+| Keep every overlay inside the viewport (body scrolls)     | Let a dialog, sheet or popover grow past the screen and hide its buttons |
+| Put a rule or consequence in an `info` tooltip or dialog  | Write a paragraph under a title, the tabs or every section               |
 
 ## 5. Layouts
 
@@ -315,7 +317,8 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   `EmptyState` per tab with "Voir les voitures".
 - **`/espace/reservations/:reference`**: `ReservationTimeline` (request sent → confirmed →
   picked up → returned, or cancelled / refused with the reason), car, `AgencyDetails`
-  (address, hours, phone, WhatsApp), price, `DocumentsToBring`, and the cancellation card:
+  (address, hours, phone, WhatsApp), price with `RentalTerms` (payment and deposit as
+  bullets), `DocumentsToBring` (one short bullet per document), and the cancellation card:
   "Annuler la réservation" with a `ConfirmDialog` (optional reason) when the server allows it,
   otherwise an info Alert with the server's reason. "Télécharger la facture" stays disabled
   with the tooltip "Disponible prochainement" until Phase 6.
@@ -336,11 +339,12 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   (`useUrlFilters` + a schema in `lib/admin*.js`, parsed by `lib/urlFilters.js`; invalid
   values fall back to defaults; any change goes back to page 1). Search fields write to
   the URL 350 ms after the last key, replacing the history entry (`SearchField`). Filters
-  wrap in a row from `md` and open in a bottom sheet below (`FilterPanel`). `Table` from
-  `lg` (row click opens the item, the first cell is a real link), cards below. Previous
+  wrap in a row from `md` and open in a bottom sheet below (`FilterPanel`). `Table` is a
+  table from `lg` (row click opens the item, the first cell is a real link) and turns
+  every row into a card below by itself: pages never branch on the screen size. Previous
   results stay dimmed while the next page loads; skeletons on the first load only.
 - **Tables** keep a row action column sticky on the right (`sticky right-0 bg-surface`)
-  so actions stay reachable when a narrow screen scrolls the table. `Table`'s wrapper is
+  for the `lg`–`xl` widths where a wide table still scrolls. `Table`'s wrapper is
   `relative`, so its `sr-only` caption cannot stretch the page.
 - **Reservation actions** come from the status (`actionsForStatus` in
   `lib/adminReservations.js`, mirroring `ReservationStatus::allowedTransitions()`): one lime
@@ -372,8 +376,10 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   progress bar per file (transform `scaleX`, no width animation), numbered 16:10 cards,
   reorder by drag and drop or by the arrow buttons (keyboard), "Principale" lime badge,
   alt text saved on blur, delete behind a ConfirmDialog, credit under each photo.
-- **Settings** (`SettingsPanel`): one config per resource (columns, fields, payload);
-  modal form with server 422 errors; a 409 "in use" refusal is a toast with the reason.
+- **Settings** (`SettingsPanel`): one config per resource (columns with their `card`
+  role, fields, payload); modal form with server 422 errors; a field's rule goes in its
+  `info` (e.g. "Une agence désactivée disparaît de la réservation en ligne."); the
+  "in use" rule sits in the delete confirmation, and a 409 refusal is a toast with the reason.
   API icon names render through `ApiIcon`.
 
 ### Photos
@@ -393,7 +399,7 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   hero only. Text over a photo always sits on a gradient overlay that keeps it at WCAG AA
   (from the side on desktop, from the bottom on mobile, plus a top fade under the navbar).
   Glows may sit over the hero photo, never behind body text.
-- **Home hero** (Phase 4): a black city car parked by a road of southern Morocco at dusk. On
+- **Home hero** (Phase 4): a black city car parked by a desert road in Morocco at dusk. On
   desktop the empty road on the left holds the text and the car sits on the right
   (`object-[85%_62%]`); between `md` and `lg` the left gradient is stronger, because the
   lead paragraph reaches the car. On mobile a closer 4:5 crop of the car is a top band
@@ -483,6 +489,8 @@ wrap instead; `bleed` runs it to the screen edges on mobile).
 <Checkbox label="J’accepte les conditions" checked={ok} onChange={setOk} error={…} />
 <RadioGroup label="Lieu de retrait" options={[{ value, label, description }]} value={v} onChange={setV} />
 <Switch label="Voiture à la une" checked={featured} onChange={setFeatured} />
+<Switch label="Agence active" info="Une agence désactivée disparaît de la réservation en ligne." … />
+<Input label="Prix" suffix="DH" info="Un nouveau prix ne change pas les réservations existantes." … />
 
 <FormField label="Adresse e-mail" name="email" errors={apiError} required>
   <Input name="email" type="email" />
@@ -497,6 +505,10 @@ wrap instead; `bleed` runs it to the screen edges on mobile).
 `PasswordInput` is an `Input` with a show/hide `IconButton` (French label, `aria-pressed`)
 in the `trailing` slot. `trailing` holds an interactive element at the right edge of the
 field (`suffix` is for static text such as "DH").
+
+`hint` is a short line under the control (a format, an example: "Ex. 05 24 00 01 02").
+`info` (Input, Textarea, Select, FormField, Switch) puts a longer rule or consequence in an
+`InfoTip` next to the label. `hideLabel` keeps the label for screen readers only.
 
 `errors` accepts the axios error, the Laravel 422 payload `{ message, errors }` or the
 `errors` object. The first message for `name` is shown and linked with
@@ -548,7 +560,7 @@ with `VITE_API_URL/storage/`. Missing or broken images fall back to a local silh
 for the category. The whole card is clickable through its title link, and the favorite
 button sits above it.
 
-### Overlays: Modal, ConfirmDialog, Drawer / BottomSheet, DropdownMenu, Tooltip
+### Overlays: Modal, ConfirmDialog, Drawer / BottomSheet, DropdownMenu, Tooltip, InfoTip
 
 ```jsx
 <Modal open={open} onClose={close} title="Modifier les dates" footer={<Button>Enregistrer les dates</Button>}>…</Modal>
@@ -557,21 +569,51 @@ button sits above it.
 <Drawer open={open} onClose={close} side="bottom" title="Filtres" footer={…}>…</Drawer>
 <DropdownMenu trigger={<IconButton icon={Ellipsis} label="Actions" />} items={[{ label: 'Modifier', icon: Pencil, onClick }]} />
 <Tooltip content="Ajouter aux favoris"><IconButton icon={Heart} label="Ajouter aux favoris" /></Tooltip>
+<InfoTip label="À propos de la caution" content="Bloquée à la prise en charge, rendue au retour." />
+<Modal open={open} onClose={close} title="Ajouter une agence" onSubmit={save}
+  footer={<><Button variant="ghost" onClick={close}>Retour</Button><Button type="submit">Ajouter</Button></>}>…</Modal>
 ```
 
 All of these are built on Headless UI (focus trap, Escape, ARIA) and animated with the
 documented `static` + `AnimatePresence` pattern.
 
+**Every overlay fits the viewport.** No dialog, sheet, menu or popover may grow past the
+screen or hide its actions, at any size (check 375 × 667 and a 1366 × 650 laptop):
+
+- `Modal` / `ConfirmDialog`: panel capped by `max-h-overlay` (100dvh minus a 2–3 rem margin
+  and the safe areas). The header (title, close) and the footer (actions) never scroll;
+  only the body does, with a hairline under the header / above the footer while content
+  is hidden. Below `sm` it sits at the bottom like a sheet, above the safe area. Actions
+  always go in `footer`; for a form, pass `onSubmit` and put the `type="submit"` button in
+  `footer` (body and footer are wrapped in one `<form>`). Never nest a second scroll area
+  in the body.
+- `Drawer` / `BottomSheet`: same header / scrolling body / fixed footer split; side
+  drawers pad under the top safe area, the sheet is capped below it, and the last padding
+  respects the bottom safe area.
+- `DropdownMenu`, `Select`, `DateRangePicker`: Headless UI anchoring flips the panel to the
+  side with room and caps it at the space left. The calendar popover scrolls its calendar
+  only; "Effacer" / "Valider" stay visible.
+- `Tooltip`: portaled with fixed coordinates, flips when there is no room and is shifted
+  to stay 8 px inside the viewport; long text wraps (max 18 rem). `openOnClick` also opens
+  it on tap. `InfoTip` is the "i" button built on it.
+- The lightbox is full screen with safe-area padding; the photo is `object-contain` in the
+  remaining space.
+
 ### Navigation: Tabs, Pagination, Breadcrumbs, PageHeader, SectionHeading, Stepper
 
 ```jsx
-<Tabs tabs={[{ label: 'À venir', count: 2, content: <Upcoming /> }]} />
+<Tabs tabs={[{ label: 'À venir', count: 2, content: <Upcoming /> }]} label="Mes réservations" />
 <Pagination page={meta.current_page} lastPage={meta.last_page} onPageChange={setPage} />
 <Breadcrumbs items={[{ label: 'Accueil', to: '/' }, { label: 'Clio 5' }]} />
 <PageHeader title="Bonjour, Said" description="…" actions={…} />
 <SectionHeading title="Voitures à la une" to="/voitures" />   // "Voir tout"
 <Stepper current={1} />                                       // Dates → Options → Informations → Confirmation
 ```
+
+`Tabs` never cut a tab off: the row scrolls sideways, a fade marks each edge that hides
+tabs, and the selected tab is scrolled fully into view on load and on change. On a phone
+(below `sm`), when the tabs do not fit, a `Select` (labelled with `label`) replaces the row;
+`collapse={false}` keeps the row.
 
 ### QuantityStepper
 
@@ -594,8 +636,15 @@ action and the item ("Ajouter : Siège bébé", "Retirer : Siège bébé"), disa
 <Avatar name="Salma Bennani" />
 <StatCard icon={CalendarCheck} label="Réservations ce mois" value={128} format="number" trend={{ value: 12, label: 'vs octobre' }} />
 <StatCard icon={Gauge} label="Taux d’utilisation" value={4.8} format="percent" hint="46 jours loués sur 960" />  // `hint`: what the number counts
-<Table caption="Réservations" columns={[{ key, header, render, align }]} rows={rows} rowKey="reference" loading={isLoading} empty={<EmptyState … />} />
+<Table caption="Réservations" columns={[{ key, header, render, align, card }]} rows={rows} rowKey="reference" loading={isLoading} empty={<EmptyState … />} />
 ```
+
+Below `breakpoint` (`lg` by default) `Table` renders one card per row, so nothing is cut
+off on a phone: the title column (the first one, or `card: 'title'`) at the top with the
+actions (`key: 'actions'` or `card: 'actions'`) on the right, the `card: 'status'` badges
+under it, then every other column as a label and its value (wrapping, never truncated;
+`card: 'wide'` spans the card, `card: false` hides it, e.g. an icon). `cardLabel` and
+`cardRender` override the label and the content on cards.
 
 ### Alert
 
@@ -617,6 +666,31 @@ for feedback after an action, an Alert for a state the user must read on the pag
 <ErrorState title="Impossible de charger les voitures" error={error} onRetry={refetch} />
 toast.success('Réservation envoyée')
 ```
+
+## 6b. Texte et ton
+
+Short copy, so pages read clean. Every phase follows these rules:
+
+- **Titles**: about 1 to 4 words ("Paramètres", "Mes réservations"). No subtitle that
+  repeats the title, the tabs or what the page already shows. A subtitle is fine when it
+  carries data (a date range, a plate number, "Client depuis le …").
+- **Buttons**: a verb, 1 to 3 words ("Ajouter une voiture", "Se connecter"). The toast
+  reuses the same words.
+- **Admin pages**: no explanation paragraphs at all, not under the title, not above a
+  table, not under a tab.
+- **Home marketing sections**: a headline and at most one short sentence each.
+- **Empty states**: a title, at most one short line, and the action button.
+- **Explanations** (rules and consequences) go where they matter, never in a paragraph on
+  the page: an `info` tooltip next to the field, switch or card title
+  ("Une agence désactivée disparaît de la réservation en ligne."), a short field `hint`
+  ("Ex. 05 24 00 01 02"), or the description of the confirmation dialog of the action
+  that has the consequence.
+- **What the customer must know stays, compact**: in the booking recap and the reservation
+  detail, the deposit, payment at the agency, the free cancellation deadline
+  (`RentalTerms`) and the documents to bring (`DocumentsToBring`) are short bullets.
+- **Errors stay clear and complete**: say what happened and what to do; never shorten an
+  error message to save space.
+- Plain French, sentence case, no filler ("Les … apparaîtront ici", "Un instant, …").
 
 ## 7. Data (server state)
 

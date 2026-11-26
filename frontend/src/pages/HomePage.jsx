@@ -43,17 +43,17 @@ const STEPS = [
   {
     icon: SearchCheck,
     title: 'Choisissez votre voiture',
-    text: 'Filtrez par catégorie, boîte de vitesses ou budget, puis vérifiez les jours libres dans le calendrier de la voiture.',
+    text: 'Filtrez, puis vérifiez ses jours libres.',
   },
   {
     icon: CalendarRange,
     title: 'Réservez vos dates',
-    text: 'Le prix par jour, le total estimé et le montant de la caution sont affichés avant de réserver.',
+    text: 'Total et caution affichés avant de réserver.',
   },
   {
     icon: KeyRound,
     title: 'Récupérez les clés',
-    text: 'À l’aéroport ou en agence, avec votre carte d’identité et votre permis de conduire.',
+    text: 'À l’aéroport ou en agence, avec CIN et permis.',
   },
 ]
 
@@ -101,11 +101,7 @@ export default function HomePage() {
         aria-labelledby="agences"
         className="container-page flex flex-col gap-6 pb-20 md:pb-28"
       >
-        <SectionHeading
-          id="agences"
-          title="Nos agences"
-          description="Nos comptoirs d’aéroport et nos agences en ville, avec leurs horaires."
-        />
+        <SectionHeading id="agences" title="Nos agences" />
         <AgencyList />
       </section>
       <Faq />
@@ -115,7 +111,7 @@ export default function HomePage() {
 }
 
 /**
- * Full-bleed photo (a black city car parked by a road of southern Morocco at dusk)
+ * Full-bleed photo (a black city car parked by a desert road in Morocco at dusk)
  * under the floating navbar, with the search widget. On desktop the empty road on the
  * left holds the text and the car sits on the right. On mobile a closer 4:5 crop of the
  * car fills the top of the hero, above the headline. Gradient overlays keep the text at
@@ -178,8 +174,7 @@ function Hero() {
           Prenez le volant dès l’atterrissage.
         </motion.h1>
         <motion.p variants={staggerItem} className="max-w-md text-lg text-fg/85">
-          Réservez en ligne et récupérez les clés à l’aéroport ou en agence, à Marrakech, Casablanca
-          et Agadir.
+          Les clés à l’aéroport ou en agence, à Marrakech, Casablanca et Agadir.
         </motion.p>
         <motion.div
           variants={staggerItem}
@@ -257,11 +252,7 @@ function FeaturedCars() {
 
   return (
     <section className="container-page flex flex-col gap-6 pb-20 md:pb-28">
-      <SectionHeading
-        title="Voitures à la une"
-        description="Une sélection de l’agence, au départ de Marrakech, Casablanca et Agadir."
-        to="/voitures"
-      />
+      <SectionHeading title="Voitures à la une" to="/voitures" />
       {isError ? (
         <ErrorState title="Impossible de charger les voitures" error={error} onRetry={refetch} />
       ) : isPending ? (
@@ -336,12 +327,12 @@ function WhyTomobilti() {
     {
       icon: Plane,
       title: 'Prise en charge à l’aéroport',
-      text: 'Nos comptoirs de Marrakech Menara, Casablanca Mohammed V et Agadir Al Massira vous remettent les clés dès votre arrivée.',
+      text: 'Comptoirs à Menara, Mohammed V et Al Massira.',
     },
     {
       icon: ReceiptText,
       title: 'Des prix clairs, caution comprise',
-      text: 'Prix TTC en dirhams, total estimé pour vos dates et montant de la caution affichés avant la réservation.',
+      text: 'Prix TTC en dirhams, caution affichée.',
     },
     {
       icon: MessageCircle,
@@ -366,7 +357,7 @@ function WhyTomobilti() {
             WhatsApp
             <span className="sr-only">(nouvel onglet)</span>
           </a>
-          , aux horaires de chaque agence.
+          .
         </>
       ),
     },
@@ -463,9 +454,7 @@ function FinalCta() {
           <h2 className="text-3xl font-bold text-balance text-fg md:text-4xl">
             Prêt à prendre la route ?
           </h2>
-          <p className="text-lg text-fg/85">
-            Choisissez vos dates, comparez les voitures libres et réservez en quelques minutes.
-          </p>
+          <p className="text-lg text-fg/85">Réservez en quelques minutes.</p>
           <Button size="lg" to="/voitures">
             Voir les voitures
           </Button>

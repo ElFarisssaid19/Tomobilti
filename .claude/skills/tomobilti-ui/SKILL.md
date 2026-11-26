@@ -16,7 +16,7 @@ http://localhost:5173/design (dev server only), and it shows every token and com
   Select, Checkbox, RadioGroup, RangeSlider,
   Switch, FormField, DateRangePicker/DateRangeCalendar, Badge, StatusBadge, Card,
   PromoCard, CarCard(+Skeleton), CarListItem(+Skeleton), Modal, ConfirmDialog,
-  Drawer/BottomSheet, DropdownMenu, Tabs, Tooltip, Accordion, Skeleton, Spinner,
+  Drawer/BottomSheet, DropdownMenu, Tabs, Tooltip/InfoTip, Accordion, Skeleton, Spinner,
   EmptyState, ErrorState, Alert, Pagination, Breadcrumbs, PageHeader, SectionHeading,
   Stepper, Avatar, StatCard, Table, Toaster, Glow. Extend one of these (props, variants)
   before writing a new one. A new reusable component goes in `components/ui`, gets
@@ -105,6 +105,29 @@ http://localhost:5173/design (dev server only), and it shows every token and com
   the relevant `sources.json` and run `php artisan tomobilti:import-site-photos` or
   `tomobilti:import-car-photos` (from `backend/`): it optimizes them and keeps the credits
   (`docs/image-credits.md`, `/credits`) up to date.
+
+## Overlays fit the viewport
+
+- Every overlay (Modal, ConfirmDialog, Drawer, BottomSheet, DropdownMenu, Select, the
+  DateRangePicker popover, Tooltip, the lightbox) must fit the viewport at 375 × 667 and on
+  a 1366 × 650 laptop. Header and footer stay visible, only the body scrolls.
+- Dialog actions always go in the Modal `footer`; a form dialog passes `onSubmit` to `Modal`
+  and puts its `type="submit"` button in `footer`. Never a second scroll area inside the body.
+- Tabs never cut a tab off (edge fades, active tab scrolled into view, a Select on phones).
+  Tables turn into cards below `lg` by themselves (column `card` roles): never branch on the
+  screen size in a page.
+
+## Texte et ton
+
+- Titles about 1–4 words; buttons a verb, 1–3 words. No subtitle that repeats the title,
+  the tabs or what is visible.
+- Admin pages: no explanation paragraphs at all. Home sections: a headline and at most one
+  short sentence. Empty states: a title, at most one short line, the action.
+- Rules and consequences go in an `info` tooltip next to the field, switch or card title
+  (`InfoTip`), a short `hint` ("Ex. …"), or the confirmation dialog of the action.
+- Keep what the customer must know as short bullets (`RentalTerms`, `DocumentsToBring`).
+  Error messages stay clear and complete.
+- Full rules: DESIGN.md, "Texte et ton".
 
 ## Do / Don't
 

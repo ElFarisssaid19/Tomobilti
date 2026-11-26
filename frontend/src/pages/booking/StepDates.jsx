@@ -72,7 +72,7 @@ export default function StepDates({ car, draft, update, rules, locations, errors
           value={draft.returnTime}
           onChange={(returnTime) => update({ returnTime })}
           error={errors.returnTime}
-          hint="Chaque tranche de 24 h commencée compte pour un jour."
+          info="Chaque tranche de 24 h commencée compte pour un jour."
         />
         <Select
           label="Agence de prise en charge"
@@ -94,8 +94,7 @@ export default function StepDates({ car, draft, update, rules, locations, errors
 
       {oneWay && (
         <Alert tone="info" title="Retour dans une autre agence">
-          Des frais de {formatPrice(rules.one_way_fee)} s’ajoutent au total pour ramener la voiture
-          à son agence.
+          {formatPrice(rules.one_way_fee)} de frais s’ajoutent au total.
         </Alert>
       )}
 

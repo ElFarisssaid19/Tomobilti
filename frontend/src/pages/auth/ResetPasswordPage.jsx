@@ -82,7 +82,6 @@ export default function ResetPasswordPage() {
     <AuthShell
       photo="password"
       title="Nouveau mot de passe"
-      description="Choisissez le mot de passe que vous utiliserez pour vous connecter."
       footer={
         <p>
           <Link

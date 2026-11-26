@@ -34,7 +34,7 @@ export default function AdminPlanningPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Planning"
-        description={`Du ${formatShortDate(`${from}T12:00:00`)} au ${formatShortDate(`${to}T12:00:00`)}.`}
+        description={`${formatShortDate(`${from}T12:00:00`)} – ${formatShortDate(`${to}T12:00:00`)}`}
         actions={
           <div className="flex items-center gap-2">
             <IconButton
@@ -93,7 +93,7 @@ export default function AdminPlanningPage() {
           <EmptyState
             icon={CalendarRange}
             title="Aucune voiture"
-            text="Ajoutez des voitures à la flotte pour voir leur planning."
+            action={<Button to="/admin/voitures/nouvelle">Ajouter une voiture</Button>}
           />
         ) : (
           <div

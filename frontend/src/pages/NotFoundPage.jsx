@@ -56,8 +56,7 @@ export default function NotFoundPage() {
         </p>
         <h1 className="text-3xl font-bold text-fg sm:text-4xl">Cette route ne mène nulle part</h1>
         <p className="max-w-md text-lg text-fg-muted">
-          La page demandée n’existe pas ou a été déplacée. Reprenez depuis l’accueil ou parcourez
-          les voitures disponibles.
+          La page demandée n’existe pas ou a été déplacée.
         </p>
         <div className="mt-2 flex flex-wrap justify-center gap-3">
           <Button to="/" size="lg">

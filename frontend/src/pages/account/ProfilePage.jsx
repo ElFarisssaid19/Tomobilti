@@ -14,29 +14,16 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader
-        titleAs="h2"
-        title="Profil"
-        description="Ces informations figurent sur vos contrats de location."
-      />
+      <PageHeader titleAs="h2" title="Profil" />
 
-      <ProfileSection
-        id="profil-informations"
-        title="Informations personnelles"
-        description="Votre nom et votre téléphone servent à vous accueillir au retrait du véhicule."
-      >
+      <ProfileSection id="profil-informations" title="Informations personnelles">
         <PersonalInfoForm />
       </ProfileSection>
 
       <ProfileSection
         id="profil-permis"
         title="Permis de conduire et pièce d’identité"
-        description={
-          <p>
-            Obligatoires pour réserver, avec votre téléphone et votre date de naissance : l’agence
-            vérifie la CIN et le permis au retrait des clés. Il faut au moins 2 ans de permis.
-          </p>
-        }
+        info="Obligatoires pour réserver, avec votre téléphone et votre date de naissance. L’agence vérifie la CIN et le permis au retrait des clés."
         badge={
           user.has_complete_profile ? (
             <Badge tone="success" icon={CircleCheck} className="self-start">
@@ -55,7 +42,7 @@ export default function ProfilePage() {
       <ProfileSection
         id="profil-mot-de-passe"
         title="Mot de passe"
-        description="Changer de mot de passe déconnecte vos autres appareils."
+        info="Changer de mot de passe déconnecte vos autres appareils."
       >
         <PasswordForm />
       </ProfileSection>

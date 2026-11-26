@@ -86,11 +86,7 @@ export default function LoginPage() {
     <AuthShell
       photo="login"
       title="Connexion"
-      description={
-        redirect
-          ? 'Connectez-vous pour continuer vers cette page.'
-          : 'Retrouvez vos réservations et vos informations.'
-      }
+      description={redirect ? 'Connectez-vous pour continuer.' : undefined}
       footer={
         <p>
           Pas encore de compte ?{' '}

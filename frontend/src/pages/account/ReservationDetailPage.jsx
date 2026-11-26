@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import AgencyDetails from '../../components/reservation/AgencyDetails.jsx'
 import DocumentsToBring from '../../components/reservation/DocumentsToBring.jsx'
 import PriceBreakdown from '../../components/reservation/PriceBreakdown.jsx'
+import RentalTerms from '../../components/reservation/RentalTerms.jsx'
 import ReservationTimeline from '../../components/reservation/ReservationTimeline.jsx'
 import {
   Alert,
@@ -155,10 +156,7 @@ function ReservationDetail({ reservation }) {
               Prix
             </h3>
             <PriceBreakdown pricing={pricing} />
-            <p className="text-sm text-fg-muted">
-              Paiement à l’agence lors de la prise en charge. La caution est libérée au retour de la
-              voiture.
-            </p>
+            <RentalTerms />
           </section>
 
           <Cancellation reservation={reservation} />
@@ -223,7 +221,7 @@ function Cancellation({ reservation }) {
               {formatDate(freeUntil, { day: 'numeric', month: 'long' })} à{' '}
               {formatDate(freeUntil, { hour: '2-digit', minute: '2-digit' })}
             </span>
-            , soit 24 heures avant la prise en charge.
+            , 24 h avant le départ.
           </p>
           <Button
             variant="danger"

@@ -66,7 +66,7 @@ describe('CatalogPage', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: 'Aucune voiture ne correspond à votre recherche',
+        name: 'Aucune voiture trouvée',
       }),
     ).toBeInTheDocument()
     expect(fetchCars).toHaveBeenCalledWith(

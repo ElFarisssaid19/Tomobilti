@@ -85,7 +85,7 @@ export default function RegisterPage() {
     <AuthShell
       photo="register"
       title="Créer un compte"
-      description="Quelques informations pour réserver en ligne. Le permis et la CIN se complètent plus tard."
+      description="Permis et CIN à compléter plus tard."
       footer={
         <p>
           Déjà un compte ?{' '}
@@ -131,7 +131,6 @@ export default function RegisterPage() {
           type="tel"
           autoComplete="tel"
           placeholder="06 12 34 56 78"
-          hint="Pour vous joindre le jour du retrait."
           value={values.phone}
           onChange={update('phone')}
           errors={errors}

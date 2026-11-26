@@ -1,10 +1,10 @@
 import { subHours } from 'date-fns'
-import { CalendarX2, Wallet } from 'lucide-react'
 import DocumentsToBring from '../../components/reservation/DocumentsToBring.jsx'
 import PriceBreakdown from '../../components/reservation/PriceBreakdown.jsx'
+import RentalTerms from '../../components/reservation/RentalTerms.jsx'
 import { Checkbox, Skeleton, Textarea } from '../../components/ui'
 import { combineDateTime, draftMoment } from '../../lib/booking.js'
-import { formatDate, formatPrice } from '../../utils/format.js'
+import { formatDate } from '../../utils/format.js'
 
 /**
  * Step 4: everything the customer commits to before confirming. The prices are the
@@ -51,36 +51,18 @@ export default function StepReview({
         )}
       </Block>
 
-      <Block title="Paiement et caution">
-        <div className="flex gap-3 text-sm text-fg-muted">
-          <Wallet className="mt-0.5 size-5 shrink-0 text-fg-subtle" aria-hidden="true" />
-          <p>
-            <span className="font-semibold text-fg">
-              Paiement à l’agence lors de la prise en charge
-            </span>
-            , en espèces ou par carte. La caution
-            {quote ? ` de ${formatPrice(quote.pricing.deposit_amount)}` : ''} est bloquée sur votre
-            carte bancaire et libérée au retour de la voiture.
-          </p>
-        </div>
+      <Block title="Bon à savoir">
+        <RentalTerms
+          freeUntilLabel={
+            freeUntil
+              ? `${formatDate(freeUntil, { day: 'numeric', month: 'long' })} à ${draft.pickupTime}`
+              : undefined
+          }
+        />
       </Block>
 
       <Block title="Documents à présenter">
         <DocumentsToBring />
-      </Block>
-
-      <Block title="Annulation">
-        <div className="flex gap-3 text-sm text-fg-muted">
-          <CalendarX2 className="mt-0.5 size-5 shrink-0 text-fg-subtle" aria-hidden="true" />
-          <p>
-            Annulation gratuite depuis Mes réservations jusqu’à {rules.free_cancellation_hours} h
-            avant la prise en charge
-            {freeUntil
-              ? `, soit jusqu’au ${formatDate(freeUntil, { day: 'numeric', month: 'long' })} à ${draft.pickupTime}`
-              : ''}
-            . Ensuite, contactez l’agence.
-          </p>
-        </div>
       </Block>
 
       <Textarea

@@ -24,8 +24,9 @@ import ApiIcon from './ApiIcon.jsx'
  * to add or edit, and a delete that the server refuses (409, French reason in a
  * toast) while the item is still in use.
  *
- * `config`: { resource, title, singular, addLabel, emptyText, columns, fields, empty, toForm, toPayload }
- * `fields`: [{ name, label, type: 'text'|'textarea'|'number'|'select'|'switch'|'icon', options?, hint?, required?, suffix? }]
+ * `config`: { resource, title, singular, addLabel, emptyText, deleteHint, columns, fields, empty, toForm, toPayload }
+ * `fields`: [{ name, label, type: 'text'|'textarea'|'number'|'select'|'switch'|'icon', options?, hint?, info?, required?, suffix? }]
+ * (`info`: a rule or consequence, shown in a tooltip next to the label)
  */
 export default function SettingsPanel({ config }) {
   const { data, isPending, isError, error, refetch } = useSettings(config.resource)
@@ -91,8 +92,7 @@ export default function SettingsPanel({ config }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-fg-muted">{config.description}</p>
+      <div className="flex justify-end">
         <Button leftIcon={Plus} onClick={() => open(null)}>
           {config.addLabel}
         </Button>
@@ -129,28 +129,29 @@ export default function SettingsPanel({ config }) {
         onClose={() => !save.isPending && setEditing(null)}
         title={editing === 'new' ? config.addLabel : `Modifier ${editing?.name ?? ''}`}
         size="lg"
-      >
-        <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {config.fields.map((field) => (
-              <SettingField
-                key={field.name}
-                field={field}
-                value={values[field.name]}
-                errors={save.error}
-                onChange={(value) => setValues((current) => ({ ...current, [field.name]: value }))}
-              />
-            ))}
-          </div>
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        onSubmit={submit}
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setEditing(null)} disabled={save.isPending}>
               Retour
             </Button>
             <Button type="submit" loading={save.isPending}>
               {editing === 'new' ? config.addLabel : 'Enregistrer'}
             </Button>
-          </div>
-        </form>
+          </>
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {config.fields.map((field) => (
+            <SettingField
+              key={field.name}
+              field={field}
+              value={values[field.name]}
+              errors={save.error}
+              onChange={(value) => setValues((current) => ({ ...current, [field.name]: value }))}
+            />
+          ))}
+        </div>
       </Modal>
 
       <ConfirmDialog
@@ -187,6 +188,7 @@ function SettingField({ field, value, errors, onChange }) {
     label: field.label,
     name: field.name,
     hint: field.hint,
+    info: field.info,
     required: field.required,
     errors,
   }
@@ -196,6 +198,7 @@ function SettingField({ field, value, errors, onChange }) {
       <Switch
         label={field.label}
         hint={field.hint}
+        info={field.info}
         checked={Boolean(value)}
         onChange={onChange}
         className="sm:col-span-2"

@@ -10,10 +10,10 @@ Files in `frontend/src/assets/photos/`.
 
 | Photo | File | Author | License | Changes | Source |
 | --- | --- | --- | --- | --- | --- |
-| Piste d’aéroport vue du ciel au crépuscule | `aeroport` | [Niklas Jonasson](https://unsplash.com/@niklasjonasson) | [Unsplash License](https://unsplash.com/license) | Recadrée et redimensionnée, convertie en WebP | [Unsplash](https://unsplash.com/photos/3p3HtGKvGLM) |
-| Citadine noire garée au bord d’une route du Sud marocain, au crépuscule | `hero` | [Margo Evardson](https://unsplash.com/@stadinstudio) | [Unsplash License](https://unsplash.com/license) | Recadrée et redimensionnée, convertie en WebP, plaque floutée | [Unsplash](https://unsplash.com/photos/o55Tq9W0xOc) |
+| Piste de l’aéroport de Skellefteå (Suède) vue du ciel, au crépuscule | `aeroport` | [Niklas Jonasson](https://unsplash.com/@niklasjonasson) | [Unsplash License](https://unsplash.com/license) | Recadrée et redimensionnée, convertie en WebP | [Unsplash](https://unsplash.com/photos/3p3HtGKvGLM) |
+| Citadine noire garée au bord d’une route désertique du Maroc, au crépuscule | `hero` | [Margo Evardson](https://unsplash.com/@stadinstudio) | [Unsplash License](https://unsplash.com/license) | Recadrée et redimensionnée, convertie en WebP, plaque floutée | [Unsplash](https://unsplash.com/photos/o55Tq9W0xOc) |
 | Minaret de la Koutoubia à Marrakech au coucher du soleil | `marrakech` | [Desert Morocco Adventure Tours](https://www.pexels.com/@desert-morocco-adventure-tours-2165350666/) | [Pexels License](https://www.pexels.com/license/) | Recadrée et redimensionnée, convertie en WebP | [Pexels](https://www.pexels.com/photo/koutoubia-mosque-at-sunset-marrakech-40675629/) |
-| Route en lacets dans la vallée du Drâa, dans l’Atlas | `route-atlas` | [N abil](https://www.pexels.com/@zoogaa/) | [Pexels License](https://www.pexels.com/license/) | Recadrée et redimensionnée, convertie en WebP | [Pexels](https://www.pexels.com/photo/scenic-draa-valley-road-in-morocco-s-atlas-mountains-39320882/) |
+| Route en lacets des gorges du Dadès, dans le Haut Atlas | `route-atlas` | [N abil](https://www.pexels.com/@zoogaa/) | [Pexels License](https://www.pexels.com/license/) | Recadrée et redimensionnée, convertie en WebP | [Pexels](https://www.pexels.com/photo/scenic-draa-valley-road-in-morocco-s-atlas-mountains-39320882/) |
 | Route sinueuse dans le désert d’Agafay, au pied de l’Atlas | `route-desert` | [Bradley Pritchard Jones](https://unsplash.com/@bpj2608) | [Unsplash License](https://unsplash.com/license) | Recadrée et redimensionnée, convertie en WebP | [Unsplash](https://unsplash.com/photos/v32DdK24LYc) |
 
 ## Car photos (62)

@@ -26,9 +26,9 @@ export const DEFAULT_BOOKING_RULES = {
 }
 
 export const DOCUMENTS_TO_BRING = [
-  { label: 'CIN ou passeport', detail: 'Pièce d’identité en cours de validité.' },
-  { label: 'Permis de conduire', detail: 'Original, obtenu depuis au moins 2 ans.' },
-  { label: 'Carte bancaire pour la caution', detail: 'Au nom du conducteur principal.' },
+  { label: 'CIN ou passeport', detail: 'en cours de validité' },
+  { label: 'Permis de conduire', detail: 'original, 2 ans minimum' },
+  { label: 'Carte bancaire', detail: 'au nom du conducteur, pour la caution' },
 ]
 
 export const DEFAULT_TIME = '10:00'

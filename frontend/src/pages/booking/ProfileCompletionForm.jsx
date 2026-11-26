@@ -14,7 +14,7 @@ const FIELDS = {
     label: 'Numéro de CIN',
     autoComplete: 'off',
     placeholder: 'BE123456',
-    hint: 'Visiteurs étrangers : votre passeport sera vérifié en agence.',
+    hint: 'Passeport pour les visiteurs, à présenter en agence.',
   },
   driving_license_number: {
     label: 'Numéro de permis',

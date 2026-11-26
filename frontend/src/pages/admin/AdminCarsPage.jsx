@@ -24,15 +24,12 @@ import {
   EmptyState,
   ErrorState,
   IconButton,
-  LoadingRegion,
   PageHeader,
   Pagination,
   Select,
-  Skeleton,
   Table,
 } from '../../components/ui'
 import { useAdminCars, useDeleteCar, useRestoreCar, useSettings } from '../../hooks/useAdmin.js'
-import useMediaQuery from '../../hooks/useMediaQuery.js'
 import usePageMeta from '../../hooks/usePageMeta.js'
 import useUrlFilters from '../../hooks/useUrlFilters.js'
 import { CAR_FILTERS } from '../../lib/adminCars.js'
@@ -55,7 +52,6 @@ const SORTS = [
 export default function AdminCarsPage() {
   usePageMeta('Voitures')
   const navigate = useNavigate()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
   const { filters, setFilters, resetFilters } = useUrlFilters(CAR_FILTERS)
   const params = useMemo(() => filtersToApiParams(filters, CAR_FILTERS), [filters])
   const { data, isPending, isError, error, refetch, isPlaceholderData } = useAdminCars(params)
@@ -151,6 +147,7 @@ export default function AdminCarsPage() {
     {
       key: 'status',
       header: 'Statut',
+      card: 'status',
       render: (car) => (
         <span className="flex flex-wrap gap-1.5">
           {car.is_deleted ? (
@@ -198,7 +195,6 @@ export default function AdminCarsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Voitures"
-        description="La flotte, ses photos et sa disponibilité."
         actions={
           <Button to="/admin/voitures/nouvelle" leftIcon={Plus}>
             Ajouter une voiture
@@ -272,12 +268,7 @@ export default function AdminCarsPage() {
       ) : !isPending && data.data.length === 0 ? (
         <EmptyState
           icon={CarFront}
-          title="Aucune voiture"
-          text={
-            activeCount || filters.q
-              ? 'Aucune voiture ne correspond à ces filtres.'
-              : 'Ajoutez la première voiture de la flotte.'
-          }
+          title={activeCount || filters.q ? 'Aucune voiture trouvée' : 'Aucune voiture'}
           action={
             activeCount || filters.q ? (
               <Button variant="secondary" onClick={() => resetFilters()}>
@@ -298,61 +289,13 @@ export default function AdminCarsPage() {
           )}
           aria-busy={isPlaceholderData}
         >
-          {isDesktop ? (
-            <Table
-              caption="Flotte"
-              columns={columns}
-              rows={data?.data ?? []}
-              loading={isPending}
-              onRowClick={(car) => navigate(`/admin/voitures/${car.id}`)}
-            />
-          ) : isPending ? (
-            <LoadingRegion label="Chargement de la flotte…" className="flex flex-col gap-3">
-              {[1, 2, 3].map((item) => (
-                <Skeleton key={item} className="h-24 w-full rounded-card" />
-              ))}
-            </LoadingRegion>
-          ) : (
-            <ul className="flex flex-col gap-3">
-              {data.data.map((car) => (
-                <li
-                  key={car.id}
-                  className="flex items-center gap-3 rounded-card border border-line bg-surface p-3"
-                >
-                  <CarThumb src={car.primary_image?.thumbnail_url} className="w-20" />
-                  <Link
-                    to={`/admin/voitures/${car.id}`}
-                    className="flex min-w-0 flex-1 flex-col gap-1"
-                  >
-                    <span className="truncate font-semibold text-fg">
-                      {car.name} {car.year}
-                    </span>
-                    <span className="text-sm text-fg-muted tabular-nums">
-                      {car.plate_number}, {formatPrice(car.price_per_day)} / jour
-                    </span>
-                    <span>
-                      {car.is_deleted ? (
-                        <Badge tone="neutral">Retirée</Badge>
-                      ) : (
-                        <CarStatusBadge status={car.status} />
-                      )}
-                    </span>
-                  </Link>
-                  <DropdownMenu
-                    trigger={
-                      <IconButton
-                        icon={Ellipsis}
-                        label={`Actions pour ${car.name} ${car.plate_number}`}
-                        size="sm"
-                        variant="ghost"
-                      />
-                    }
-                    items={actions(car)}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
+          <Table
+            caption="Flotte"
+            columns={columns}
+            rows={data?.data ?? []}
+            loading={isPending}
+            onRowClick={(car) => navigate(`/admin/voitures/${car.id}`)}
+          />
           {data?.meta && (
             <div className="flex flex-col items-center gap-2">
               <Pagination

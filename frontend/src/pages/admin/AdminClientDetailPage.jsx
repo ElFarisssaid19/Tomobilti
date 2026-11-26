@@ -176,12 +176,7 @@ export default function AdminClientDetailPage() {
               Historique des réservations
             </h2>
             {client.reservations.length === 0 ? (
-              <EmptyState
-                icon={CalendarX}
-                title="Aucune réservation"
-                text="Ce client n’a encore rien réservé."
-                glow={false}
-              />
+              <EmptyState icon={CalendarX} title="Aucune réservation" glow={false} />
             ) : (
               <ul className="grid gap-3 xl:grid-cols-2">
                 {client.reservations.map((reservation) => (

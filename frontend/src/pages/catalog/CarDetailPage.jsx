@@ -23,6 +23,7 @@ import {
   DateRangePicker,
   EmptyState,
   ErrorState,
+  InfoTip,
   LoadingRegion,
   Skeleton,
 } from '../../components/ui'
@@ -64,7 +65,7 @@ export default function CarDetailPage() {
           <EmptyState
             icon={CarFront}
             title="Cette voiture n’est pas disponible"
-            text="Elle a peut-être quitté la flotte ou est en maintenance. D’autres modèles vous attendent dans le catalogue."
+            text="Elle a peut-être quitté la flotte."
             action={<Button to="/voitures">Voir les voitures</Button>}
           />
         ) : (
@@ -216,21 +217,25 @@ function BookingCard({ car }) {
     <div className="flex flex-col gap-5 rounded-card-lg border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-28">
       <div className="flex items-end justify-between gap-4">
         <p className="flex flex-col">
-          <span className="text-sm text-fg-muted">Prix par jour</span>
+          <span className="text-sm text-fg-muted">Prix par jour, TTC</span>
           <span className="text-3xl font-bold text-accent-text tabular-nums">
             {formatPrice(car.price_per_day)}
           </span>
         </p>
-        <p className="flex flex-col text-right">
-          <span className="text-sm text-fg-muted">Caution</span>
+        <div className="flex flex-col items-end">
+          <span className="flex items-center gap-1 text-sm text-fg-muted">
+            Caution
+            <InfoTip
+              label="À propos de la caution"
+              content="Bloquée à la prise en charge, rendue au retour. Jamais incluse dans le total."
+              className="-my-1"
+            />
+          </span>
           <span className="text-lg font-semibold text-fg tabular-nums">
             {formatPrice(car.deposit_amount)}
           </span>
-        </p>
+        </div>
       </div>
-      <p className="-mt-2 text-sm text-fg-subtle">
-        Prix TTC. La caution est bloquée à la prise en charge et rendue au retour.
-      </p>
 
       <div className="border-t border-line pt-5">
         <DateRangePicker
@@ -274,7 +279,7 @@ function BookingCard({ car }) {
               {formatPrice(estimate.total)}
             </dd>
           </div>
-          <p className="text-xs text-fg-subtle">Hors options. La caution n’est pas comprise.</p>
+          <p className="text-xs text-fg-subtle">Hors options et caution.</p>
         </dl>
       )}
 
@@ -283,7 +288,7 @@ function BookingCard({ car }) {
       </Button>
       {status !== 'authenticated' && (
         <p className="-mt-2 text-center text-sm text-fg-subtle">
-          Vous devrez vous connecter. Vos dates seront gardées.
+          Connexion requise, vos dates sont gardées.
         </p>
       )}
     </div>
@@ -333,12 +338,9 @@ function Extras() {
 
   return (
     <section aria-labelledby="options" className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 id="options" className="text-xl font-bold text-fg">
-          Options disponibles
-        </h2>
-        <p className="text-sm text-fg-muted">À ajouter au moment de la réservation.</p>
-      </div>
+      <h2 id="options" className="text-xl font-bold text-fg">
+        Options disponibles
+      </h2>
       {isPending ? (
         <LoadingRegion label="Chargement des options…" className="grid gap-3 sm:grid-cols-2">
           {[1, 2, 3, 4].map((item) => (

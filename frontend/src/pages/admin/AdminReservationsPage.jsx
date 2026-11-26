@@ -5,24 +5,20 @@ import { toast } from 'sonner'
 import { exportReservations } from '../../api/admin.js'
 import CarThumb from '../../components/admin/CarThumb.jsx'
 import FilterPanel from '../../components/admin/FilterPanel.jsx'
-import ReservationCard from '../../components/admin/ReservationCard.jsx'
 import SearchField from '../../components/admin/SearchField.jsx'
 import {
   Button,
   EmptyState,
   ErrorState,
   Input,
-  LoadingRegion,
   PageHeader,
   Pagination,
   Select,
-  Skeleton,
   StatusBadge,
   Table,
   Tabs,
 } from '../../components/ui'
 import { useAdminCars, useAdminReservations, useSettings } from '../../hooks/useAdmin.js'
-import useMediaQuery from '../../hooks/useMediaQuery.js'
 import usePageMeta from '../../hooks/usePageMeta.js'
 import useUrlFilters from '../../hooks/useUrlFilters.js'
 import { downloadBlob, formatShortDateTime } from '../../lib/adminFormat.js'
@@ -44,19 +40,10 @@ const SORTS = [
 ]
 
 const EMPTY = {
-  pending: {
-    title: 'Aucune demande à traiter',
-    text: 'Les nouvelles réservations apparaîtront ici.',
-  },
-  today: {
-    title: 'Aucun départ ni retour aujourd’hui',
-    text: 'Les remises de clés du jour apparaîtront ici.',
-  },
-  active: {
-    title: 'Aucune location en cours',
-    text: 'Les voitures chez un client apparaîtront ici.',
-  },
-  all: { title: 'Aucune réservation', text: 'Aucune réservation ne correspond à ces filtres.' },
+  pending: { title: 'Aucune demande à traiter' },
+  today: { title: 'Aucun départ ni retour aujourd’hui' },
+  active: { title: 'Aucune location en cours' },
+  all: { title: 'Aucune réservation trouvée' },
 }
 
 const COLUMNS = [
@@ -134,7 +121,6 @@ const COLUMNS = [
 export default function AdminReservationsPage() {
   usePageMeta('Réservations')
   const navigate = useNavigate()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
   const { filters, setFilters, resetFilters } = useUrlFilters(RESERVATION_FILTERS)
   const params = useMemo(() => filtersToApiParams(filters, RESERVATION_FILTERS), [filters])
   const { data, isPending, isError, error, refetch, isPlaceholderData } =
@@ -172,7 +158,6 @@ export default function AdminReservationsPage() {
       error={error}
       refetch={refetch}
       dimmed={isPlaceholderData}
-      isDesktop={isDesktop}
       tab={filters.tab}
       hasFilters={activeCount > 0}
       onReset={() => resetFilters({ tab: filters.tab })}
@@ -185,7 +170,6 @@ export default function AdminReservationsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Réservations"
-        description="Répondez aux demandes et suivez les remises de clés."
         actions={
           <Button
             variant="secondary"
@@ -290,7 +274,6 @@ function ReservationList({
   error,
   refetch,
   dimmed,
-  isDesktop,
   tab,
   hasFilters,
   onReset,
@@ -309,7 +292,6 @@ function ReservationList({
       <EmptyState
         icon={CalendarX}
         title={empty.title}
-        text={empty.text}
         action={
           hasFilters && (
             <Button variant="secondary" onClick={onReset}>
@@ -326,30 +308,14 @@ function ReservationList({
       className={cn('flex flex-col gap-6 transition-opacity duration-150', dimmed && 'opacity-60')}
       aria-busy={dimmed}
     >
-      {isDesktop ? (
-        <Table
-          caption="Réservations"
-          columns={COLUMNS}
-          rows={data?.data ?? []}
-          rowKey="reference"
-          loading={isPending}
-          onRowClick={onOpen}
-        />
-      ) : isPending ? (
-        <LoadingRegion label="Chargement des réservations…" className="flex flex-col gap-3">
-          {[1, 2, 3].map((item) => (
-            <Skeleton key={item} className="h-32 w-full rounded-card" />
-          ))}
-        </LoadingRegion>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {data.data.map((reservation) => (
-            <li key={reservation.reference} className="min-w-0">
-              <ReservationCard reservation={reservation} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <Table
+        caption="Réservations"
+        columns={COLUMNS}
+        rows={data?.data ?? []}
+        rowKey="reference"
+        loading={isPending}
+        onRowClick={onOpen}
+      />
       {data?.meta && (
         <div className="flex flex-col items-center gap-2">
           <Pagination

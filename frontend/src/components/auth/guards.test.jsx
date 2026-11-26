@@ -94,9 +94,7 @@ describe('GuestRoute', () => {
 describe('AdminRoute', () => {
   it('shows the French 403 page to clients', () => {
     renderAt('/admin', auth('authenticated', CLIENT))
-    expect(
-      screen.getByRole('heading', { name: 'Cette page est réservée à l’équipe de l’agence' }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Accès réservé à l’agence' })).toBeInTheDocument()
     expect(screen.queryByText('Tableau de bord admin')).not.toBeInTheDocument()
   })
 

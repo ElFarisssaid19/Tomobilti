@@ -40,7 +40,7 @@ export default function LicenseForm() {
         label="Numéro de CIN"
         autoComplete="off"
         placeholder="BE123456"
-        hint="Carte d’identité nationale. Passeport pour les visiteurs : à présenter en agence."
+        hint="Passeport pour les visiteurs, à présenter en agence."
         className="sm:col-span-2"
         {...form.field('cin')}
       />

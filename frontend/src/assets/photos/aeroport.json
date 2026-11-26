@@ -1,6 +1,6 @@
 {
   "file": "aeroport",
-  "description": "Piste d’aéroport vue du ciel au crépuscule",
+  "description": "Piste de l’aéroport de Skellefteå (Suède) vue du ciel, au crépuscule",
   "files": {
     "1600": "aeroport-1600.webp",
     "800": "aeroport-800.webp"

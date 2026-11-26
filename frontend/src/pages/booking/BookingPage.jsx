@@ -73,7 +73,7 @@ function BookingFlow({ slug }) {
           <EmptyState
             icon={CarFront}
             title="Cette voiture n’est pas disponible"
-            text="Elle a peut-être quitté la flotte ou est en maintenance. D’autres modèles vous attendent."
+            text="Elle a peut-être quitté la flotte."
             action={<Button to="/voitures">Voir les voitures</Button>}
           />
         ) : (

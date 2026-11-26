@@ -9,15 +9,15 @@ import { formatPrice } from '../../utils/format.js'
 const NEXT_STEPS = [
   {
     title: 'L’agence confirme votre demande',
-    text: 'Elle vérifie la voiture pour vos dates. Le statut passe à « Confirmée » dans Mes réservations.',
+    text: 'Suivez le statut dans Mes réservations.',
   },
   {
     title: 'Préparez vos documents',
-    text: 'CIN ou passeport, permis de conduire et carte bancaire pour la caution.',
+    text: 'CIN ou passeport, permis et carte bancaire.',
   },
   {
     title: 'Récupérez les clés',
-    text: 'Vous payez la location à l’agence lors de la prise en charge.',
+    text: 'Paiement à l’agence, à la prise en charge.',
   },
 ]
 
