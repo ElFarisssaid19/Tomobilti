@@ -49,6 +49,7 @@ use InvalidArgumentException;
     'returned_at',
     'cancelled_at',
     'rejected_at',
+    'reminder_sent_at',
 ])]
 class Reservation extends Model
 {
@@ -88,6 +89,7 @@ class Reservation extends Model
             'returned_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'rejected_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 
@@ -248,6 +250,22 @@ class Reservation extends Model
     public function freeCancellationDeadline(): CarbonInterface
     {
         return $this->start_at->copy()->subHours((int) config('tomobilti.booking.free_cancellation_hours'));
+    }
+
+    /**
+     * Whether the booking voucher can be downloaded (confirmed, active or completed).
+     */
+    public function hasVoucher(): bool
+    {
+        return $this->status->hasVoucher();
+    }
+
+    /**
+     * File name of the voucher PDF, e.g. "bon-de-reservation-TMB-2026-000123.pdf".
+     */
+    public function voucherFilename(): string
+    {
+        return "bon-de-reservation-{$this->reference}.pdf";
     }
 
     protected function sequenceNumberColumn(): string

@@ -166,6 +166,26 @@ return [
         ],
     ],
 
+    'documents' => [
+        'one_way_fee' => 'Frais d’abandon',
+        'to_bring' => [
+            ['label' => 'CIN ou passeport', 'detail' => 'en cours de validité'],
+            ['label' => 'Permis de conduire', 'detail' => 'original, 2 ans minimum'],
+            ['label' => 'Carte bancaire', 'detail' => 'au nom du conducteur, pour la caution'],
+        ],
+    ],
+
+    'invoices' => [
+        'marked_paid' => 'Facture marquée comme payée.',
+        'sent' => 'Facture envoyée au client.',
+        'already_paid' => 'Cette facture est déjà payée.',
+    ],
+
+    'notifications' => [
+        'read' => 'Notification lue.',
+        'all_read' => 'Toutes les notifications sont lues.',
+    ],
+
     'validation' => [
         'phone' => 'Saisissez un numéro marocain valide, par exemple 06 12 34 56 78 ou +212 6 12 34 56 78.',
         'email_taken' => 'Un compte existe déjà avec cette adresse e-mail.',

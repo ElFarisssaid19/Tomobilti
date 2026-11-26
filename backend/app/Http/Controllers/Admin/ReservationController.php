@@ -9,7 +9,9 @@ use App\Http\Requests\Admin\ReservationIndexRequest;
 use App\Http\Resources\Admin\AdminReservationDetailResource;
 use App\Http\Resources\Admin\AdminReservationResource;
 use App\Models\Reservation;
+use App\Services\ReservationDocuments;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -54,6 +56,19 @@ class ReservationController extends Controller
         Gate::authorize('manage', Reservation::class);
 
         return new AdminReservationDetailResource($reservation->load(AdminReservationDetailResource::RELATIONS));
+    }
+
+    /**
+     * GET /api/admin/reservations/{reference}/voucher: the booking voucher, once the
+     * reservation is confirmed (404 before, and for refused or cancelled ones).
+     */
+    public function voucher(Reservation $reservation, ReservationDocuments $documents): Response
+    {
+        Gate::authorize('manage', Reservation::class);
+
+        abort_unless($reservation->hasVoucher(), 404);
+
+        return $documents->voucher($reservation)->download($reservation->voucherFilename());
     }
 
     /**

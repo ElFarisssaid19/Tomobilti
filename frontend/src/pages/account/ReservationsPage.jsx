@@ -1,4 +1,4 @@
-import { CalendarClock, CalendarX, Flag, KeyRound } from 'lucide-react'
+import { CalendarClock, CalendarX, Flag, KeyRound, ReceiptText } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useSearchParams } from 'react-router'
 import {
@@ -149,7 +149,14 @@ function ReservationList({ tab, query, onPageChange }) {
               trailing={
                 <div className="flex items-center gap-3 sm:flex-col sm:items-end sm:gap-1.5">
                   <StatusBadge status={reservation.status} />
-                  <span className="text-sm font-semibold text-fg tabular-nums">
+                  <span className="flex items-center gap-1.5 text-sm font-semibold text-fg tabular-nums">
+                    {reservation.invoice && (
+                      <ReceiptText
+                        className="size-4 text-fg-subtle"
+                        role="img"
+                        aria-label="Facture disponible"
+                      />
+                    )}
                     {formatPrice(reservation.total)}
                   </span>
                 </div>

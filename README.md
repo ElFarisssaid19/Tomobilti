@@ -144,6 +144,7 @@ php artisan tomobilti:import-car-photos   # download and optimize the demo car p
 php artisan tomobilti:import-site-photos  # same for the SPA's site photos (frontend/src/assets/photos)
 php artisan tomobilti:image-credits       # regenerate docs/image-credits.md and the /credits data
 php artisan reservations:expire           # refuse pending requests whose pick-up time has passed
+php artisan reservations:send-reminders   # pick-up reminders (24 h before); --reference=TMB-… for one reservation
 php artisan schedule:work                 # run the scheduler locally (npm run dev starts it)
 ```
 
@@ -279,7 +280,7 @@ and the double-booking protection are described in [docs/database.md](docs/datab
 
 - `ReservationPolicy` covers every customer action (`viewAny`, `view`, `create`, `cancel`).
 - `reservations:expire` (every five minutes) refuses pending requests whose pick-up time has
-  passed, with the reason "Demande expirée". No email is sent yet (Phase 6).
+  passed, with the reason "Demande expirée", and emails the refusal (Phase 6).
 
 ### SPA pages
 
@@ -360,7 +361,8 @@ reservations by reference.
 | `GET /reservations/{reference}`                         | Client, car, agencies, extras, `pricing`, notes, `timeline`, `invoice`, `history`                                                                                                                                                        |
 | `POST /reservations/{reference}/confirm`                | pending → confirmed (car locked, availability checked again)                                                                                                                                                                             |
 | `POST /reservations/{reference}/reject`                 | `reason` required; pending → rejected                                                                                                                                                                                                    |
-| `POST /reservations/{reference}/pick-up`                | confirmed → active, `picked_up_at`                                                                                                                                                                                                       |
+| `POST /reservations/{reference}/pick-up`                | `payment_method` (`cash`, `card`, `bank_transfer`) and `paid` (boolean) required; confirmed → active, `picked_up_at`, and issues the invoice (Phase 6)                                                                                     |
+| `GET /reservations/{reference}/voucher`                 | Booking voucher PDF (confirmed, active, completed; 404 otherwise)                                                                                                                                                                        |
 | `POST /reservations/{reference}/return`                 | active → completed, `returned_at`                                                                                                                                                                                                        |
 | `POST /reservations/{reference}/cancel`                 | `reason` required; pending or confirmed → cancelled (no 24 h limit for the agency)                                                                                                                                                       |
 | `PATCH /reservations/{reference}/notes`                 | `admin_notes` (never shown to the customer)                                                                                                                                                                                              |
@@ -380,7 +382,7 @@ reservations by reference.
 ### SPA routes
 
 `/admin`, `/admin/reservations`, `/admin/reservations/:reference`, `/admin/planning`,
-`/admin/voitures`, `/admin/voitures/nouvelle`, `/admin/voitures/:id`, `/admin/clients`,
+`/admin/factures` (Phase 6), `/admin/voitures`, `/admin/voitures/nouvelle`, `/admin/voitures/:id`, `/admin/clients`,
 `/admin/clients/:id`, `/admin/parametres` (`?onglet=categories|brands|locations|extras`).
 The sidebar badge on Réservations shows the requests to answer, refreshed every 60 seconds.
 Details in [frontend/DESIGN.md](frontend/DESIGN.md) ("Admin back office").
@@ -391,6 +393,86 @@ PHP's defaults (2 MB per file, 8 MB per request) are below the 5 MB photo limit,
 `npm run dev:api` loads `backend/php/dev.ini` through `PHP_INI_SCAN_DIR` (the system
 `php.ini` is not changed). In production, set the same limits (`upload_max_filesize`,
 `post_max_size`) in PHP-FPM and the web server.
+
+## Invoices, emails and notifications (Phase 6)
+
+### Invoices and vouchers
+
+- **Payment happens at the agency, at pick-up.** "Marquer comme récupérée" asks for the
+  payment method (espèces, carte, virement) and whether it is paid now; the same
+  transaction moves the reservation to `active` and issues the invoice (`Invoice::issueFor`),
+  paid or unpaid. An unpaid invoice is marked as paid later from `/admin/factures` or the
+  reservation page. Numbers: `FAC-{year}-{6 digits}`, retried on a unique-index conflict.
+- Amounts are TTC as booked; `Invoice::splitTotal()` gives HT and TVA 20 % (bcmath).
+- **PDFs** (`App\Services\ReservationDocuments`, barryvdh/laravel-dompdf, views in
+  `backend/resources/views/pdf`): the **bon de réservation** (confirmed, active and completed
+  reservations: reference, client, car and plate, dates, agencies with address and hours,
+  options, price, deposit, documents to bring) and the **facture** (company details, client
+  with address and CIN, lines, total HT, TVA, total TTC, the amount in words with PHP intl,
+  payment method and status). A4, light, Plus Jakarta Sans embedded as a subset
+  (`backend/resources/fonts`, SIL Open Font License).
+- **Company details** come from `config/tomobilti.php` (`company`, `COMPANY_*` env
+  variables). The defaults are **demo values** (ICE, RC and IF are all zeros).
+
+### Emails
+
+French, queued, in the branded light theme (`resources/views/mail/reservation.blade.php`:
+a title, the key details, one button). Each one is dispatched **after the database
+commit** of the change it describes (`afterCommit`), and each event is notified once: the
+status change is made under a row lock by `ReservationWorkflow`, then
+`App\Services\ReservationNotifier` sends its notifications.
+
+| Event | Client | Agency (`AGENCY_EMAIL`) | In-app |
+| --- | --- | --- | --- |
+| Booking (pending) | Demande reçue | Nouvelle demande (Reply-To: the client) | Admins |
+| Confirmed | Réservation confirmée + voucher PDF | | Client |
+| Refused (agency or expired) | Réservation refusée, with the reason | | Client |
+| Cancelled by the client | Confirmation | Annulation client | Admins |
+| Cancelled by the agency | Réservation annulée, with the reason | | Client |
+| Pick-up reminder (24 h before) | Rappel: agency address, hours, documents | | Client |
+| Picked up (invoice issued) | Votre facture + PDF | | Client |
+| Invoice sent again by the agency | Votre facture + PDF | | |
+| Returned | Merci | | |
+
+The queue worker must run for emails and in-app notifications to leave (`npm run dev`
+starts it). In development they land in Mailpit (http://localhost:8025).
+
+### Pick-up reminder
+
+`reservations:send-reminders` runs **every 15 minutes** (`routes/console.php`). It reminds
+confirmed reservations whose pick-up is less than 24 hours away, once: each reservation is
+claimed by setting `reservations.reminder_sent_at` with a conditional update before the
+reminder is queued. Cancelled, pending and started reservations are skipped.
+
+### Endpoints
+
+| Endpoint | Auth | Notes |
+| --- | --- | --- |
+| `GET /api/reservations/{reference}/voucher` | session | My reservation only; PDF once confirmed, 404 before |
+| `GET /api/reservations/{reference}/invoice` | session | My reservation only; PDF once issued, 404 before |
+| `GET /api/notifications` | session | 15 per page, newest first, `meta.unread_count` |
+| `POST /api/notifications/{id}/read` | session | Mine only (404); returns `meta.unread_count` |
+| `POST /api/notifications/read-all` | session | |
+| `GET /api/admin/invoices` | admin | `status`, `payment_method`, `from`, `to` (issue date), `q` (number, reference, client), `sort` (`issued_at`, `number`, `total_ttc`), `direction`, `page`, `per_page`; `meta.totals` (`count`, `total`, `paid`, `unpaid`) for the whole filtered list |
+| `GET /api/admin/invoices/{number}/pdf` | admin | PDF |
+| `POST /api/admin/invoices/{number}/mark-paid` | admin | `payment_method`; 403 when already paid |
+| `POST /api/admin/invoices/{number}/send` | admin | Emails the invoice to the client again |
+| `GET /api/admin/reservations/{reference}/voucher` | admin | PDF |
+
+Reservations now return `has_voucher` and `invoice` (number, status; plus method, total
+and dates on the admin detail).
+
+### SPA
+
+- **Bell** (`components/notifications/NotificationBell.jsx`) in the floating navbar, the
+  mobile top bar and the admin topbar: unread count refreshed every 60 seconds, a panel
+  with the latest notifications (icon, short text, relative time), a click opens the
+  reservation and marks it read, "Tout marquer comme lu".
+- `/espace/reservations/:reference`: "Télécharger le bon de réservation" and "Télécharger
+  la facture" when they exist; the list shows a small invoice icon.
+- `/admin/factures` (sidebar "Factures"): totals (encaissé, à encaisser), filters in the
+  URL, table (cards on phones), download, mark as paid, send again. The reservation page
+  shows the invoice card and the voucher download.
 
 ## VS Code
 
@@ -408,6 +490,6 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
 - [x] **Phase 3: Catalogue** (public catalogue API, search and filters, car detail with availability, home, about and contact pages; see [Public catalogue and website](#public-catalogue-and-website-phase-3))
 - [x] **Phase 4: Reservation** (booking flow, pricing in MAD, my reservations, cancellation, new home hero photo; see [Reservations](#reservations-phase-4))
 - [x] **Phase 5: Admin back office** (dashboard and statistics, reservations with status history, planning, fleet and photos, customers, catalogue settings; see [Admin back office](#admin-back-office-phase-5))
-- [ ] **Phase 6: Invoices & notifications** (PDF invoices, emails)
+- [x] **Phase 6: Invoices & notifications** (invoices issued at pick-up, PDF invoices and booking vouchers, emails, in-app notifications, pick-up reminders; see [Invoices, emails and notifications](#invoices-emails-and-notifications-phase-6))
 - [ ] **Phase 7: Polish** (UX, accessibility, performance, tests)
 - [ ] **Phase 8: Deployment** (production hosting, CI/CD)

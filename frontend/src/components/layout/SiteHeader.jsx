@@ -10,6 +10,7 @@ import useScrolled from '../../hooks/useScrolled.js'
 import { cn } from '../../lib/cn.js'
 import { spring } from '../../lib/motion.js'
 import UserMenu from '../auth/UserMenu.jsx'
+import NotificationBell from '../notifications/NotificationBell.jsx'
 import { Button, Drawer, IconButton, Skeleton } from '../ui'
 import Logo from './Logo.jsx'
 
@@ -65,7 +66,12 @@ export default function SiteHeader() {
             {status === 'guest' && (
               <IconButton icon={LogIn} label="Connexion" size="sm" to="/connexion" />
             )}
-            {status === 'authenticated' && <UserMenu compact />}
+            {status === 'authenticated' && (
+              <>
+                <NotificationBell />
+                <UserMenu compact />
+              </>
+            )}
             <IconButton
               icon={Menu}
               label="Ouvrir le menu"
@@ -151,7 +157,12 @@ export default function SiteHeader() {
                 </Button>
               </>
             )}
-            {status === 'authenticated' && <UserMenu />}
+            {status === 'authenticated' && (
+              <>
+                <NotificationBell />
+                <UserMenu />
+              </>
+            )}
           </div>
         </div>
       </div>

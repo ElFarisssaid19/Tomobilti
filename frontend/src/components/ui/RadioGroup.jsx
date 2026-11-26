@@ -46,7 +46,11 @@ export default function RadioGroup({
         defaultValue={defaultValue}
         onChange={onChange}
         aria-invalid={message ? true : undefined}
-        className={cn('grid gap-3', columns === 2 && 'sm:grid-cols-2')}
+        className={cn(
+          'grid gap-3',
+          columns === 2 && 'sm:grid-cols-2',
+          columns === 3 && 'sm:grid-cols-3',
+        )}
       >
         {options.map((option) => (
           <Field key={option.value} disabled={option.disabled}>

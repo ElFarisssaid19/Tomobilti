@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarX2, FileDown, SearchX } from 'lucide-react'
+import { ArrowLeft, CalendarX2, FileDown, ReceiptText, SearchX } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router'
 import { toast } from 'sonner'
@@ -19,8 +19,9 @@ import {
   Skeleton,
   StatusBadge,
   Textarea,
-  Tooltip,
 } from '../../components/ui'
+import { downloadInvoice, downloadVoucher } from '../../api/reservations.js'
+import useDownload from '../../hooks/useDownload.js'
 import usePageMeta from '../../hooks/usePageMeta.js'
 import { useCancelReservation, useReservation } from '../../hooks/useReservations.js'
 import { apiErrorMessage } from '../../lib/auth.js'
@@ -79,7 +80,7 @@ function ReservationDetail({ reservation }) {
             </div>
             <h2 className="text-3xl font-bold text-fg sm:text-4xl">{car.name}</h2>
           </div>
-          <InvoiceButton />
+          <DocumentButtons reservation={reservation} />
         </div>
       </div>
 
@@ -166,19 +167,39 @@ function ReservationDetail({ reservation }) {
   )
 }
 
-/** Invoices arrive in Phase 6: a disabled button with its explanation. */
-function InvoiceButton() {
+/**
+ * The PDFs of the reservation: the booking voucher once the agency confirmed, the
+ * invoice once issued at pick-up. Nothing before that.
+ */
+function DocumentButtons({ reservation }) {
+  const voucher = useDownload(downloadVoucher)
+  const invoice = useDownload(downloadInvoice)
+
+  if (!reservation.has_voucher && !reservation.invoice) return null
+
   return (
-    <Tooltip content="Disponible prochainement">
-      <span tabIndex={0} className="inline-flex rounded-full">
-        <Button variant="secondary" leftIcon={FileDown} disabled aria-describedby="facture-bientot">
+    <div className="flex flex-wrap gap-2">
+      {reservation.has_voucher && (
+        <Button
+          variant="secondary"
+          leftIcon={FileDown}
+          loading={voucher.isPending}
+          onClick={() => voucher.download(reservation.reference)}
+        >
+          Télécharger le bon de réservation
+        </Button>
+      )}
+      {reservation.invoice && (
+        <Button
+          variant="secondary"
+          leftIcon={ReceiptText}
+          loading={invoice.isPending}
+          onClick={() => invoice.download(reservation.reference)}
+        >
           Télécharger la facture
         </Button>
-        <span id="facture-bientot" className="sr-only">
-          Disponible prochainement
-        </span>
-      </span>
-    </Tooltip>
+      )}
+    </div>
   )
 }
 

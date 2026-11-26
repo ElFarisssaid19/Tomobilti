@@ -34,6 +34,6 @@ export const AUTH_PHOTOS = {
     srcSet: `${aeroport800} 800w, ${aeroport1600} 1600w`,
     src: aeroport800,
     headline: 'Une adresse confirmée, et votre compte est prêt.',
-    place: 'Piste d’aéroport au crépuscule',
+    place: 'Aéroport Marrakech Menara',
   },
 }

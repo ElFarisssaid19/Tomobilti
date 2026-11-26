@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CarStatusController;
 use App\Http\Controllers\Admin\ClientActivationController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
 use App\Http\Controllers\Admin\PingController;
 use App\Http\Controllers\Admin\PlanningController;
 use App\Http\Controllers\Admin\ReservationActionController;
@@ -30,11 +31,13 @@ use App\Http\Controllers\Catalog\ExtraController;
 use App\Http\Controllers\Catalog\FeaturedCarController;
 use App\Http\Controllers\Catalog\LocationController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Profile\PasswordController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Reservation\BookingRulesController;
 use App\Http\Controllers\Reservation\CancelReservationController;
 use App\Http\Controllers\Reservation\ReservationController;
+use App\Http\Controllers\Reservation\ReservationDocumentController;
 use App\Http\Controllers\Reservation\ReservationQuoteController;
 use Illuminate\Support\Facades\Route;
 
@@ -115,6 +118,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [PasswordController::class, 'update'])->name('profile.password.update');
+
+    // The bell (Phase 6): in-app notifications of the signed-in user, customer or admin.
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->whereUuid('id')->name('notifications.read');
 });
 
 /*
@@ -142,6 +150,8 @@ Route::prefix('reservations')->name('reservations.')->middleware('auth:sanctum')
         ->name('store');
     Route::get('/{reservation:reference}', [ReservationController::class, 'show'])->name('show');
     Route::post('/{reservation:reference}/cancel', CancelReservationController::class)->name('cancel');
+    Route::get('/{reservation:reference}/voucher', [ReservationDocumentController::class, 'voucher'])->name('voucher');
+    Route::get('/{reservation:reference}/invoice', [ReservationDocumentController::class, 'invoice'])->name('invoice');
 });
 
 /*
@@ -185,12 +195,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', 'admin'])->g
         Route::get('/', [AdminReservationController::class, 'index'])->name('index');
         Route::get('/export', [AdminReservationController::class, 'export'])->name('export');
         Route::get('/{reservation:reference}', [AdminReservationController::class, 'show'])->name('show');
+        Route::get('/{reservation:reference}/voucher', [AdminReservationController::class, 'voucher'])->name('voucher');
         Route::post('/{reservation:reference}/confirm', [ReservationActionController::class, 'confirm'])->name('confirm');
         Route::post('/{reservation:reference}/reject', [ReservationActionController::class, 'reject'])->name('reject');
         Route::post('/{reservation:reference}/pick-up', [ReservationActionController::class, 'pickUp'])->name('pick-up');
         Route::post('/{reservation:reference}/return', [ReservationActionController::class, 'return'])->name('return');
         Route::post('/{reservation:reference}/cancel', [ReservationActionController::class, 'cancel'])->name('cancel');
         Route::patch('/{reservation:reference}/notes', [ReservationActionController::class, 'notes'])->name('notes');
+    });
+
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [AdminInvoiceController::class, 'index'])->name('index');
+        Route::get('/{invoice:number}/pdf', [AdminInvoiceController::class, 'pdf'])->name('pdf');
+        Route::post('/{invoice:number}/mark-paid', [AdminInvoiceController::class, 'markPaid'])->name('mark-paid');
+        Route::post('/{invoice:number}/send', [AdminInvoiceController::class, 'send'])->name('send');
     });
 
     Route::prefix('clients')->name('clients.')->group(function () {

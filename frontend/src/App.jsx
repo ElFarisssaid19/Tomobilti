@@ -40,6 +40,7 @@ const AdminReservationDetailPage = lazy(
   () => import('./pages/admin/AdminReservationDetailPage.jsx'),
 )
 const AdminPlanningPage = lazy(() => import('./pages/admin/AdminPlanningPage.jsx'))
+const AdminInvoicesPage = lazy(() => import('./pages/admin/AdminInvoicesPage.jsx'))
 const AdminCarsPage = lazy(() => import('./pages/admin/AdminCarsPage.jsx'))
 const AdminCarFormPage = lazy(() => import('./pages/admin/AdminCarFormPage.jsx'))
 const AdminClientsPage = lazy(() => import('./pages/admin/AdminClientsPage.jsx'))
@@ -156,6 +157,10 @@ export default function App() {
             <Route
               path="planning"
               element={adminPage(AdminPlanningPage, 'Chargement du planning…')}
+            />
+            <Route
+              path="factures"
+              element={adminPage(AdminInvoicesPage, 'Chargement des factures…')}
             />
             <Route path="voitures" element={adminPage(AdminCarsPage, 'Chargement de la flotte…')} />
             <Route

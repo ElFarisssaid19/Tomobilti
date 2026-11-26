@@ -83,11 +83,9 @@ describe('ReservationActions', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Refuser' }))
 
     await waitFor(() =>
-      expect(runReservationAction).toHaveBeenCalledWith(
-        'TMB-2026-000042',
-        'reject',
-        'Permis de moins de 2 ans.',
-      ),
+      expect(runReservationAction).toHaveBeenCalledWith('TMB-2026-000042', 'reject', {
+        reason: 'Permis de moins de 2 ans.',
+      }),
     )
   })
 
@@ -110,5 +108,53 @@ describe('ReservationActions', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Annuler la réservation' }))
 
     expect(await within(dialog).findByText('Le motif est trop long.')).toBeInTheDocument()
+  })
+
+  it('asks how the client pays before marking the car as picked up', async () => {
+    const user = userEvent.setup()
+    runReservationAction.mockResolvedValue({
+      reservation: { reference: 'TMB-2026-000042', status: 'active' },
+      message: 'Réservation marquée comme récupérée.',
+    })
+    renderActions('confirmed')
+
+    await user.click(screen.getByRole('button', { name: 'Marquer comme récupérée' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Le client a récupéré la voiture ?' })
+    await user.click(within(dialog).getByRole('button', { name: 'Marquer comme récupérée' }))
+
+    expect(await within(dialog).findByText('Choisissez le mode de paiement.')).toBeInTheDocument()
+    expect(runReservationAction).not.toHaveBeenCalled()
+
+    await user.click(within(dialog).getByRole('radio', { name: 'Carte bancaire' }))
+    await user.click(within(dialog).getByRole('radio', { name: /Plus tard/ }))
+    await user.click(within(dialog).getByRole('button', { name: 'Marquer comme récupérée' }))
+
+    await waitFor(() =>
+      expect(runReservationAction).toHaveBeenCalledWith('TMB-2026-000042', 'pickUp', {
+        payment_method: 'card',
+        paid: false,
+      }),
+    )
+  })
+
+  it('sends "paid now" by default', async () => {
+    const user = userEvent.setup()
+    runReservationAction.mockResolvedValue({
+      reservation: { reference: 'TMB-2026-000042', status: 'active' },
+      message: 'Réservation marquée comme récupérée.',
+    })
+    renderActions('confirmed')
+
+    await user.click(screen.getByRole('button', { name: 'Marquer comme récupérée' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Le client a récupéré la voiture ?' })
+    await user.click(within(dialog).getByRole('radio', { name: 'Espèces' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Marquer comme récupérée' }))
+
+    await waitFor(() =>
+      expect(runReservationAction).toHaveBeenCalledWith('TMB-2026-000042', 'pickUp', {
+        payment_method: 'cash',
+        paid: true,
+      }),
+    )
   })
 })

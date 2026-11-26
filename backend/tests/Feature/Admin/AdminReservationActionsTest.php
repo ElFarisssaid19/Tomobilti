@@ -106,7 +106,7 @@ class AdminReservationActionsTest extends TestCase
         $reservation = Reservation::factory()->between('2026-12-01 10:00', '2026-12-03 10:00')->confirmed()->create();
 
         $this->actingAs($this->admin)
-            ->postJson("/api/admin/reservations/{$reservation->reference}/pick-up")
+            ->postJson("/api/admin/reservations/{$reservation->reference}/pick-up", ['payment_method' => 'cash', 'paid' => true])
             ->assertOk()
             ->assertJsonPath('message', 'Réservation marquée comme récupérée.')
             ->assertJsonPath('data.status', 'active');

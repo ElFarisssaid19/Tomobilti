@@ -43,3 +43,26 @@ export function formatDate(date, options = { dateStyle: 'long' }) {
   if (Number.isNaN(value.getTime())) return ''
   return new Intl.DateTimeFormat(LOCALE, { timeZone: TIME_ZONE, ...options }).format(value)
 }
+
+const shortRelative = new Intl.RelativeTimeFormat('fr', { numeric: 'auto', style: 'short' })
+const longRelative = new Intl.RelativeTimeFormat('fr', { numeric: 'auto' })
+
+/**
+ * How long ago, in French: "à l’instant", "il y a 5 min", "il y a 2 h", "hier",
+ * "il y a 3 jours", then the date ("12 déc.") after a week.
+ * @param {Date|string|number} date
+ * @param {Date} [now]
+ */
+export function formatRelativeTime(date, now = new Date()) {
+  const value = date instanceof Date ? date : new Date(date)
+  if (Number.isNaN(value.getTime())) return ''
+  const seconds = Math.round((now.getTime() - value.getTime()) / 1000)
+  if (seconds < 60) return 'à l’instant'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return shortRelative.format(-minutes, 'minute')
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return shortRelative.format(-hours, 'hour')
+  const days = Math.floor(hours / 24)
+  if (days < 7) return longRelative.format(-days, 'day')
+  return formatDate(value, { day: 'numeric', month: 'short' })
+}

@@ -21,7 +21,9 @@ use Illuminate\Support\Facades\DB;
  *      waits here until the first transaction ends;
  *   2. check availability again, now that nobody else can book this car;
  *   3. save the reservation with its price snapshots, its extras and the first row
- *      of its status history (created by the customer, pending).
+ *      of its status history (created by the customer, pending);
+ *   4. queue the "demande reçue" email and the agency's notifications, sent only
+ *      once the transaction commits (ReservationNotifier).
  *
  * So when two customers confirm the same car for overlapping times at the same
  * moment, the second one sees the first reservation in step 2 and gets a 409.
@@ -34,7 +36,7 @@ class ReservationBooker
      */
     private const REFERENCE_ATTEMPTS = 3;
 
-    public function __construct(private ReservationPricing $pricing) {}
+    public function __construct(private ReservationPricing $pricing, private ReservationNotifier $notifier) {}
 
     /**
      * @param  list<array{extra: Extra, quantity: int}>  $extras
@@ -94,6 +96,8 @@ class ReservationBooker
                             'total' => $line['total'],
                         ]);
                     }
+
+                    $this->notifier->requested($reservation);
 
                     return $reservation;
                 });

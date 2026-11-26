@@ -1,4 +1,5 @@
 import api from './client.js'
+import { fetchFile } from './download.js'
 
 /*
  * Back-office endpoints (backend/routes/api.php, "Admin area"): auth:sanctum + admin.
@@ -35,13 +36,23 @@ const ACTION_PATHS = {
   cancel: 'cancel',
 }
 
-/** POST /api/admin/reservations/{reference}/{action} { reason? } -> { reservation, message } */
-export async function runReservationAction(reference, action, reason) {
+/**
+ * POST /api/admin/reservations/{reference}/{action} -> { reservation, message }.
+ * `body`: `{ reason }` to refuse or cancel, `{ payment_method, paid }` to pick up.
+ */
+export async function runReservationAction(reference, action, body) {
   const { data } = await api.post(
     `/api/admin/reservations/${encodeURIComponent(reference)}/${ACTION_PATHS[action]}`,
-    reason ? { reason } : {},
+    body ?? {},
   )
   return { reservation: data.data, message: data.message }
+}
+
+/** GET /api/admin/reservations/{reference}/voucher -> PDF (confirmed, active, completed) */
+export function downloadAdminVoucher(reference) {
+  return fetchFile(`/api/admin/reservations/${encodeURIComponent(reference)}/voucher`, {
+    fallbackName: `bon-de-reservation-${reference}.pdf`,
+  })
 }
 
 export async function saveReservationNotes(reference, adminNotes) {
@@ -54,19 +65,42 @@ export async function saveReservationNotes(reference, adminNotes) {
 
 /** GET /api/admin/reservations/export -> CSV file (Blob), with the list's filters. */
 export async function exportReservations(params) {
-  const response = await api.get('/api/admin/reservations/export', {
-    params,
-    responseType: 'blob',
-  })
-  const disposition = response.headers['content-disposition'] ?? ''
-  const filename = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? 'reservations.csv'
-  return { blob: response.data, filename }
+  return fetchFile('/api/admin/reservations/export', { params, fallbackName: 'reservations.csv' })
 }
 
 /** GET /api/admin/planning?from&to -> { from, to, cars: [{ …, reservations }] } */
 export async function fetchPlanning(params, { signal } = {}) {
   const { data } = await api.get('/api/admin/planning', { params, signal })
   return data.data
+}
+
+/* Invoices -------------------------------------------------------------------- */
+
+/** GET /api/admin/invoices -> { data, meta: { totals: { count, total, paid, unpaid }, current_page, last_page, total } } */
+export async function fetchAdminInvoices(params, { signal } = {}) {
+  const { data } = await api.get('/api/admin/invoices', { params, signal })
+  return data
+}
+
+/** GET /api/admin/invoices/{number}/pdf -> PDF */
+export function downloadAdminInvoice(number) {
+  return fetchFile(`/api/admin/invoices/${encodeURIComponent(number)}/pdf`, {
+    fallbackName: `facture-${number}.pdf`,
+  })
+}
+
+/** POST /api/admin/invoices/{number}/mark-paid { payment_method } -> { invoice, message } */
+export async function markInvoicePaid(number, paymentMethod) {
+  const { data } = await api.post(`/api/admin/invoices/${encodeURIComponent(number)}/mark-paid`, {
+    payment_method: paymentMethod,
+  })
+  return { invoice: data.data, message: data.message }
+}
+
+/** POST /api/admin/invoices/{number}/send: emails the invoice to the client again. */
+export async function sendInvoice(number) {
+  const { data } = await api.post(`/api/admin/invoices/${encodeURIComponent(number)}/send`)
+  return { invoice: data.data, message: data.message }
 }
 
 /* Cars ------------------------------------------------------------------------ */

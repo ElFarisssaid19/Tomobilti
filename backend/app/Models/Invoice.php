@@ -87,6 +87,56 @@ class Invoice extends Model
     }
 
     /**
+     * The invoice of a reservation picked up at the agency, where the customer pays:
+     * the reservation total (TTC) split into HT and VAT, issued now, paid now or later.
+     * An invoice that already exists (created before Phase 6) is updated instead, so a
+     * reservation never gets two invoices.
+     */
+    public static function issueFor(Reservation $reservation, PaymentMethod $method, bool $paid): self
+    {
+        $invoice = $reservation->invoice()->firstOrNew();
+
+        $invoice->fill([
+            ...self::splitTotal((string) $reservation->total),
+            'vat_rate' => self::DEFAULT_VAT_RATE,
+            'payment_method' => $method,
+            'status' => $paid ? InvoiceStatus::Paid : InvoiceStatus::Unpaid,
+            'paid_at' => $paid ? now() : null,
+        ]);
+        $invoice->issued_at ??= now();
+        $invoice->save();
+
+        $reservation->setRelation('invoice', $invoice);
+
+        return $invoice;
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === InvoiceStatus::Paid;
+    }
+
+    /**
+     * An unpaid invoice settled later at the agency.
+     */
+    public function markPaid(PaymentMethod $method): void
+    {
+        $this->update([
+            'status' => InvoiceStatus::Paid,
+            'payment_method' => $method,
+            'paid_at' => now(),
+        ]);
+    }
+
+    /**
+     * File name of the PDF, e.g. "facture-FAC-2026-000045.pdf".
+     */
+    public function pdfFilename(): string
+    {
+        return "facture-{$this->number}.pdf";
+    }
+
+    /**
      * @return BelongsTo<Reservation, $this>
      */
     public function reservation(): BelongsTo

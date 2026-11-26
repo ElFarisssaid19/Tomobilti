@@ -24,7 +24,8 @@ export const RESERVATION_FILTERS = Object.freeze({
 /**
  * Every action the agency can take. `variant`: the button (one lime primary per
  * status); `tone: 'danger'`: the confirm button of its dialog is red. `reason`: the
- * action needs a reason, shown to the customer.
+ * action needs a reason, shown to the customer. `payment`: the action asks how the
+ * customer pays (PaymentDialog), since the invoice is issued at pick-up.
  */
 export const RESERVATION_ACTIONS = {
   confirm: {
@@ -38,8 +39,9 @@ export const RESERVATION_ACTIONS = {
     label: 'Marquer comme récupérée',
     icon: KeyRound,
     variant: 'primary',
+    payment: true,
     title: 'Le client a récupéré la voiture ?',
-    description: 'La location passe « En cours » à partir de maintenant.',
+    description: 'La location passe « En cours ». La facture est créée et envoyée au client.',
   },
   return: {
     label: 'Marquer comme rendue',

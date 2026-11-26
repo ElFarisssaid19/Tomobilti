@@ -5,13 +5,15 @@ import { actionsForStatus, RESERVATION_ACTIONS } from '../../lib/adminReservatio
 import { apiErrorMessage, isValidationError } from '../../lib/auth.js'
 import { cn } from '../../lib/cn.js'
 import { Button, ConfirmDialog } from '../ui'
+import PaymentDialog from './PaymentDialog.jsx'
 import ReasonDialog from './ReasonDialog.jsx'
 
 /**
  * The buttons allowed by the reservation's status (Confirmer, Refuser, Marquer comme
  * récupérée, Marquer comme rendue, Annuler), each behind a confirmation; refusing and
- * cancelling ask for the reason. The server checks the move again: a refusal (403,
- * 409) shows its French reason in a toast.
+ * cancelling ask for the reason, picking up asks how the customer pays (the invoice
+ * is issued then). The server checks the move again: a refusal (403, 409) shows its
+ * French reason in a toast.
  */
 export default function ReservationActions({ reservation, size = 'md', className }) {
   const [current, setCurrent] = useState(null)
@@ -28,9 +30,9 @@ export default function ReservationActions({ reservation, size = 'md', className
     }
   }
 
-  function run(reason) {
+  function run(body) {
     mutation.mutate(
-      { reference: reservation.reference, action: current, reason },
+      { reference: reservation.reference, action: current, body },
       {
         onSuccess: ({ message }) => {
           toast.success(message)
@@ -68,7 +70,7 @@ export default function ReservationActions({ reservation, size = 'md', className
       </div>
 
       <ConfirmDialog
-        open={Boolean(config) && !config.reason}
+        open={Boolean(config) && !config.reason && !config.payment}
         onClose={close}
         onConfirm={() => run()}
         loading={mutation.isPending}
@@ -86,7 +88,7 @@ export default function ReservationActions({ reservation, size = 'md', className
         key={current ?? 'none'}
         open={Boolean(config?.reason)}
         onClose={close}
-        onSubmit={run}
+        onSubmit={(reason) => run({ reason })}
         loading={mutation.isPending}
         errors={mutation.error}
         title={config?.title}
@@ -95,6 +97,19 @@ export default function ReservationActions({ reservation, size = 'md', className
         placeholder={config?.reasonPlaceholder}
         confirmLabel={config?.confirmLabel ?? config?.label}
         tone={config?.tone ?? 'primary'}
+      />
+
+      <PaymentDialog
+        key={`payment-${current ?? 'none'}`}
+        open={Boolean(config?.payment)}
+        onClose={close}
+        onSubmit={run}
+        loading={mutation.isPending}
+        errors={mutation.error}
+        askPaidNow
+        title={config?.title}
+        description={config?.description}
+        confirmLabel={config?.confirmLabel ?? config?.label}
       />
     </>
   )

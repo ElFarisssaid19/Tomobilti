@@ -57,10 +57,16 @@ class AdminReservationDetailResource extends AdminReservationResource
                 'cancelled_at' => $this->cancelled_at?->toIso8601String(),
                 'rejected_at' => $this->rejected_at?->toIso8601String(),
             ],
+            'has_voucher' => $this->hasVoucher(),
             'invoice' => $this->whenLoaded('invoice', fn (): ?array => $this->invoice ? [
                 'number' => $this->invoice->number,
+                'issued_at' => $this->invoice->issued_at->toIso8601String(),
+                'total_ttc' => $this->invoice->total_ttc,
                 'status' => $this->invoice->status->value,
                 'status_label' => $this->invoice->status->label(),
+                'payment_method' => $this->invoice->payment_method?->value,
+                'payment_method_label' => $this->invoice->payment_method?->label(),
+                'paid_at' => $this->invoice->paid_at?->toIso8601String(),
             ] : null),
             'history' => StatusHistoryResource::collection($this->whenLoaded('statusHistories')),
         ];

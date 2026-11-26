@@ -20,3 +20,6 @@ Artisan::command('inspire', function () {
 
 // Pending requests whose pick-up time has passed are refused ("Demande expirée").
 Schedule::command('reservations:expire')->everyFiveMinutes()->withoutOverlapping(10);
+
+// Pick-up reminder, once per confirmed reservation, less than 24 hours before pick-up.
+Schedule::command('reservations:send-reminders')->everyFifteenMinutes()->withoutOverlapping(10);

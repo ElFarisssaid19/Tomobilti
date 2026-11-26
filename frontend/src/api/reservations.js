@@ -1,4 +1,5 @@
 import api from './client.js'
+import { fetchFile } from './download.js'
 
 /*
  * Reservation endpoints (backend/routes/api.php, "Reservations"). The server computes
@@ -44,4 +45,18 @@ export async function cancelReservation(reference, reason) {
     reason: reason || null,
   })
   return { reservation: data.data, message: data.message }
+}
+
+/** GET /api/reservations/{reference}/voucher -> PDF (confirmed, active, completed; 404 before) */
+export function downloadVoucher(reference) {
+  return fetchFile(`/api/reservations/${encodeURIComponent(reference)}/voucher`, {
+    fallbackName: `bon-de-reservation-${reference}.pdf`,
+  })
+}
+
+/** GET /api/reservations/{reference}/invoice -> PDF (once issued at pick-up; 404 before) */
+export function downloadInvoice(reference) {
+  return fetchFile(`/api/reservations/${encodeURIComponent(reference)}/invoice`, {
+    fallbackName: `facture-${reference}.pdf`,
+  })
 }

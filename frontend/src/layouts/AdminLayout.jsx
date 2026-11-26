@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useLocation } from 'react-router'
 import AdminNav from '../components/layout/AdminNav.jsx'
 import Logo from '../components/layout/Logo.jsx'
+import NotificationBell from '../components/notifications/NotificationBell.jsx'
 import PageTransition from '../components/layout/PageTransition.jsx'
 import { Avatar, Drawer, DropdownMenu, IconButton } from '../components/ui'
 import { ADMIN_LINKS } from '../config/navigation.js'
@@ -91,7 +92,8 @@ export default function AdminLayout() {
               className="lg:hidden"
             />
             <p className="truncate text-base font-semibold text-fg">{current.label}</p>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <NotificationBell />
               <DropdownMenu
                 trigger={
                   <button

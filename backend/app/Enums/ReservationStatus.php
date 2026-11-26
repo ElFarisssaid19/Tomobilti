@@ -57,6 +57,15 @@ enum ReservationStatus: string
     }
 
     /**
+     * Whether the booking voucher ("bon de réservation") can be downloaded: once the
+     * agency has confirmed the reservation, until it is over.
+     */
+    public function hasVoucher(): bool
+    {
+        return in_array($this, [self::Confirmed, self::Active, self::Completed], true);
+    }
+
+    /**
      * Whether the customer or an admin can still cancel the reservation.
      */
     public function canBeCancelled(): bool

@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use App\Enums\CarStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\ReservationStatus;
 use App\Exceptions\ReservationTransitionException;
 use App\Models\Car;
+use App\Models\Invoice;
 use App\Models\Reservation;
 use App\Models\User;
 use Closure;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,13 +22,25 @@ use Illuminate\Support\Facades\DB;
  *      clicking at the same time cannot both move it;
  *   2. checks ReservationStatus::canTransitionTo() (pending → confirmed, …);
  *   3. saves the new status with its timestamp and reason;
- *   4. writes a reservation_status_histories row (who, from, to, note).
+ *   4. writes a reservation_status_histories row (who, from, to, note);
+ *   5. queues the emails and in-app notifications of the event (ReservationNotifier),
+ *      dispatched only after the commit, so each event is notified once.
+ *
+ * Picking the car up also issues the invoice (payment happens at the agency), in
+ * the same transaction.
  *
  * Confirming also locks the car row first (like ReservationBooker) and checks again
  * that the car can be rented and that no other blocking reservation overlaps.
  */
 class ReservationWorkflow
 {
+    /**
+     * Attempts when two invoices get the same number (unique index) at the same moment.
+     */
+    private const INVOICE_NUMBER_ATTEMPTS = 3;
+
+    public function __construct(private ReservationNotifier $notifier) {}
+
     /**
      * pending → confirmed, if the car is still free for these times.
      *
@@ -42,6 +57,7 @@ class ReservationWorkflow
                 $admin,
                 changes: ['confirmed_at' => now()],
                 guard: fn (Reservation $locked) => $this->ensureCarIsFree($car, $locked),
+                then: fn (Reservation $locked) => $this->notifier->confirmed($locked),
             );
         });
     }
@@ -56,17 +72,34 @@ class ReservationWorkflow
         return $this->transition($reservation, ReservationStatus::Rejected, $admin, $reason, [
             'rejected_at' => now(),
             'rejection_reason' => $reason,
-        ]);
+        ], then: fn (Reservation $locked) => $this->notifier->rejected($locked));
     }
 
     /**
-     * confirmed → active: the customer took the keys.
+     * confirmed → active: the customer took the keys and paid at the agency (now, or
+     * later with $paid false). Issues the invoice and emails it to the customer.
      *
      * @throws ReservationTransitionException
      */
-    public function markPickedUp(Reservation $reservation, User $admin): Reservation
+    public function markPickedUp(Reservation $reservation, User $admin, PaymentMethod $method, bool $paid): Reservation
     {
-        return $this->transition($reservation, ReservationStatus::Active, $admin, changes: ['picked_up_at' => now()]);
+        for ($attempt = 1; ; $attempt++) {
+            try {
+                return $this->transition(
+                    $reservation,
+                    ReservationStatus::Active,
+                    $admin,
+                    changes: ['picked_up_at' => now()],
+                    then: function (Reservation $locked) use ($method, $paid): void {
+                        $this->notifier->invoiceIssued(Invoice::issueFor($locked, $method, $paid));
+                    },
+                );
+            } catch (UniqueConstraintViolationException $exception) {
+                if ($attempt >= self::INVOICE_NUMBER_ATTEMPTS) {
+                    throw $exception;
+                }
+            }
+        }
     }
 
     /**
@@ -76,7 +109,13 @@ class ReservationWorkflow
      */
     public function markReturned(Reservation $reservation, User $admin): Reservation
     {
-        return $this->transition($reservation, ReservationStatus::Completed, $admin, changes: ['returned_at' => now()]);
+        return $this->transition(
+            $reservation,
+            ReservationStatus::Completed,
+            $admin,
+            changes: ['returned_at' => now()],
+            then: fn (Reservation $locked) => $this->notifier->completed($locked),
+        );
     }
 
     /**
@@ -90,7 +129,7 @@ class ReservationWorkflow
         return $this->transition($reservation, ReservationStatus::Cancelled, $by, $reason, [
             'cancelled_at' => now(),
             'cancellation_reason' => $reason,
-        ]);
+        ], then: fn (Reservation $locked) => $this->notifier->cancelled($locked, byAgency: $by->id !== $locked->user_id));
     }
 
     /**
@@ -109,7 +148,7 @@ class ReservationWorkflow
                 if ($locked->start_at->isFuture()) {
                     throw ReservationTransitionException::notAllowed($locked->status, ReservationStatus::Rejected);
                 }
-            });
+            }, then: fn (Reservation $locked) => $this->notifier->rejected($locked));
         } catch (ReservationTransitionException) {
             return false;
         }
@@ -122,6 +161,7 @@ class ReservationWorkflow
      *
      * @param  array<string, mixed>  $changes  columns saved with the new status
      * @param  (Closure(Reservation): void)|null  $guard  extra check on the locked row, throws to refuse
+     * @param  (Closure(Reservation): void)|null  $then  runs in the transaction once the change is saved
      *
      * @throws ReservationTransitionException
      */
@@ -132,8 +172,9 @@ class ReservationWorkflow
         ?string $note = null,
         array $changes = [],
         ?Closure $guard = null,
+        ?Closure $then = null,
     ): Reservation {
-        return DB::transaction(function () use ($reservation, $to, $by, $note, $changes, $guard): Reservation {
+        return DB::transaction(function () use ($reservation, $to, $by, $note, $changes, $guard, $then): Reservation {
             $locked = Reservation::query()->whereKey($reservation->getKey())->lockForUpdate()->firstOrFail();
             $from = $locked->status;
 
@@ -155,8 +196,13 @@ class ReservationWorkflow
                 'created_at' => $locked->updated_at,
             ]);
 
+            if ($then !== null) {
+                $then($locked);
+            }
+
             $reservation->setRawAttributes($locked->getAttributes(), true);
             $reservation->unsetRelation('statusHistories');
+            $reservation->unsetRelation('invoice');
 
             return $reservation;
         });

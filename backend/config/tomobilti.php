@@ -18,6 +18,44 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Company (invoices and booking vouchers, Phase 6)
+    |--------------------------------------------------------------------------
+    |
+    | Printed on every invoice and voucher. The legal identifiers below are
+    | DEMO VALUES (all zeros): replace them with the agency's real ICE, RC, IF
+    | and address through the env variables before going live.
+    |
+    */
+
+    'company' => [
+        'name' => env('COMPANY_NAME', 'Tomobilti SARL'),
+        'address' => env('COMPANY_ADDRESS', '112, Avenue Mohammed V, Guéliz'),
+        'city' => env('COMPANY_CITY', '40000 Marrakech, Maroc'),
+        'phone' => env('COMPANY_PHONE', '+212 5 24 00 01 02'),
+        'email' => env('COMPANY_EMAIL', 'contact@tomobilti.ma'),
+        'website' => env('COMPANY_WEBSITE', 'tomobilti.ma'),
+        'ice' => env('COMPANY_ICE', '000000000000000'),
+        'rc' => env('COMPANY_RC', 'Marrakech 000000'),
+        'if' => env('COMPANY_IF', '00000000'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notifications (Phase 6)
+    |--------------------------------------------------------------------------
+    */
+
+    'notifications' => [
+        // The pick-up reminder goes out once, at most this many hours before pick-up
+        // (reservations:send-reminders, every 15 minutes).
+        'reminder_hours' => 24,
+
+        // In-app notifications per page of GET /api/notifications.
+        'per_page' => 15,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Public catalogue
     |--------------------------------------------------------------------------
     */

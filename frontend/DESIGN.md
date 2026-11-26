@@ -235,8 +235,8 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 - **AdminLayout** (lazy-loaded behind `AdminRoute`): collapsible sidebar (`lg`+, remembered in localStorage, icons with
   tooltips when collapsed), glass topbar with the page title and the avatar menu,
   left drawer on mobile. No bottom nav. Items: Tableau de bord, Réservations (warning
-  badge with the requests to answer, refreshed every 60 s, `usePendingCount`), Planning,
-  Voitures, Clients, Paramètres.
+  badge with the requests to answer, refreshed every 60 s, `usePendingCount`), Factures,
+  Planning, Voitures, Clients, Paramètres. The topbar holds the notification bell.
 - Navigation items live in `src/config/navigation.js`.
 
 ### Floating navbar (public site)
@@ -256,7 +256,7 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 - **Spacing**: the hero runs behind the navbar; every other page starts with
   `pt-24 md:pt-32` so the navbar never covers content. The admin keeps its sidebar.
 - **Auth-aware actions**: visitors see Connexion / Inscription; signed-in users see the
-  avatar menu (`UserMenu`: Mon espace, Administration for admins, Déconnexion) in the same
+  notification bell and the avatar menu (`UserMenu`: Mon espace, Administration for admins, Déconnexion) in the same
   right-hand position. While the session loads, a skeleton pill of the same size holds the
   place. The mobile top bar shows the compact avatar, and the bottom nav's "Profil" item
   leads to `/connexion` for visitors (`guestTo` in `config/navigation.js`).
@@ -320,8 +320,11 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   (address, hours, phone, WhatsApp), price with `RentalTerms` (payment and deposit as
   bullets), `DocumentsToBring` (one short bullet per document), and the cancellation card:
   "Annuler la réservation" with a `ConfirmDialog` (optional reason) when the server allows it,
-  otherwise an info Alert with the server's reason. "Télécharger la facture" stays disabled
-  with the tooltip "Disponible prochainement" until Phase 6.
+  otherwise an info Alert with the server's reason. Under the title, "Télécharger le bon de
+  réservation" (`has_voucher`: confirmed, active, completed) and "Télécharger la facture"
+  (once the invoice exists) as secondary buttons, only when the PDF exists (`useDownload`).
+  Rows of `/espace/reservations` with an invoice show a small `ReceiptText` icon
+  ("Facture disponible") before the total.
 - **Nested routes under `/espace`**: `PageTransition` freezes the outlet only while a page
   is leaving, so child routes of a layout that keeps one transition key (tabs, detail pages)
   still render.
@@ -376,11 +379,45 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   progress bar per file (transform `scaleX`, no width animation), numbered 16:10 cards,
   reorder by drag and drop or by the arrow buttons (keyboard), "Principale" lime badge,
   alt text saved on blur, delete behind a ConfirmDialog, credit under each photo.
+- **Invoices** (Phase 6, `/admin/factures`, `AdminInvoicesPage`): two `StatCard`s
+  (Encaissé, À encaisser, `format="amount"` so they match the invoices to the centime),
+  filters in the URL (`INVOICE_FILTERS` in `lib/adminInvoices.js`: statut, mode de paiement,
+  émise du / au, recherche, tri), `Table` (cards below `lg`), `InvoiceStatusBadge` (paid:
+  success + check, unpaid: warning + clock) and a row menu (`InvoiceActions variant="menu"`:
+  Télécharger la facture, Marquer comme payée, Renvoyer au client). A row click opens the
+  reservation. The reservation page shows a "Facture" card (number, badge, issue date,
+  method, paid date, total, `InvoiceActions` as buttons) and a ghost "Bon de réservation"
+  download next to the actions.
+- **Payment** (`PaymentDialog`): "Marquer comme récupérée" (the invoice is issued then) and
+  "Marquer comme payée" ask for the payment method as a 3-column `RadioGroup` (required,
+  "Choisissez le mode de paiement."); pick-up also asks "Payé maintenant" / "Plus tard"
+  (default: now). Marking paid preselects the planned method.
 - **Settings** (`SettingsPanel`): one config per resource (columns with their `card`
   role, fields, payload); modal form with server 422 errors; a field's rule goes in its
   `info` (e.g. "Une agence désactivée disparaît de la réservation en ligne."); the
   "in use" rule sits in the delete confirmation, and a 409 refusal is a toast with the reason.
   API icon names render through `ApiIcon`.
+
+### Notifications (Phase 6)
+
+- **`NotificationBell`** (`components/notifications`): an icon button in the public navbar
+  (desktop pill and mobile top bar, signed-in users) and in the admin topbar. The unread
+  count is a warning pill at the top right (near-black text, "99+" above 99), and the button
+  is named "Notifications, 2 non lues". Data: `useNotifications` (refetch every 60 s),
+  `useMarkNotificationRead`, `useMarkAllNotificationsRead` (the cache updates at once, then
+  refreshes).
+- **Panel**: a Headless UI `Popover` anchored `bottom end` with the overlay rule (16 px
+  inside the viewport, `min(24rem, 100vw − 2rem)` wide, capped at the space left): the
+  header ("Notifications", "Tout marquer comme lu" as a ghost button, disabled with nothing
+  unread) never scrolls, only the list does. Each row: an icon in a tinted circle (type →
+  icon and tone in `lib/notifications.js`), the title (bold while unread, with an info dot
+  and "Non lue" for screen readers), the body, the reference, the relative time in French
+  (`formatRelativeTime`: "il y a 5 min", "hier", then the date). A click marks it read,
+  closes the panel and opens `url`. Empty: a bell and "Aucune notification".
+- **Emails** share one template (backend `mail/reservation.blade.php`): a title, one line,
+  a panel of key details, an optional reason or checklist, one lime button. **PDFs**
+  (voucher, invoice) are light A4 pages in Plus Jakarta Sans; lime only as a fill (the band
+  and the block with the key figure), the wordmark dot in olive.
 
 ### Photos
 
@@ -488,6 +525,7 @@ wrap instead; `bleed` runs it to the screen edges on mobile).
 <Select label="Carburant" name="fuel" options={toOptions(FUEL_TYPE)} value={fuel} onChange={setFuel} />
 <Checkbox label="J’accepte les conditions" checked={ok} onChange={setOk} error={…} />
 <RadioGroup label="Lieu de retrait" options={[{ value, label, description }]} value={v} onChange={setV} />
+<RadioGroup label="Mode de paiement" columns={3} options={toOptions(PAYMENT_METHOD)} … />  // columns 1 | 2 | 3 (from sm)
 <Switch label="Voiture à la une" checked={featured} onChange={setFeatured} />
 <Switch label="Agence active" info="Une agence désactivée disparaît de la réservation en ligne." … />
 <Input label="Prix" suffix="DH" info="Un nouveau prix ne change pas les réservations existantes." … />
@@ -636,6 +674,7 @@ action and the item ("Ajouter : Siège bébé", "Retirer : Siège bébé"), disa
 <Avatar name="Salma Bennani" />
 <StatCard icon={CalendarCheck} label="Réservations ce mois" value={128} format="number" trend={{ value: 12, label: 'vs octobre' }} />
 <StatCard icon={Gauge} label="Taux d’utilisation" value={4.8} format="percent" hint="46 jours loués sur 960" />  // `hint`: what the number counts
+<StatCard icon={Banknote} label="Encaissé" value={95370.5} format="amount" />  // to the centime ("95.370,50 DH"); `price` rounds to the dirham
 <Table caption="Réservations" columns={[{ key, header, render, align, card }]} rows={rows} rowKey="reference" loading={isLoading} empty={<EmptyState … />} />
 ```
 

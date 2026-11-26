@@ -8,18 +8,21 @@ import {
   fetchAdminCars,
   fetchAdminClient,
   fetchAdminClients,
+  fetchAdminInvoices,
   fetchAdminReservation,
   fetchAdminReservations,
   fetchCarStatusConflicts,
   fetchDashboard,
   fetchPlanning,
   fetchSettings,
+  markInvoicePaid,
   reorderCarImages,
   restoreCar,
   runReservationAction,
   saveCar,
   saveReservationNotes,
   saveSetting,
+  sendInvoice,
   setClientActive,
   updateCarImage,
 } from '../api/admin.js'
@@ -83,12 +86,19 @@ function useRefreshReservation() {
   }
 }
 
-/** confirm | reject | pickUp | return | cancel, with the reason when needed. */
+/**
+ * confirm | reject | pickUp | return | cancel, with its body when needed (`{ reason }`,
+ * `{ payment_method, paid }`). Picking up issues an invoice: the invoices refresh too.
+ */
 export function useReservationAction() {
   const refresh = useRefreshReservation()
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ reference, action, reason }) => runReservationAction(reference, action, reason),
-    onSuccess: ({ reservation }) => refresh(reservation),
+    mutationFn: ({ reference, action, body }) => runReservationAction(reference, action, body),
+    onSuccess: ({ reservation }) => {
+      refresh(reservation)
+      queryClient.invalidateQueries({ queryKey: keys.invoices.all })
+    },
   })
 }
 
@@ -98,6 +108,34 @@ export function useSaveReservationNotes() {
     mutationFn: ({ reference, notes }) => saveReservationNotes(reference, notes),
     onSuccess: ({ reservation }) =>
       queryClient.setQueryData(keys.reservations.detail(reservation.reference), reservation),
+  })
+}
+
+/* Invoices -------------------------------------------------------------------- */
+
+export function useAdminInvoices(params) {
+  return useQuery({
+    queryKey: keys.invoices.list(params),
+    queryFn: ({ signal }) => fetchAdminInvoices(params, { signal }),
+    placeholderData: keepPreviousData,
+  })
+}
+
+/**
+ * `markPaid` (with `paymentMethod`) or `send` (email it to the client again). A paid
+ * invoice changes the lists, the reservation pages and the dashboard revenue.
+ */
+export function useInvoiceAction() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ type, number, paymentMethod }) =>
+      type === 'markPaid' ? markInvoicePaid(number, paymentMethod) : sendInvoice(number),
+    onSuccess: (_, { type }) => {
+      if (type !== 'markPaid') return
+      queryClient.invalidateQueries({ queryKey: keys.invoices.all })
+      queryClient.invalidateQueries({ queryKey: keys.reservations.all })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+    },
   })
 }
 

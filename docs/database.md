@@ -319,6 +319,7 @@ A booking. Prices are **snapshots** taken at booking time, so later price change
 | `customer_notes`, `admin_notes`, `rejection_reason`           | text, nullable                         | "Demande expirée" when `reservations:expire` refused it.                      |
 | `cancellation_reason`                                         | text, nullable                         | Optional reason given by the customer who cancels.                            |
 | `confirmed_at`, `picked_up_at`, `returned_at`, `cancelled_at`, `rejected_at` | datetime, nullable      | Lifecycle timestamps (the status timeline of the reservation page).           |
+| `reminder_sent_at`                                            | datetime, nullable                     | When the pick-up reminder was sent (Phase 6): `reservations:send-reminders` sends it once. |
 
 Indexes: `(car_id, start_at, end_at)` for availability checks, and `status`.
 
@@ -375,6 +376,12 @@ One invoice per reservation.
 | `payment_method` | string(20), nullable                  | `PaymentMethod`.                                           |
 
 `Invoice::splitTotal($totalTtc)` splits a TTC amount into HT and VAT (rounded half up to the centime, with bcmath).
+
+**When an invoice exists (Phase 6).** The customer pays at the agency, at pick-up: marking a reservation as picked up (`ReservationWorkflow::markPickedUp`, with the payment method and whether it is paid now) calls `Invoice::issueFor()` in the same transaction. The invoice is issued now, `paid` with `paid_at` now or `unpaid`, and `payment_method` is always set (the method used, or the one planned). `markPaid($method)` settles an unpaid invoice later. So only active and completed reservations have an invoice. An invoice created before this rule is updated instead of duplicated.
+
+### `notifications` (Phase 6)
+
+Laravel's database notifications (in-app notifications of the bell), created by `php artisan make:notifications-table`: `id` (uuid), `type` (notification class), `notifiable_type` + `notifiable_id` (the user), `data` (JSON: `type` such as `reservation.confirmed`, French `title` and `body`, `reference`, `url` of the SPA page), `read_at`, timestamps. Written by the queued notifications in `app/Notifications` (customers: confirmed, refused, cancelled by the agency, reminder, invoice; admins: new request, cancellation by a customer).
 
 ## Foreign keys
 
@@ -484,7 +491,7 @@ The seeders use a fixed Faker seed (`DatabaseSeeder::FAKER_SEED`), so seeding tw
 | `extras`            | 6    | GPS, Siège bébé, Siège rehausseur, Conducteur supplémentaire, Assurance tous risques, Wi-Fi mobile                     |
 | `reservations`      | 64   | Every status, past/current/upcoming, no overlapping blocking reservation on a car                                      |
 | `extra_reservation` | ≈ 70 |                                                                                                                        |
-| `invoices`          | 36   | Paid for every completed reservation, unpaid for every other confirmed one                                             |
+| `invoices`          | ≈ 40 | One per active or completed reservation, issued at `picked_up_at` with a payment method; most paid at pick-up, one active rental in three and one completed rental in six paid later or still unpaid |
 | `reservation_status_histories` | ≈ 190 | One row per lifecycle timestamp (created by the customer; confirmed, refused, picked up, returned by the admin; cancelled by the customer or, one in three, by the agency with a reason) |
 
 ### Demo accounts

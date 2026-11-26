@@ -21,7 +21,7 @@ use Illuminate\Support\Collection;
 
 /**
  * About 60 reservations in every status, spread over past, current and future dates,
- * plus their invoices (paid for completed rentals, unpaid for some confirmed ones).
+ * plus their invoices (issued at pick-up, where the customer pays).
  *
  * Every car gets two reservations in windows that cannot overlap:
  *  - an older one, 32 to 90 days ago (completed, cancelled or rejected);
@@ -281,6 +281,7 @@ class ReservationSeeder extends Seeder
             'returned_at' => $plan['returned_at'],
             'cancelled_at' => $plan['cancelled_at'],
             'rejected_at' => $plan['rejected_at'],
+            'reminder_sent_at' => $this->reminderSentAt($plan),
         ]);
         $reservation->created_at = $plan['created_at'];
         $reservation->updated_at = $plan['updated_at'];
@@ -339,45 +340,63 @@ class ReservationSeeder extends Seeder
     }
 
     /**
-     * Paid invoices for completed rentals, unpaid ones for every other confirmed booking.
-     * Created in chronological order so invoice numbers follow the issue dates.
+     * Confirmed, active and completed reservations whose reminder time (24 hours
+     * before pick-up) has passed already got it, so the scheduler does not send old
+     * reminders after seeding.
+     *
+     * @param  array<string, mixed>  $plan
+     */
+    private function reminderSentAt(array $plan): ?CarbonImmutable
+    {
+        $reminderAt = CarbonImmutable::parse($plan['start_at'])->subHours((int) config('tomobilti.notifications.reminder_hours'));
+
+        if (! in_array($plan['status'], [ReservationStatus::Confirmed, ReservationStatus::Active, ReservationStatus::Completed], true)
+            || $plan['confirmed_at'] === null
+            || $reminderAt->isFuture()) {
+            return null;
+        }
+
+        return $reminderAt->max(CarbonImmutable::parse($plan['confirmed_at']));
+    }
+
+    /**
+     * Invoices follow the agency's rule: the customer pays at pick-up, so every
+     * reservation picked up (active or completed) has an invoice issued at
+     * picked_up_at. Most are paid there and then; one active rental in three and one
+     * completed rental in six were left to pay later (paid at the return for some
+     * completed ones, still unpaid for the others). Created in chronological order so
+     * invoice numbers follow the issue dates.
      *
      * @param  Collection<int, Reservation>  $reservations
      */
     private function createInvoices(Collection $reservations): void
     {
-        $confirmedIndex = 0;
+        $index = 0;
 
         $reservations
-            ->filter(function (Reservation $reservation) use (&$confirmedIndex): bool {
-                return match ($reservation->status) {
-                    ReservationStatus::Completed => true,
-                    ReservationStatus::Confirmed => $confirmedIndex++ % 2 === 0,
-                    default => false,
+            ->filter(fn (Reservation $reservation): bool => $reservation->picked_up_at !== null)
+            ->sortBy(fn (Reservation $reservation) => $reservation->picked_up_at->getTimestamp())
+            ->each(function (Reservation $reservation) use (&$index): void {
+                $index++;
+                $issuedAt = $reservation->picked_up_at;
+                $paidLater = $reservation->status === ReservationStatus::Active ? $index % 3 === 0 : $index % 6 === 0;
+                $paidAt = match (true) {
+                    ! $paidLater => $issuedAt,
+                    $reservation->status === ReservationStatus::Completed && $index % 12 !== 0 => $reservation->returned_at,
+                    default => null,
                 };
-            })
-            ->map(fn (Reservation $reservation): array => [
-                'reservation' => $reservation,
-                'issued_at' => $reservation->status === ReservationStatus::Completed
-                    ? $reservation->returned_at
-                    : $reservation->confirmed_at,
-            ])
-            ->sortBy(fn (array $item) => $item['issued_at']->getTimestamp())
-            ->each(function (array $item): void {
-                $reservation = $item['reservation'];
-                $isPaid = $reservation->status === ReservationStatus::Completed;
 
                 $invoice = new Invoice([
                     'reservation_id' => $reservation->id,
-                    'issued_at' => $item['issued_at'],
+                    'issued_at' => $issuedAt,
                     ...Invoice::splitTotal((string) $reservation->total),
                     'vat_rate' => Invoice::DEFAULT_VAT_RATE,
-                    'status' => $isPaid ? InvoiceStatus::Paid : InvoiceStatus::Unpaid,
-                    'paid_at' => $isPaid ? $item['issued_at'] : null,
-                    'payment_method' => $isPaid ? fake()->randomElement(PaymentMethod::cases()) : null,
+                    'status' => $paidAt ? InvoiceStatus::Paid : InvoiceStatus::Unpaid,
+                    'paid_at' => $paidAt,
+                    'payment_method' => fake()->randomElement(PaymentMethod::cases()),
                 ]);
-                $invoice->created_at = $item['issued_at'];
-                $invoice->updated_at = $item['issued_at'];
+                $invoice->created_at = $issuedAt;
+                $invoice->updated_at = $paidAt ?? $issuedAt;
                 $invoice->save();
             });
     }

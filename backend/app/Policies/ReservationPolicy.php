@@ -35,6 +35,27 @@ class ReservationPolicy
     }
 
     /**
+     * The booking voucher of my own reservation, once confirmed (404 before, so the
+     * SPA only offers it when the reservation says it exists).
+     */
+    public function downloadVoucher(User $user, Reservation $reservation): Response
+    {
+        return $this->owns($user, $reservation) && $reservation->hasVoucher()
+            ? Response::allow()
+            : Response::denyAsNotFound();
+    }
+
+    /**
+     * The invoice of my own reservation, once issued at pick-up (404 otherwise).
+     */
+    public function downloadInvoice(User $user, Reservation $reservation): Response
+    {
+        return $this->owns($user, $reservation) && $reservation->invoice !== null
+            ? Response::allow()
+            : Response::denyAsNotFound();
+    }
+
+    /**
      * Disabled accounts cannot book. The other conditions (verified email, complete
      * profile, age, licence) are checked by BookingEligibility for the pick-up date.
      */

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\PickUpRequest;
 use App\Http\Requests\Admin\ReservationNotesRequest;
 use App\Http\Requests\Admin\ReservationReasonRequest;
 use App\Http\Resources\Admin\AdminReservationDetailResource;
@@ -42,13 +43,16 @@ class ReservationActionController extends Controller
     }
 
     /**
-     * POST /api/admin/reservations/{reference}/pick-up
+     * POST /api/admin/reservations/{reference}/pick-up { payment_method, paid }: the
+     * customer pays at the agency; the invoice is issued (paid or not) and emailed.
+     * PickUpRequest checks the policy before validating.
      */
-    public function pickUp(Request $request, Reservation $reservation): AdminReservationDetailResource
+    public function pickUp(PickUpRequest $request, Reservation $reservation): AdminReservationDetailResource
     {
-        Gate::authorize('markPickedUp', $reservation);
-
-        return $this->respond($this->workflow->markPickedUp($reservation, $request->user()), 'picked_up');
+        return $this->respond(
+            $this->workflow->markPickedUp($reservation, $request->user(), $request->paymentMethod(), $request->boolean('paid')),
+            'picked_up',
+        );
     }
 
     /**

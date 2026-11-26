@@ -18,6 +18,7 @@ export const queryKeys = {
   locations: () => ['locations'],
   extras: () => ['extras'],
   bookingRules: () => ['booking-rules'],
+  notifications: () => ['notifications'],
   reservations: {
     all: ['reservations'],
     list: (params) => ['reservations', 'list', params],
@@ -35,6 +36,10 @@ export const queryKeys = {
       pendingCount: () => ['admin', 'reservations', 'pending-count'],
     },
     planning: (params) => ['admin', 'planning', params],
+    invoices: {
+      all: ['admin', 'invoices'],
+      list: (params) => ['admin', 'invoices', 'list', params],
+    },
     cars: {
       all: ['admin', 'cars'],
       list: (params) => ['admin', 'cars', 'list', params],

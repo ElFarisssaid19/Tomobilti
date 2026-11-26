@@ -147,25 +147,24 @@ class DatabaseSeederTest extends TestCase
         }
     }
 
-    public function test_invoices_exist_for_completed_and_some_confirmed_reservations(): void
+    public function test_invoices_are_issued_at_pick_up_for_every_active_and_completed_reservation(): void
     {
         $this->seedDemoData();
 
         $invoices = Invoice::with('reservation')->get();
 
         $this->assertSame(
-            Reservation::withStatus(ReservationStatus::Completed)->count(),
-            $invoices->where('status', InvoiceStatus::Paid)->count(),
+            Reservation::withStatus(ReservationStatus::Active, ReservationStatus::Completed)->count(),
+            $invoices->count(),
         );
+        $this->assertTrue($invoices->contains('status', InvoiceStatus::Paid));
         $this->assertTrue($invoices->contains('status', InvoiceStatus::Unpaid));
 
         foreach ($invoices as $invoice) {
-            $expectedStatus = match ($invoice->reservation->status) {
-                ReservationStatus::Completed => InvoiceStatus::Paid,
-                ReservationStatus::Confirmed => InvoiceStatus::Unpaid,
-            };
-
-            $this->assertSame($expectedStatus, $invoice->status, $invoice->number);
+            $this->assertContains($invoice->reservation->status, [ReservationStatus::Active, ReservationStatus::Completed], $invoice->number);
+            $this->assertTrue($invoice->issued_at->equalTo($invoice->reservation->picked_up_at), $invoice->number);
+            $this->assertNotNull($invoice->payment_method, $invoice->number);
+            $this->assertSame($invoice->status === InvoiceStatus::Paid, $invoice->paid_at !== null, $invoice->number);
             $this->assertSame($invoice->reservation->total, $invoice->total_ttc, $invoice->number);
             $this->assertMatchesRegularExpression('/^FAC-\d{4}-\d{6}$/', $invoice->number);
         }

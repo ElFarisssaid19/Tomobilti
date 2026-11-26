@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * A reservation as a row of "Mes réservations": car with its photo, dates, agencies,
- * total and status. Internal fields (admin notes, user id) are never exposed.
+ * total and status, whether the voucher can be downloaded and the invoice, if issued. Internal fields (admin notes, user id) are never exposed.
  *
  * Load RELATIONS before building it, to avoid queries per row.
  *
@@ -19,7 +19,7 @@ class ReservationResource extends JsonResource
     /**
      * @var list<string>
      */
-    public const RELATIONS = ['car.brand', 'car.category', 'car.primaryImage', 'pickupLocation', 'returnLocation'];
+    public const RELATIONS = ['car.brand', 'car.category', 'car.primaryImage', 'pickupLocation', 'returnLocation', 'invoice'];
 
     /**
      * Transform the resource into an array.
@@ -40,6 +40,12 @@ class ReservationResource extends JsonResource
             'car' => new CarResource($this->whenLoaded('car')),
             'pickup_location' => new LocationResource($this->whenLoaded('pickupLocation')),
             'return_location' => new LocationResource($this->whenLoaded('returnLocation')),
+            'has_voucher' => $this->hasVoucher(),
+            'invoice' => $this->whenLoaded('invoice', fn (): ?array => $this->invoice ? [
+                'number' => $this->invoice->number,
+                'status' => $this->invoice->status->value,
+                'status_label' => $this->invoice->status->label(),
+            ] : null),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

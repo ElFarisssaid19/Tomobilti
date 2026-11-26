@@ -373,7 +373,7 @@ function WhyTomobilti() {
           src={aeroport800}
           srcSet={`${aeroport800} 800w, ${aeroport1600} 1600w`}
           sizes="(min-width: 1024px) 600px, 100vw"
-          alt="Piste d’aéroport vue du ciel au crépuscule"
+          alt="Terminal de l’aéroport Marrakech Menara, toiture blanche en losanges, taxis et jardin de cactus"
           width={800}
           height={500}
           loading="lazy"

@@ -4,6 +4,7 @@ import {
   CarFront,
   House,
   LayoutDashboard,
+  ReceiptText,
   Settings,
   UserRound,
   Users,
@@ -41,6 +42,7 @@ export const CLIENT_LINKS = [
 export const ADMIN_LINKS = [
   { label: 'Tableau de bord', to: '/admin', icon: LayoutDashboard, end: true },
   { label: 'Réservations', to: '/admin/reservations', icon: CalendarCheck, badge: 'pending' },
+  { label: 'Factures', to: '/admin/factures', icon: ReceiptText },
   { label: 'Planning', to: '/admin/planning', icon: CalendarRange },
   { label: 'Voitures', to: '/admin/voitures', icon: CarFront },
   { label: 'Clients', to: '/admin/clients', icon: Users },

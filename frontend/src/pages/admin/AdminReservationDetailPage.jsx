@@ -1,10 +1,14 @@
-import { CalendarX, IdCard, Mail, Phone, Save } from 'lucide-react'
+import { CalendarX, FileDown, IdCard, Mail, Phone, Save } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { toast } from 'sonner'
+import { downloadAdminVoucher } from '../../api/admin.js'
 import CarThumb from '../../components/admin/CarThumb.jsx'
+import InvoiceActions from '../../components/admin/InvoiceActions.jsx'
+import InvoiceStatusBadge from '../../components/admin/InvoiceStatusBadge.jsx'
 import ReservationActions from '../../components/admin/ReservationActions.jsx'
 import StatusHistory from '../../components/admin/StatusHistory.jsx'
+import { actionsForStatus } from '../../lib/adminReservations.js'
 import PriceBreakdown from '../../components/reservation/PriceBreakdown.jsx'
 import {
   Alert,
@@ -20,11 +24,13 @@ import {
   Textarea,
 } from '../../components/ui'
 import { useAdminReservation, useSaveReservationNotes } from '../../hooks/useAdmin.js'
+import useDownload from '../../hooks/useDownload.js'
 import usePageMeta from '../../hooks/usePageMeta.js'
 import { formatShortDate } from '../../lib/adminFormat.js'
 import { apiErrorMessage } from '../../lib/auth.js'
 import { formatDays } from '../../lib/dates.js'
-import { formatDate } from '../../utils/format.js'
+import { label, PAYMENT_METHOD } from '../../lib/labels.js'
+import { formatDate, formatPrice } from '../../utils/format.js'
 
 const WHEN = {
   weekday: 'short',
@@ -84,7 +90,12 @@ export default function AdminReservationDetailPage() {
         actions={<StatusBadge status={reservation.status} size="md" />}
       />
 
-      <ReservationActions reservation={reservation} />
+      {(reservation.has_voucher || actionsAvailable(reservation.status)) && (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <ReservationActions reservation={reservation} />
+          {reservation.has_voucher && <VoucherButton reference={reservation.reference} />}
+        </div>
+      )}
 
       {reason && (
         <Alert
@@ -120,16 +131,9 @@ export default function AdminReservationDetailPage() {
           <Card padding="lg" className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-fg">Prix</h2>
             <PriceBreakdown pricing={reservation.pricing} />
-            {reservation.invoice && (
-              <p className="text-sm text-fg-muted">
-                Facture{' '}
-                <span className="font-semibold text-fg tabular-nums">
-                  {reservation.invoice.number}
-                </span>
-                , {reservation.invoice.status_label.toLowerCase()}
-              </p>
-            )}
           </Card>
+
+          {reservation.invoice && <InvoiceCard invoice={reservation.invoice} />}
 
           <Card padding="lg" className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-fg">Notes</h2>
@@ -201,6 +205,54 @@ export default function AdminReservationDetailPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** The status allows at least one action (see actionsForStatus). */
+function actionsAvailable(status) {
+  return actionsForStatus(status).length > 0
+}
+
+function VoucherButton({ reference }) {
+  const voucher = useDownload(downloadAdminVoucher)
+  return (
+    <Button
+      variant="ghost"
+      leftIcon={FileDown}
+      loading={voucher.isPending}
+      onClick={() => voucher.download(reference)}
+    >
+      Bon de réservation
+    </Button>
+  )
+}
+
+function InvoiceCard({ invoice }) {
+  const rows = [
+    ['Émise le', formatShortDate(invoice.issued_at)],
+    ['Mode de paiement', label(PAYMENT_METHOD, invoice.payment_method) || '—'],
+    invoice.paid_at && ['Payée le', formatShortDate(invoice.paid_at)],
+    ['Total TTC', formatPrice(invoice.total_ttc)],
+  ].filter(Boolean)
+
+  return (
+    <Card padding="lg" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-bold text-fg">
+          Facture <span className="tabular-nums">{invoice.number}</span>
+        </h2>
+        <InvoiceStatusBadge status={invoice.status} />
+      </div>
+      <dl className="grid gap-3 text-sm sm:grid-cols-2">
+        {rows.map(([term, value]) => (
+          <div key={term} className="flex flex-col gap-0.5">
+            <dt className="text-fg-subtle">{term}</dt>
+            <dd className="font-semibold text-fg tabular-nums">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <InvoiceActions invoice={invoice} />
+    </Card>
   )
 }
 
