@@ -12,6 +12,7 @@ use App\Models\Brand;
 use App\Models\Car;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -88,29 +89,37 @@ class CarController extends Controller
     /**
      * DELETE /api/admin/cars/{id}: soft delete, refused (409) while upcoming or current
      * reservations still need the car; they are listed in the answer.
+     *
+     * The car row is locked first, like ReservationBooker does, so a booking made at the
+     * same moment either lands before the check (and blocks the removal) or waits and
+     * then finds the car removed.
      */
     public function destroy(Car $car): JsonResponse
     {
         Gate::authorize('delete', $car);
 
-        $upcoming = $car->upcomingReservations()
-            ->with(AdminReservationResource::RELATIONS)
-            ->orderBy('start_at')
-            ->get();
+        return DB::transaction(function () use ($car): JsonResponse {
+            Car::query()->whereKey($car->getKey())->lockForUpdate()->first();
 
-        if ($upcoming->isNotEmpty()) {
-            return response()->json([
-                'message' => trans_choice('api.admin.cars.delete_blocked', $upcoming->count(), [
-                    'references' => $upcoming->take(3)->pluck('reference')->join(', ').($upcoming->count() > 3 ? '…' : ''),
-                ]),
-                'code' => 'car_has_reservations',
-                'reservations' => AdminReservationResource::collection($upcoming),
-            ], 409);
-        }
+            $upcoming = $car->upcomingReservations()
+                ->with(AdminReservationResource::RELATIONS)
+                ->orderBy('start_at')
+                ->get();
 
-        $car->delete();
+            if ($upcoming->isNotEmpty()) {
+                return response()->json([
+                    'message' => trans_choice('api.admin.cars.delete_blocked', $upcoming->count(), [
+                        'references' => $upcoming->take(3)->pluck('reference')->join(', ').($upcoming->count() > 3 ? '…' : ''),
+                    ]),
+                    'code' => 'car_has_reservations',
+                    'reservations' => AdminReservationResource::collection($upcoming),
+                ], 409);
+            }
 
-        return response()->json(['message' => __('api.admin.cars.deleted')]);
+            $car->delete();
+
+            return response()->json(['message' => __('api.admin.cars.deleted')]);
+        });
     }
 
     /**

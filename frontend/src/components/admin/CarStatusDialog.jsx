@@ -102,7 +102,7 @@ export default function CarStatusDialog({ car, open, onClose }) {
                   <span className="flex min-w-0 flex-col">
                     <Link
                       to={`/admin/reservations/${reservation.reference}`}
-                      className="link-underline self-start font-semibold text-fg tabular-nums"
+                      className="link-underline touch-target self-start font-semibold text-fg tabular-nums"
                     >
                       {reservation.reference}
                     </Link>

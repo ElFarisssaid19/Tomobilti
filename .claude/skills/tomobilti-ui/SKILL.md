@@ -49,6 +49,8 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 - Defaults: 60 s stale time, no refetch on focus, no retry on 4xx. Reference data 10 min,
   booked days 0. Lists use `placeholderData: keepPreviousData` and dim the old cards while
   loading; skeletons only on the first load.
+- Mutations use `useSingleFlightMutation` (hooks/useSingleFlightMutation.js), never
+  `useMutation` directly: it drops a double click's second request.
 - List filters, sort and page live in the URL (`useCatalogFilters`, `lib/catalogParams.js`),
   never in React state. Each public page sets its French title and description with
   `usePageMeta`.
@@ -116,6 +118,13 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 - Tabs never cut a tab off (edge fades, active tab scrolled into view, a Select on phones).
   Tables turn into cards below `lg` by themselves (column `card` roles): never branch on the
   screen size in a page.
+
+## Touch and focus
+
+- Below 768px every control gives the finger 44 × 44 px: small controls and standalone
+  text links get `touch-target` (on a positioned element), chips and tabs are `h-11`.
+- `scroll-padding` on `html` keeps focused elements clear of the fixed bars; grids
+  without a template get `grid-cols-1`.
 
 ## Texte et ton
 

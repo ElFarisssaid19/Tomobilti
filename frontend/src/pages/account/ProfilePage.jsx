@@ -27,7 +27,7 @@ export default function ProfilePage() {
         badge={
           user.has_complete_profile ? (
             <Badge tone="success" icon={CircleCheck} className="self-start">
-              Prêt pour réserver
+              Profil complet
             </Badge>
           ) : (
             <Badge tone="warning" icon={TriangleAlert} className="self-start">

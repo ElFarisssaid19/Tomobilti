@@ -1,14 +1,13 @@
-import { ChevronsLeft, ChevronsRight, ExternalLink, LogOut, Menu, UserRound } from 'lucide-react'
+import { ChevronsLeft, ChevronsRight, Menu } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation } from 'react-router'
 import AdminNav from '../components/layout/AdminNav.jsx'
 import Logo from '../components/layout/Logo.jsx'
 import NotificationBell from '../components/notifications/NotificationBell.jsx'
 import PageTransition from '../components/layout/PageTransition.jsx'
-import { Avatar, Drawer, DropdownMenu, IconButton } from '../components/ui'
+import UserMenu from '../components/auth/UserMenu.jsx'
+import { Drawer, IconButton } from '../components/ui'
 import { ADMIN_LINKS } from '../config/navigation.js'
-import { useAuth } from '../context/authContext.js'
-import useLogout from '../hooks/useLogout.js'
 import { cn } from '../lib/cn.js'
 
 const STORAGE_KEY = 'tomobilti.admin.sidebarCollapsed'
@@ -27,8 +26,6 @@ function readCollapsed() {
  * Rendered inside AdminRoute (lazy-loaded), so the user is always an admin here.
  */
 export default function AdminLayout() {
-  const { user } = useAuth()
-  const handleLogout = useLogout()
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { pathname } = useLocation()
@@ -94,32 +91,7 @@ export default function AdminLayout() {
             <p className="truncate text-base font-semibold text-fg">{current.label}</p>
             <div className="ml-auto flex items-center gap-2">
               <NotificationBell />
-              <DropdownMenu
-                trigger={
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 rounded-full border border-line bg-raised p-1 transition-colors hover:bg-raised-hover sm:pr-3"
-                  >
-                    <Avatar name={user.name} size="sm" decorative />
-                    <span className="hidden text-sm font-semibold text-fg sm:inline">
-                      {user.name}
-                    </span>
-                    <span className="sr-only sm:hidden">Menu du compte</span>
-                  </button>
-                }
-                header={
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-fg">{user.name}</span>
-                    <span className="text-xs text-fg-subtle">{user.email}</span>
-                  </div>
-                }
-                items={[
-                  { label: 'Mon profil', icon: UserRound, to: '/espace/profil' },
-                  { label: 'Voir le site', icon: ExternalLink, to: '/' },
-                  { divider: true },
-                  { label: 'Déconnexion', icon: LogOut, danger: true, onClick: handleLogout },
-                ]}
-              />
+              <UserMenu variant="admin" />
             </div>
           </div>
         </header>

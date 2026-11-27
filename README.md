@@ -145,6 +145,7 @@ php artisan tomobilti:import-site-photos  # same for the SPA's site photos (fron
 php artisan tomobilti:image-credits       # regenerate docs/image-credits.md and the /credits data
 php artisan reservations:expire           # refuse pending requests whose pick-up time has passed
 php artisan reservations:send-reminders   # pick-up reminders (24 h before); --reference=TMB-… for one reservation
+php artisan tomobilti:e2e-cleanup         # delete the accounts and reservations of the e2e tests (refused in production)
 php artisan schedule:work                 # run the scheduler locally (npm run dev starts it)
 ```
 
@@ -155,7 +156,39 @@ Inside `frontend/`:
 ```bash
 npm run build     # production build in dist/
 npm run preview   # serve the build on http://localhost:4173
+npm run test:e2e  # end-to-end tests (see below)
 ```
+
+## End-to-end tests
+
+Playwright Test with axe-core (`@axe-core/playwright`), in `frontend/e2e`. They drive
+the **installed Google Chrome** (`channel: 'chrome'`, no browser download) against the
+running app, headless by default.
+
+```bash
+npm run services:up          # MySQL + Mailpit
+npm run dev                  # API + queue worker + Vite (the suite checks they answer)
+cd frontend
+npm run test:e2e             # all specs, one worker
+npx playwright test --headed # watch them in a Chrome window
+npx playwright show-report   # HTML report of the last run (playwright-report/)
+```
+
+| Spec | What it checks |
+| --- | --- |
+| `public.spec.js` | Home → catalogue with a category and a filter (URL) → car detail; no serious or critical axe violation on each page |
+| `client.spec.js` | Sign in → booking flow up to the confirmation (a double click sends one booking) → the reservation in Mes réservations → cancel it |
+| `admin.spec.js` | Sign in as admin → dashboard → confirm a pending request → mark it picked up with a payment method → the paid invoice in Factures |
+| `layout.spec.js` | At 1366 × 650 and 375 × 667: the refusal, agency and car status dialogs fit the viewport; admin tables are cards on phones, tables on laptops, no sideways scroll |
+
+**Test data.** The suite creates its own customers through the API (registration, the
+verification link read from Mailpit's API, profile), books cars months ahead on random
+free dates, and uses the demo admin (`admin@tomobilti.ma`, needs the demo seed). Every
+test account uses the `@e2e.tomobilti.test` domain; `php artisan tomobilti:e2e-cleanup`
+deletes them with their reservations, invoices and notifications before and after each
+run. The queue worker must run, or the verification e-mail never reaches Mailpit.
+Override the URLs or the admin with `E2E_APP_URL`, `E2E_API_URL`, `E2E_MAILPIT_URL`,
+`E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`.
 
 ## Who works where
 
@@ -193,7 +226,7 @@ GET  /api/user                       ───▶   UserResource (401 for guests
 | Endpoint                                         | Auth        | Notes                                                                              |
 | ------------------------------------------------ | ----------- | ---------------------------------------------------------------------------------- |
 | `POST /api/auth/register`                        | —           | Role is always `client`. Logs in and sends the verification email. 6/min           |
-| `POST /api/auth/login`                           | —           | `remember`. 5 failed attempts per minute per email + IP (429). Disabled account: 403 |
+| `POST /api/auth/login`                           | —           | `remember`. 5 failed attempts per minute per email + IP, 20 attempts per minute per IP (429). Disabled account: 403 |
 | `POST /api/auth/logout`                          | session     | Invalidates the session, new CSRF token                                            |
 | `GET /api/user`                                  | session     | `UserResource` (never the password hash, the remember token or `is_active`)        |
 | `POST /api/auth/forgot-password`                 | —           | Same answer whether the account exists or not. 6/min                               |
@@ -201,7 +234,7 @@ GET  /api/user                       ───▶   UserResource (401 for guests
 | `POST /api/auth/email/verify/{id}/{hash}`        | signed URL  | Called by `/verifier-email`; works signed in or not. 403 `expired` / `invalid`     |
 | `POST /api/auth/email/verification-notification` | session     | Resend the verification email. 6/min                                               |
 | `PUT /api/profile`                               | session     | Any subset of the profile; 18+, licence after the 18th birthday, new email = re-verify |
-| `PUT /api/profile/password`                      | session     | `current_password` required                                                        |
+| `PUT /api/profile/password`                      | session     | `current_password` required. 6/min                                                 |
 | `GET /api/admin/ping`                            | admin       | `admin` middleware: 401 for guests, 403 for clients                                |
 
 - **Emails** (`app/Notifications/Auth`): French, Tomobilti theme (`resources/views/vendor/mail`), queued, delivered to Mailpit in development. The links open the React app: `FRONTEND_URL/verifier-email?id&hash&expires&signature` and `FRONTEND_URL/reinitialiser-mot-de-passe?token&email`. The queue worker (`npm run dev` starts it) must run for them to leave.
@@ -492,4 +525,5 @@ Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for P
 - [x] **Phase 5: Admin back office** (dashboard and statistics, reservations with status history, planning, fleet and photos, customers, catalogue settings; see [Admin back office](#admin-back-office-phase-5))
 - [x] **Phase 6: Invoices & notifications** (invoices issued at pick-up, PDF invoices and booking vouchers, emails, in-app notifications, pick-up reminders; see [Invoices, emails and notifications](#invoices-emails-and-notifications-phase-6))
 - [ ] **Phase 7: Polish** (UX, accessibility, performance, tests)
+  - [x] **7A Revue complète** (QA review of every page, viewport, overlay and state; fixes at the root; axe-core clean; no N+1; Playwright end-to-end suite; see [docs/qa-report.md](docs/qa-report.md) and [End-to-end tests](#end-to-end-tests))
 - [ ] **Phase 8: Deployment** (production hosting, CI/CD)

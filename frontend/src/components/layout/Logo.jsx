@@ -10,7 +10,7 @@ export default function Logo({ to = '/', size = 'md', className }) {
     <Link
       to={to}
       className={cn(
-        'inline-flex items-baseline rounded-sm font-extrabold tracking-[-0.045em] text-fg lowercase',
+        'touch-target relative inline-flex items-baseline rounded-sm font-extrabold tracking-[-0.045em] text-fg lowercase',
         size === 'lg' ? 'text-3xl' : 'text-[1.375rem]',
         className,
       )}

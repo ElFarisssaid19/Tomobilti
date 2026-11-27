@@ -156,8 +156,25 @@ return [
         ],
 
         'settings' => [
-            'saved' => 'Enregistré.',
-            'deleted' => 'Supprimé.',
+            // Toasts of the settings: the same words as the buttons ("Ajouter une agence").
+            'created' => [
+                'category' => 'Catégorie ajoutée.',
+                'brand' => 'Marque ajoutée.',
+                'location' => 'Agence ajoutée.',
+                'extra' => 'Option ajoutée.',
+            ],
+            'updated' => [
+                'category' => 'Catégorie enregistrée.',
+                'brand' => 'Marque enregistrée.',
+                'location' => 'Agence enregistrée.',
+                'extra' => 'Option enregistrée.',
+            ],
+            'deleted' => [
+                'category' => 'Catégorie supprimée.',
+                'brand' => 'Marque supprimée.',
+                'location' => 'Agence supprimée.',
+                'extra' => 'Option supprimée.',
+            ],
             'icon' => 'Saisissez un nom d’icône lucide en minuscules, par exemple car-front.',
             'category_in_use' => '{1} Cette catégorie est utilisée par une voiture. Changez sa catégorie avant de la supprimer.|[2,*] Cette catégorie est utilisée par :count voitures. Changez leur catégorie avant de la supprimer.',
             'brand_in_use' => '{1} Cette marque est utilisée par une voiture. Changez sa marque avant de la supprimer.|[2,*] Cette marque est utilisée par :count voitures. Changez leur marque avant de la supprimer.',

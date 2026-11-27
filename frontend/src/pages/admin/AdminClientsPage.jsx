@@ -21,7 +21,7 @@ import { formatShortDate } from '../../lib/adminFormat.js'
 import { CLIENT_FILTERS } from '../../lib/adminClients.js'
 import { cn } from '../../lib/cn.js'
 import { countActiveFilters, filtersToApiParams } from '../../lib/urlFilters.js'
-import { formatNumber, formatPrice } from '../../utils/format.js'
+import { formatNumber, formatPhone, formatPrice } from '../../utils/format.js'
 
 const SORTS = [
   { value: '', label: 'Inscrits récemment' },
@@ -58,7 +58,7 @@ const COLUMNS = [
           <Link
             to={`/admin/clients/${client.id}`}
             onClick={(event) => event.stopPropagation()}
-            className="link-underline font-semibold"
+            className="link-underline touch-target font-semibold"
           >
             {client.name}
           </Link>
@@ -75,7 +75,9 @@ const COLUMNS = [
   {
     key: 'phone',
     header: 'Téléphone',
-    render: (client) => <span className="tabular-nums">{client.phone ?? '—'}</span>,
+    render: (client) => (
+      <span className="tabular-nums">{client.phone ? formatPhone(client.phone) : '—'}</span>
+    ),
   },
   { key: 'city', header: 'Ville', render: (client) => client.city ?? '—' },
   {

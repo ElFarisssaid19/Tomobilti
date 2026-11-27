@@ -61,7 +61,11 @@ function BookingFlow({ slug }) {
   const { data, isPending, isError, error, refetch } = useCar(slug)
 
   usePageMeta(
-    data?.car ? `Réserver la ${data.car.name}` : 'Réservation',
+    data?.car
+      ? `Réserver la ${data.car.name}`
+      : error?.response?.status === 404
+        ? 'Voiture introuvable'
+        : 'Réservation',
     'Réservez votre voiture en ligne : dates, agences, options, et paiement à l’agence.',
   )
 
@@ -73,11 +77,17 @@ function BookingFlow({ slug }) {
           <EmptyState
             icon={CarFront}
             title="Cette voiture n’est pas disponible"
+            titleAs="h1"
             text="Elle a peut-être quitté la flotte."
             action={<Button to="/voitures">Voir les voitures</Button>}
           />
         ) : (
-          <ErrorState title="Impossible de charger la voiture" error={error} onRetry={refetch} />
+          <ErrorState
+            title="Impossible de charger la voiture"
+            titleAs="h1"
+            error={error}
+            onRetry={refetch}
+          />
         )}
       </div>
     )

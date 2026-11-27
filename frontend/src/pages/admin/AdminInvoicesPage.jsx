@@ -43,7 +43,7 @@ const COLUMNS = [
         <Link
           to={`/admin/reservations/${invoice.reservation.reference}`}
           onClick={(event) => event.stopPropagation()}
-          className="link-underline font-semibold tabular-nums"
+          className="link-underline touch-target font-semibold tabular-nums"
         >
           {invoice.number}
         </Link>

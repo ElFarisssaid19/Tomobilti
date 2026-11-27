@@ -30,7 +30,7 @@
             <p class="label">Client</p>
             <p class="bold">{{ $client->name }}</p>
             @if ($client->cin)<p>CIN {{ $client->cin }}</p>@endif
-            @if ($client->phone)<p>{{ $client->phone }}</p>@endif
+            @if ($client->phone)<p>{{ Fr::phone($client->phone) }}</p>@endif
             <p>{{ $client->email }}</p>
         </td>
     </tr>
@@ -61,7 +61,7 @@
                 <p class="semibold" style="margin-top: 6px;">{{ $location->name }}</p>
                 <p class="muted">{{ $location->address }}</p>
                 @if ($location->opening_hours)<p class="muted">Horaires : {{ $location->opening_hours }}</p>@endif
-                @if ($location->phone)<p class="muted">{{ $location->phone }}</p>@endif
+                @if ($location->phone)<p class="muted">{{ Fr::phone($location->phone) }}</p>@endif
             </td>
             @if ($loop->first)<td style="width: 12px;"></td>@endif
         @endforeach

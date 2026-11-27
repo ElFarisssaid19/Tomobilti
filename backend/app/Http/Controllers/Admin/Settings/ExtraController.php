@@ -30,7 +30,7 @@ class ExtraController extends Controller
         $extra = Extra::create([...$request->validated(), 'slug' => Extra::uniqueSlugFor($request->validated('name'))]);
 
         return (new AdminExtraResource($extra->loadCount('reservations')))
-            ->additional(['message' => __('api.admin.settings.saved')])
+            ->additional(['message' => __('api.admin.settings.created.extra')])
             ->response()
             ->setStatusCode(201);
     }
@@ -42,7 +42,7 @@ class ExtraController extends Controller
         $extra->update($request->validated());
 
         return (new AdminExtraResource($extra->loadCount('reservations')))
-            ->additional(['message' => __('api.admin.settings.saved')]);
+            ->additional(['message' => __('api.admin.settings.updated.extra')]);
     }
 
     public function destroy(Extra $extra): JsonResponse
@@ -55,6 +55,6 @@ class ExtraController extends Controller
 
         $extra->delete();
 
-        return response()->json(['message' => __('api.admin.settings.deleted')]);
+        return response()->json(['message' => __('api.admin.settings.deleted.extra')]);
     }
 }

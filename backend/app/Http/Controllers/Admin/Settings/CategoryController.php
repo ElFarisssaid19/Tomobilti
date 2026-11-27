@@ -32,7 +32,7 @@ class CategoryController extends Controller
         $category = Category::create([...$request->validated(), 'slug' => Category::uniqueSlugFor($request->validated('name'))]);
 
         return (new AdminCategoryResource($category->loadCount('cars')))
-            ->additional(['message' => __('api.admin.settings.saved')])
+            ->additional(['message' => __('api.admin.settings.created.category')])
             ->response()
             ->setStatusCode(201);
     }
@@ -44,7 +44,7 @@ class CategoryController extends Controller
         $category->update($request->validated());
 
         return (new AdminCategoryResource($category->loadCount(['cars' => fn ($cars) => $cars->withTrashed()])))
-            ->additional(['message' => __('api.admin.settings.saved')]);
+            ->additional(['message' => __('api.admin.settings.updated.category')]);
     }
 
     public function destroy(Category $category): JsonResponse
@@ -59,6 +59,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return response()->json(['message' => __('api.admin.settings.deleted')]);
+        return response()->json(['message' => __('api.admin.settings.deleted.category')]);
     }
 }

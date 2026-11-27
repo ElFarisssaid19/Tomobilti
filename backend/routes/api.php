@@ -78,7 +78,8 @@ Route::post('/contact', [ContactController::class, 'store'])
 |
 | The SPA calls GET /sanctum/csrf-cookie first, then these JSON endpoints.
 | Login has its own limiter (5 failed attempts per minute per email + IP,
-| see LoginRequest); the other public endpoints allow 6 requests per minute.
+| see LoginRequest) plus 20 attempts per minute per IP, so one address cannot try
+| many accounts; the other public endpoints allow 6 requests per minute.
 | No "guest" middleware: it answers with a redirect, which an API must not
 | do. The SPA keeps signed-in users away from these forms (GuestRoute).
 |
@@ -89,7 +90,9 @@ Route::prefix('auth')->name('auth.')->group(function () {
         ->middleware('throttle:6,1')
         ->name('register');
 
-    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:20,1')
+        ->name('login');
 
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
         ->middleware('throttle:6,1')
@@ -117,7 +120,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', CurrentUserController::class)->name('user.show');
 
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [PasswordController::class, 'update'])->name('profile.password.update');
+    // Guessing the current password from a signed-in session: 6 tries per minute.
+    Route::put('/profile/password', [PasswordController::class, 'update'])
+        ->middleware('throttle:6,1')
+        ->name('profile.password.update');
 
     // The bell (Phase 6): in-app notifications of the signed-in user, customer or admin.
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

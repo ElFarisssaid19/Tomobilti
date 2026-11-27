@@ -6,7 +6,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import globals from 'globals'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'test-results', 'playwright-report']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -18,6 +18,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+  },
+  // End-to-end tests and their config run in Node (Playwright Test), not in the browser.
+  {
+    files: ['e2e/**/*.js', 'playwright.config.js'],
+    languageOptions: { globals: globals.node },
   },
   // Prettier handles formatting: turn off ESLint rules that conflict with it.
   eslintConfigPrettier,

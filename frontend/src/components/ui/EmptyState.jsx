@@ -7,7 +7,15 @@ import Glow from './Glow.jsx'
  * <EmptyState icon={CalendarX} title="Aucune réservation" text="Vos réservations apparaîtront ici."
  *   action={<Button to="/voitures">Voir les voitures</Button>} />
  */
-export default function EmptyState({ icon: Icon, title, text, action, glow = true, className }) {
+export default function EmptyState({
+  icon: Icon,
+  title,
+  titleAs: Title = 'h3',
+  text,
+  action,
+  glow = true,
+  className,
+}) {
   return (
     <div
       className={cn(
@@ -21,7 +29,7 @@ export default function EmptyState({ icon: Icon, title, text, action, glow = tru
           <Icon className="size-6" aria-hidden="true" />
         </span>
       )}
-      <h3 className="text-xl font-bold text-fg">{title}</h3>
+      <Title className="text-xl font-bold text-fg">{title}</Title>
       {text && <p className="mt-2 max-w-sm text-base text-fg-muted">{text}</p>}
       {action && <div className="mt-6 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>

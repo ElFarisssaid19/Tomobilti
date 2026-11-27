@@ -67,4 +67,22 @@ class PasswordUpdateTest extends TestCase
     {
         $this->putJson('/api/profile/password', [])->assertUnauthorized();
     }
+
+    public function test_guessing_the_current_password_is_limited_to_six_tries_per_minute(): void
+    {
+        $user = User::factory()->create();
+        $guess = [
+            'current_password' => 'not-my-password',
+            'password' => 'nouveau2026',
+            'password_confirmation' => 'nouveau2026',
+        ];
+
+        foreach (range(1, 6) as $attempt) {
+            $this->actingAs($user)->putJson('/api/profile/password', $guess)->assertUnprocessable();
+        }
+
+        $this->actingAs($user)->putJson('/api/profile/password', $guess)
+            ->assertTooManyRequests()
+            ->assertJsonPath('message', 'Trop de requêtes. Veuillez réessayer dans quelques instants.');
+    }
 }

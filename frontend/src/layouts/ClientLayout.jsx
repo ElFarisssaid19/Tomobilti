@@ -32,7 +32,7 @@ export default function ClientLayout() {
                   to={to}
                   className={({ isActive }) =>
                     cn(
-                      'relative isolate inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
+                      'relative isolate inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors duration-150 md:h-9',
                       isActive ? 'text-on-lime' : 'text-fg-muted hover:text-fg',
                     )
                   }

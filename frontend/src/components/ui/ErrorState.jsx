@@ -10,6 +10,7 @@ import Button from './Button.jsx'
  */
 export default function ErrorState({
   title = 'Le chargement a échoué',
+  titleAs: Title = 'h3',
   text = 'Vérifiez votre connexion puis réessayez.',
   error,
   onRetry,
@@ -29,7 +30,7 @@ export default function ErrorState({
       <span className="mb-5 grid size-14 place-items-center rounded-full bg-danger/12 text-danger">
         <TriangleAlert className="size-6" aria-hidden="true" />
       </span>
-      <h3 className="text-xl font-bold text-fg">{title}</h3>
+      <Title className="text-xl font-bold text-fg">{title}</Title>
       <p className="mt-2 max-w-sm text-base text-fg-muted">{apiMessage || text}</p>
       {onRetry && (
         <Button

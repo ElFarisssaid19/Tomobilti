@@ -188,9 +188,19 @@
     color-scheme: dark;
   }
 
+  /*
+   * Scrolling to a focused element or an anchor keeps it clear of the fixed bars:
+   * the navbar or the admin topbar at the top, the bottom nav on phones (WCAG 2.4.11).
+   */
   html {
     background-color: var(--color-canvas);
     -webkit-tap-highlight-color: transparent;
+    scroll-padding-top: 6rem;
+    scroll-padding-bottom: 7.5rem;
+
+    @variant md {
+      scroll-padding-bottom: 1.5rem;
+    }
   }
 
   body {
@@ -294,6 +304,27 @@
   @variant sm {
     max-height: calc(100vh - 3rem);
     max-height: calc(100dvh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
+/*
+ * Touch target: below 768px, the tap area of a small control (small and icon buttons,
+ * the switch, the info button, standalone text links) reaches 44 × 44 px through an
+ * invisible ::before centered on it, without changing how it looks. The element must
+ * be positioned (`relative`, `absolute`…): the utility does not set `position`, so it
+ * never fights a positioning class. ::after stays free for `link-underline`.
+ */
+@utility touch-target {
+  @media (width < 48rem) {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 2.75rem);
+      height: max(100%, 2.75rem);
+      transform: translate(-50%, -50%);
+    }
   }
 }
 

@@ -61,7 +61,7 @@ export default function SiteFooter() {
               <Phone className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
               <a
                 href={`tel:${AGENCY.phone}`}
-                className="link-underline rounded-xs tabular-nums hover:text-fg"
+                className="link-underline touch-target rounded-xs tabular-nums hover:text-fg"
               >
                 {AGENCY.phoneDisplay}
               </a>
@@ -90,7 +90,7 @@ export default function SiteFooter() {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="link-underline rounded-xs text-sm text-fg-muted hover:text-fg"
+                    className="link-underline touch-target rounded-xs text-sm text-fg-muted hover:text-fg"
                   >
                     {link.label}
                   </Link>
@@ -105,7 +105,7 @@ export default function SiteFooter() {
           <p>© {new Date().getFullYear()} Tomobilti. Prix en dirhams (DH), TTC.</p>
           <Link
             to="/credits"
-            className="link-underline self-start rounded-xs hover:text-fg sm:self-auto"
+            className="link-underline touch-target self-start rounded-xs hover:text-fg sm:self-auto"
           >
             Crédits photos
           </Link>

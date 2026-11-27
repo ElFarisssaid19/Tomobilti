@@ -45,7 +45,7 @@ export default function AgencyDetails({ caption, when, location, className }) {
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
           <a
             href={`tel:${location.phone}`}
-            className="link-underline inline-flex items-center gap-2 rounded-xs font-semibold text-fg tabular-nums"
+            className="link-underline touch-target inline-flex items-center gap-2 rounded-xs font-semibold text-fg tabular-nums"
           >
             <Phone className="size-4 text-fg-subtle" aria-hidden="true" />
             {formatPhone(location.phone)}
@@ -54,7 +54,7 @@ export default function AgencyDetails({ caption, when, location, className }) {
             href={whatsappLink(location.phone)}
             target="_blank"
             rel="noreferrer"
-            className="link-underline inline-flex items-center gap-2 rounded-xs font-semibold text-fg"
+            className="link-underline touch-target inline-flex items-center gap-2 rounded-xs font-semibold text-fg"
           >
             <WhatsAppIcon className="size-4 text-success" />
             WhatsApp

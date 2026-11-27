@@ -47,9 +47,10 @@ export default function CarDetailPage() {
   const { slug } = useParams()
   const { data, isPending, isError, error, refetch } = useCar(slug)
   const car = data?.car
+  const notFound = error?.response?.status === 404
 
   usePageMeta(
-    car ? `${car.name} ${car.year} à louer` : 'Voiture',
+    car ? `${car.name} ${car.year} à louer` : notFound ? 'Voiture introuvable' : 'Voiture',
     car
       ? `Louez la ${car.name} ${car.year} (${car.category?.name ?? 'voiture'}) à partir de ${formatPrice(car.price_per_day)} par jour, au départ de ${car.location?.name ?? 'nos agences'}. Caution : ${formatPrice(car.deposit_amount)}.`
       : undefined,
@@ -58,18 +59,23 @@ export default function CarDetailPage() {
   if (isPending) return <DetailSkeleton />
 
   if (isError) {
-    const notFound = error?.response?.status === 404
     return (
       <div className="container-page flex flex-1 flex-col gap-6 pt-24 pb-16 md:pt-32">
         {notFound ? (
           <EmptyState
             icon={CarFront}
             title="Cette voiture n’est pas disponible"
+            titleAs="h1"
             text="Elle a peut-être quitté la flotte."
             action={<Button to="/voitures">Voir les voitures</Button>}
           />
         ) : (
-          <ErrorState title="Impossible de charger la voiture" error={error} onRetry={refetch} />
+          <ErrorState
+            title="Impossible de charger la voiture"
+            titleAs="h1"
+            error={error}
+            onRetry={refetch}
+          />
         )}
       </div>
     )
@@ -316,13 +322,13 @@ function Specs({ car }) {
         {specs.map((spec) => (
           <div
             key={spec.label}
-            className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4"
+            className="flex flex-col rounded-card border border-line bg-surface p-4"
           >
-            <spec.icon className="size-5 text-fg-subtle" aria-hidden="true" />
-            <div className="flex flex-col">
-              <dt className="text-sm text-fg-muted">{spec.label}</dt>
-              <dd className="font-semibold text-fg tabular-nums">{spec.value}</dd>
-            </div>
+            <dt className="flex flex-col gap-3 text-sm text-fg-muted">
+              <spec.icon className="size-5 text-fg-subtle" aria-hidden="true" />
+              {spec.label}
+            </dt>
+            <dd className="font-semibold text-fg tabular-nums">{spec.value}</dd>
           </div>
         ))}
       </dl>

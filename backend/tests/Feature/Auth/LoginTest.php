@@ -90,6 +90,19 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_one_address_cannot_try_many_accounts(): void
+    {
+        for ($attempt = 1; $attempt <= 20; $attempt++) {
+            $this->fromSpa()
+                ->postJson('/api/auth/login', ['email' => "client{$attempt}@example.com", 'password' => 'wrong-password'])
+                ->assertUnprocessable();
+        }
+
+        $this->fromSpa()
+            ->postJson('/api/auth/login', ['email' => 'client21@example.com', 'password' => 'wrong-password'])
+            ->assertTooManyRequests();
+    }
+
     public function test_successful_login_resets_the_failed_attempts(): void
     {
         User::factory()->create(['email' => 'client@example.com']);

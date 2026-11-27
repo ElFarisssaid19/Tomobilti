@@ -40,7 +40,7 @@ class PickupReminder extends ReservationNotification
                 'Agence' => $agency->name,
                 'Adresse' => $agency->address,
                 'Horaires' => $agency->opening_hours,
-                'Téléphone' => $agency->phone,
+                'Téléphone' => FrenchFormatter::phone($agency->phone),
                 'À régler sur place' => FrenchFormatter::money((string) $reservation->total),
             ]),
             actionText: 'Voir ma réservation',

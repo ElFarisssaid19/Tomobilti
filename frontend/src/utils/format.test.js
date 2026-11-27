@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatPrice } from './format.js'
+import { formatDate, formatPhone, formatPrice } from './format.js'
 
 // Intl may use (narrow) no-break spaces: normalise all whitespace for stable assertions.
 const normalize = (value) => value.replace(/\s/g, ' ')
@@ -29,5 +29,17 @@ describe('formatDate', () => {
   it('returns an empty string for empty or invalid dates', () => {
     expect(formatDate(null)).toBe('')
     expect(formatDate('not a date')).toBe('')
+  })
+})
+
+describe('formatPhone', () => {
+  it('groups a Moroccan E.164 number like the PDFs and emails', () => {
+    expect(formatPhone('+212524000101')).toBe('+212 5 24 00 01 01')
+    expect(formatPhone('+212661234567')).toBe('+212 6 61 23 45 67')
+  })
+
+  it('returns other values unchanged', () => {
+    expect(formatPhone('+33612345678')).toBe('+33612345678')
+    expect(formatPhone(null)).toBe('')
   })
 })

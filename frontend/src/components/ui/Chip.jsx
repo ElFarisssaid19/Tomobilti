@@ -37,7 +37,7 @@ export function Chip({
       disabled={disabled}
       onClick={handleClick}
       className={cn(
-        'relative isolate inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-[color,background-color,border-color] duration-150 ease-out motion-safe:active:scale-[0.98]',
+        'relative isolate inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-[color,background-color,border-color] duration-150 ease-out motion-safe:active:scale-[0.98] md:h-10',
         isSelected
           ? 'border-transparent text-on-lime'
           : 'border-line bg-raised text-fg-muted hover:border-line-strong hover:bg-raised-hover hover:text-fg',

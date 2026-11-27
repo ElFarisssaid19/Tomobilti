@@ -28,7 +28,7 @@ import { apiErrorMessage } from '../../lib/auth.js'
 import { cn } from '../../lib/cn.js'
 import { ADMIN_RESERVATION_TAB, RESERVATION_STATUS, toOptions } from '../../lib/labels.js'
 import { countActiveFilters, filtersToApiParams } from '../../lib/urlFilters.js'
-import { formatPrice } from '../../utils/format.js'
+import { formatPhone, formatPrice } from '../../utils/format.js'
 
 const TABS = Object.keys(ADMIN_RESERVATION_TAB)
 
@@ -56,7 +56,7 @@ const COLUMNS = [
         <Link
           to={`/admin/reservations/${row.reference}`}
           onClick={(event) => event.stopPropagation()}
-          className="link-underline font-semibold tabular-nums"
+          className="link-underline touch-target font-semibold tabular-nums"
         >
           {row.reference}
         </Link>
@@ -70,7 +70,9 @@ const COLUMNS = [
     render: (row) => (
       <span className="flex flex-col">
         <span className="font-medium">{row.client?.name}</span>
-        <span className="text-xs text-fg-subtle tabular-nums">{row.client?.phone}</span>
+        <span className="text-xs text-fg-subtle tabular-nums">
+          {formatPhone(row.client?.phone)}
+        </span>
       </span>
     ),
   },

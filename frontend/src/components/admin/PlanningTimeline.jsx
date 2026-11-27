@@ -77,7 +77,7 @@ export default function PlanningTimeline({ from, cars }) {
               >
                 <Link
                   to={`/admin/voitures/${car.id}`}
-                  className="link-underline truncate text-sm font-semibold text-fg"
+                  className="link-underline touch-target truncate text-sm font-semibold text-fg"
                 >
                   {car.name} {car.year}
                 </Link>
@@ -122,7 +122,7 @@ export default function PlanningTimeline({ from, cars }) {
                       onFocus={(event) => show(reservation, event)}
                       onBlur={() => setHovered(null)}
                       className={cn(
-                        'absolute top-3 bottom-3 flex min-w-6 items-center gap-1.5 overflow-hidden border px-2 text-xs font-semibold transition-[filter] duration-150 hover:brightness-125',
+                        'absolute top-2 bottom-2 flex min-w-6 items-center gap-1.5 overflow-hidden border px-2 text-xs font-semibold transition-[filter] duration-150 hover:brightness-125',
                         style.className,
                         position.startsBefore ? 'rounded-l-none border-l-0' : 'rounded-l-sm',
                         position.endsAfter ? 'rounded-r-none border-r-0' : 'rounded-r-sm',

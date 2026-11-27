@@ -76,13 +76,13 @@ export default function NotificationBell({ size = 'sm', className }) {
                 aria-label="Notifications"
                 className="z-(--z-popover) flex w-[min(24rem,calc(100vw-2rem))] origin-top-right flex-col rounded-card border border-line bg-raised shadow-pop focus-visible:outline-none data-[anchor^=top]:origin-bottom-right"
               >
-                <div className="flex shrink-0 items-center justify-between gap-2 border-b border-line py-2.5 pr-2 pl-4">
-                  <h2 className="truncate text-base font-bold text-fg">Notifications</h2>
+                <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-line py-2.5 pr-2 pl-4">
+                  <h2 className="text-base font-bold text-fg">Notifications</h2>
                   <Button
                     variant="ghost"
                     size="sm"
                     disabled={unread === 0}
-                    className="shrink-0"
+                    className="ml-auto shrink-0"
                     onClick={() => markAllRead.mutate()}
                   >
                     Tout marquer comme lu

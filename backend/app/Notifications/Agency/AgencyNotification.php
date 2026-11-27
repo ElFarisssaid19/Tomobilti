@@ -3,6 +3,7 @@
 namespace App\Notifications\Agency;
 
 use App\Notifications\ReservationNotification;
+use App\Services\FrenchFormatter;
 use Illuminate\Notifications\AnonymousNotifiable;
 
 /**
@@ -38,7 +39,7 @@ abstract class AgencyNotification extends ReservationNotification
         return array_filter([
             'Client' => $client->name,
             'E-mail' => $client->email,
-            'Téléphone' => $client->phone,
+            'Téléphone' => FrenchFormatter::phone($client->phone),
         ]);
     }
 }

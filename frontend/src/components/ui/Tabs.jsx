@@ -128,7 +128,7 @@ export default function Tabs({
                     key={tab.label}
                     disabled={tab.disabled}
                     className={cn(
-                      'relative isolate inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap text-fg-muted transition-colors duration-150 data-disabled:cursor-not-allowed data-disabled:text-fg-disabled not-data-selected:data-hover:text-fg data-selected:text-on-lime',
+                      'relative isolate inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap text-fg-muted transition-colors duration-150 data-disabled:cursor-not-allowed data-disabled:text-fg-disabled not-data-selected:data-hover:text-fg data-selected:text-on-lime md:h-9',
                       fullWidth && 'flex-1',
                     )}
                   >

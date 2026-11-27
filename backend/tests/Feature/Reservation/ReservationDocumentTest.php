@@ -107,7 +107,7 @@ class ReservationDocumentTest extends TestCase
 
         $lines = app(ReservationDocuments::class)->lines($reservation->refresh());
 
-        $this->assertSame(['3 jours × 300,00 DH', '3 jours × 50,00 DH', 'Marrakech Guéliz → Agadir Al Massira'], str_replace("\u{00A0}", ' ', array_column($lines, 'detail')));
+        $this->assertSame(['3 jours × 300 DH', '3 jours × 50 DH', 'Marrakech Guéliz → Agadir Al Massira'], str_replace("\u{00A0}", ' ', array_column($lines, 'detail')));
         $this->assertSame(['900.00', '150.00', '300.00'], array_column($lines, 'amount'));
         $this->assertSame('Frais d’abandon', $lines[2]['label']);
     }
@@ -129,9 +129,9 @@ class ReservationDocumentTest extends TestCase
 
         $text = preg_replace('/\s+/u', ' ', str_replace("\u{00A0}", ' ', $process->getOutput()));
         $this->assertStringContainsString("Facture N° {$invoice->number}", $text);
-        $this->assertStringContainsString('Total HT 1 028,75 DH', $text);
+        $this->assertStringContainsString('Total HT 1.028,75 DH', $text);
         $this->assertStringContainsString('TVA 20 % 205,75 DH', $text);
-        $this->assertStringContainsString('1 234,50 DH', $text);
+        $this->assertStringContainsString('1.234,50 DH', $text);
         $this->assertStringContainsString('Arrêtée la présente facture à la somme de mille deux cent trente-quatre dirhams et cinquante centimes TTC.', $text);
         $this->assertStringContainsString('Carte bancaire', $text);
     }

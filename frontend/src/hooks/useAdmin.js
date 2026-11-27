@@ -1,4 +1,5 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import useSingleFlightMutation from './useSingleFlightMutation.js'
 import {
   changeCarStatus,
   deleteCar,
@@ -93,7 +94,7 @@ function useRefreshReservation() {
 export function useReservationAction() {
   const refresh = useRefreshReservation()
   const queryClient = useQueryClient()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ reference, action, body }) => runReservationAction(reference, action, body),
     onSuccess: ({ reservation }) => {
       refresh(reservation)
@@ -104,7 +105,7 @@ export function useReservationAction() {
 
 export function useSaveReservationNotes() {
   const queryClient = useQueryClient()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ reference, notes }) => saveReservationNotes(reference, notes),
     onSuccess: ({ reservation }) =>
       queryClient.setQueryData(keys.reservations.detail(reservation.reference), reservation),
@@ -127,7 +128,7 @@ export function useAdminInvoices(params) {
  */
 export function useInvoiceAction() {
   const queryClient = useQueryClient()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ type, number, paymentMethod }) =>
       type === 'markPaid' ? markInvoicePaid(number, paymentMethod) : sendInvoice(number),
     onSuccess: (_, { type }) => {
@@ -180,7 +181,7 @@ function useRefreshCar() {
 
 export function useSaveCar() {
   const refresh = useRefreshCar()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ id, payload }) => saveCar(id, payload),
     onSuccess: ({ car }) => refresh(car),
   })
@@ -188,12 +189,12 @@ export function useSaveCar() {
 
 export function useDeleteCar() {
   const refresh = useRefreshCar()
-  return useMutation({ mutationFn: deleteCar, onSuccess: () => refresh() })
+  return useSingleFlightMutation({ mutationFn: deleteCar, onSuccess: () => refresh() })
 }
 
 export function useRestoreCar() {
   const refresh = useRefreshCar()
-  return useMutation({ mutationFn: restoreCar, onSuccess: ({ car }) => refresh(car) })
+  return useSingleFlightMutation({ mutationFn: restoreCar, onSuccess: ({ car }) => refresh(car) })
 }
 
 export function useCarStatusConflicts(id, enabled) {
@@ -207,7 +208,7 @@ export function useCarStatusConflicts(id, enabled) {
 
 export function useChangeCarStatus() {
   const refresh = useRefreshCar()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ id, status, force }) => changeCarStatus(id, status, force),
     onSuccess: ({ car }) => refresh(car),
   })
@@ -220,7 +221,7 @@ export function useChangeCarStatus() {
 export function useCarImageAction(carId) {
   const queryClient = useQueryClient()
   const refresh = useRefreshCar()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ type, imageId, patch, ids }) => {
       if (type === 'update') return updateCarImage(carId, imageId, patch)
       if (type === 'reorder') return reorderCarImages(carId, ids)
@@ -253,7 +254,7 @@ export function useAdminClient(id) {
 
 export function useSetClientActive() {
   const queryClient = useQueryClient()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ id, active }) => setClientActive(id, active),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: keys.clients.all }),
   })
@@ -284,7 +285,7 @@ function useRefreshSettings(resource) {
 
 export function useSaveSetting(resource) {
   const refresh = useRefreshSettings(resource)
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ id, payload }) => saveSetting(resource, id, payload),
     onSuccess: refresh,
   })
@@ -292,5 +293,8 @@ export function useSaveSetting(resource) {
 
 export function useDeleteSetting(resource) {
   const refresh = useRefreshSettings(resource)
-  return useMutation({ mutationFn: (id) => deleteSetting(resource, id), onSuccess: refresh })
+  return useSingleFlightMutation({
+    mutationFn: (id) => deleteSetting(resource, id),
+    onSuccess: refresh,
+  })
 }

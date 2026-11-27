@@ -31,7 +31,7 @@ class BrandController extends Controller
         $brand = Brand::create([...$request->validated(), 'slug' => Brand::uniqueSlugFor($request->validated('name'))]);
 
         return (new AdminBrandResource($brand->loadCount('cars')))
-            ->additional(['message' => __('api.admin.settings.saved')])
+            ->additional(['message' => __('api.admin.settings.created.brand')])
             ->response()
             ->setStatusCode(201);
     }
@@ -43,7 +43,7 @@ class BrandController extends Controller
         $brand->update($request->validated());
 
         return (new AdminBrandResource($brand->loadCount(['cars' => fn ($cars) => $cars->withTrashed()])))
-            ->additional(['message' => __('api.admin.settings.saved')]);
+            ->additional(['message' => __('api.admin.settings.updated.brand')]);
     }
 
     public function destroy(Brand $brand): JsonResponse
@@ -58,6 +58,6 @@ class BrandController extends Controller
 
         $brand->delete();
 
-        return response()->json(['message' => __('api.admin.settings.deleted')]);
+        return response()->json(['message' => __('api.admin.settings.deleted.brand')]);
     }
 }

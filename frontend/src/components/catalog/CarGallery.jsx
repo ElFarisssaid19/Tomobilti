@@ -58,9 +58,10 @@ export default function CarGallery({ car }) {
             className="absolute inset-0 size-full object-cover"
           />
         </AnimatePresence>
+        {/* Visible text that the button's name contains ("… photo 1 sur 2 …"). */}
         <span className="pointer-events-none absolute right-3 bottom-3 inline-flex h-9 items-center gap-2 rounded-full border border-white/10 bg-canvas/70 px-3 text-sm font-semibold text-fg backdrop-blur-md transition-colors duration-150 group-hover:bg-raised">
           <Expand className="size-4" aria-hidden="true" />
-          {images.length > 1 ? `${index + 1} / ${images.length}` : 'Agrandir'}
+          {images.length > 1 ? `${index + 1} sur ${images.length}` : 'Agrandir'}
         </span>
       </button>
 

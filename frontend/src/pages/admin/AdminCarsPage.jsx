@@ -115,7 +115,7 @@ export default function AdminCarsPage() {
             <Link
               to={`/admin/voitures/${car.id}`}
               onClick={(event) => event.stopPropagation()}
-              className="link-underline font-semibold"
+              className="link-underline touch-target font-semibold"
             >
               {car.name} {car.year}
             </Link>

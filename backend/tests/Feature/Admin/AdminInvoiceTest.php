@@ -99,7 +99,9 @@ class AdminInvoiceTest extends TestCase
         $bennani = User::factory()->create(['name' => 'Salma Bennani']);
         $paid = Invoice::factory()->paid()->for(Reservation::factory()->for($bennani)->completed()->state(['total' => '1000.00']))->create(['issued_at' => '2026-11-10 10:00']);
         $unpaid = Invoice::factory()->for(Reservation::factory()->for($bennani)->active()->state(['total' => '450.50']))->create(['issued_at' => '2026-11-20 10:00', 'payment_method' => 'cash']);
-        Invoice::factory()->paid()->for(Reservation::factory()->completed()->state(['total' => '700.00']))->create(['issued_at' => '2026-10-05 10:00']);
+        // A named customer: the factory's random Moroccan names can be "… Bennani" too.
+        $other = User::factory()->create(['name' => 'Omar Tazi', 'email' => 'omar.tazi@example.com']);
+        Invoice::factory()->paid()->for(Reservation::factory()->for($other)->completed()->state(['total' => '700.00']))->create(['issued_at' => '2026-10-05 10:00']);
 
         $this->actingAs($this->admin)
             ->getJson('/api/admin/invoices?q=bennani')

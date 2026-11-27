@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import useSingleFlightMutation from './useSingleFlightMutation.js'
 import {
   fetchNotifications,
   markAllNotificationsRead,
@@ -21,7 +22,7 @@ export function useNotifications({ enabled = true } = {}) {
 function useNotificationMutation(mutationFn, update) {
   const queryClient = useQueryClient()
   const key = queryKeys.notifications()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn,
     onMutate: (variables) => {
       queryClient.setQueryData(key, (payload) => (payload ? update(payload, variables) : payload))

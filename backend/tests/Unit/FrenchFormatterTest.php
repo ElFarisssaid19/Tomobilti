@@ -26,8 +26,21 @@ class FrenchFormatterTest extends TestCase
         FrenchFormatter::amountInWords('-10.00');
     }
 
-    public function test_formats_money_with_non_breaking_spaces(): void
+    #[TestWith(['1234.5', '1.234,50'])]
+    #[TestWith(['1840.00', '1.840'])]
+    #[TestWith(['450', '450'])]
+    #[TestWith(['306.67', '306,67'])]
+    #[TestWith(['1250000.10', '1.250.000,10'])]
+    public function test_formats_money_like_the_spa(string $amount, string $formatted): void
     {
-        $this->assertSame("1\u{00A0}234,50\u{00A0}DH", FrenchFormatter::money('1234.5'));
+        $this->assertSame("{$formatted}\u{00A0}DH", FrenchFormatter::money($amount));
+    }
+
+    #[TestWith(['+212524000101', '+212 5 24 00 01 01'])]
+    #[TestWith(['+33612345678', '+33612345678'])]
+    #[TestWith([null, ''])]
+    public function test_groups_moroccan_phone_numbers_like_the_spa(?string $phone, string $formatted): void
+    {
+        $this->assertSame($formatted, FrenchFormatter::phone($phone));
     }
 }

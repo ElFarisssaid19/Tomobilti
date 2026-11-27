@@ -43,7 +43,7 @@ export default function Switch({
         checked={checked}
         defaultChecked={defaultChecked}
         onChange={onChange}
-        className="group relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-line-control bg-raised transition-[background-color,border-color] duration-150 data-checked:border-lime data-checked:bg-lime data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-canvas data-hover:border-fg-subtle"
+        className="group touch-target relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-line-control bg-raised transition-[background-color,border-color] duration-150 data-checked:border-lime data-checked:bg-lime data-disabled:cursor-not-allowed data-disabled:border-line data-disabled:bg-canvas data-hover:border-fg-subtle"
         {...props}
       >
         <span

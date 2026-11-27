@@ -32,7 +32,7 @@ class AdminSettingsTest extends TestCase
         $id = $this->actingAs($this->admin)
             ->postJson('/api/admin/categories', ['name' => 'SUV premium', 'description' => 'Grands SUV.', 'icon' => 'mountain', 'sort_order' => 4])
             ->assertCreated()
-            ->assertJsonPath('message', 'Enregistré.')
+            ->assertJsonPath('message', 'Catégorie ajoutée.')
             ->assertJsonPath('data.slug', 'suv-premium')
             ->json('data.id');
 
@@ -54,7 +54,7 @@ class AdminSettingsTest extends TestCase
             ->assertJsonPath('data.0.name', 'SUV haut de gamme')
             ->assertJsonPath('data.0.cars_count', 0);
 
-        $this->actingAs($this->admin)->deleteJson("/api/admin/categories/{$id}")->assertOk()->assertJsonPath('message', 'Supprimé.');
+        $this->actingAs($this->admin)->deleteJson("/api/admin/categories/{$id}")->assertOk()->assertJsonPath('message', 'Catégorie supprimée.');
         $this->assertDatabaseMissing('categories', ['id' => $id]);
     }
 

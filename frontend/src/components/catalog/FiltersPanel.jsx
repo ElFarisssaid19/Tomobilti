@@ -17,8 +17,14 @@ const SEAT_THRESHOLDS = [4, 5, 7]
  *
  * @param {object} filters current filters (lib/catalogParams.js)
  * @param {object} options GET /api/catalog/filters payload
+ * @param {boolean} unavailable the options failed to load
  */
-export default function FiltersPanel({ filters, options, onChange, onReset }) {
+export default function FiltersPanel({ filters, options, unavailable = false, onChange, onReset }) {
+  // The failure itself is announced once, above the results (CatalogPage).
+  if (unavailable) {
+    return <p className="text-sm text-fg-muted">Filtres indisponibles pour le moment.</p>
+  }
+
   if (!options) {
     return (
       <LoadingRegion label="Chargement des filtres…" className="flex flex-col gap-6">
@@ -26,8 +32,8 @@ export default function FiltersPanel({ filters, options, onChange, onReset }) {
           <div key={item} className="flex flex-col gap-3">
             <Skeleton className="h-4 w-24" />
             <div className="flex gap-2">
-              <Skeleton className="h-10 w-20 rounded-full" />
-              <Skeleton className="h-10 w-24 rounded-full" />
+              <Skeleton className="h-11 w-20 rounded-full md:h-10" />
+              <Skeleton className="h-11 w-24 rounded-full md:h-10" />
             </div>
           </div>
         ))}

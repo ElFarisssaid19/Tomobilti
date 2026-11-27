@@ -95,12 +95,12 @@ export default function AdminDashboardPage() {
         >
           <Kpis kpis={data.kpis} period={data.period} />
 
-          <div className="grid items-start gap-6 2xl:grid-cols-[minmax(0,1fr)_24rem]">
+          <div className="grid grid-cols-1 items-start gap-6 2xl:grid-cols-[minmax(0,1fr)_24rem]">
             <Agenda days={data.today} />
             <Alerts alerts={data.alerts} />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card padding="lg" className="flex min-w-0 flex-col gap-4">
               <CardTitle
                 title="Chiffre d’affaires par mois"
@@ -117,7 +117,7 @@ export default function AdminDashboardPage() {
             </Card>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             <Card padding="lg" className="flex flex-col gap-5">
               <CardTitle
                 title="Top 5 des voitures"
@@ -274,7 +274,7 @@ function Agenda({ days }) {
           </Button>
         }
       />
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {days.map((day, index) => {
           const events = [
             ...day.pickups.map((reservation) => ({
@@ -368,7 +368,7 @@ function Alerts({ alerts }) {
   const { pending_soon: pendingSoon, cars_unavailable: cars } = alerts
 
   return (
-    <Card padding="md" className="grid gap-5 md:grid-cols-2 2xl:grid-cols-1">
+    <Card padding="md" className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-1">
       <h2 className="text-lg font-bold text-fg md:col-span-2 2xl:col-span-1">Alertes</h2>
 
       <section className="flex flex-col gap-2" aria-labelledby="alert-pending">
@@ -424,7 +424,7 @@ function Alerts({ alerts }) {
         ) : (
           <ul className="flex flex-col gap-1">
             {cars.map((car) => (
-              <li key={car.id}>
+              <li key={car.id} className="min-w-0">
                 <Link
                   to={`/admin/voitures/${car.id}`}
                   className="-mx-2 flex items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-sm hover:bg-raised/60"
@@ -476,11 +476,11 @@ function DashboardSkeleton() {
           <Skeleton key={item} className="h-40 rounded-card" />
         ))}
       </div>
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1fr)_24rem]">
         <Skeleton className="h-80 rounded-card-lg" />
         <Skeleton className="h-80 rounded-card" />
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Skeleton className="h-80 rounded-card" />
         <Skeleton className="h-80 rounded-card" />
       </div>

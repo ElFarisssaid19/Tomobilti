@@ -37,7 +37,10 @@ export default function ReservationDetailPage() {
   const { reference } = useParams()
   const { data: reservation, isPending, isError, error, refetch } = useReservation(reference)
 
-  usePageMeta(`Réservation ${reference}`, 'Le détail de votre réservation Tomobilti.')
+  usePageMeta(
+    error?.response?.status === 404 ? 'Réservation introuvable' : `Réservation ${reference}`,
+    'Le détail de votre réservation Tomobilti.',
+  )
 
   if (isPending) return <DetailSkeleton />
 
@@ -46,11 +49,17 @@ export default function ReservationDetailPage() {
       <EmptyState
         icon={SearchX}
         title="Réservation introuvable"
+        titleAs="h2"
         text="Cette référence ne correspond à aucune de vos réservations."
         action={<Button to="/espace/reservations">Mes réservations</Button>}
       />
     ) : (
-      <ErrorState title="Impossible de charger la réservation" error={error} onRetry={refetch} />
+      <ErrorState
+        title="Impossible de charger la réservation"
+        titleAs="h2"
+        error={error}
+        onRetry={refetch}
+      />
     )
   }
 

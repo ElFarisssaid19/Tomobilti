@@ -35,7 +35,13 @@ export default function AdminCarFormPage() {
   const restore = useRestoreCar()
   const [statusOpen, setStatusOpen] = useState(false)
   usePageMeta(
-    isNew ? 'Nouvelle voiture' : car.data ? `${car.data.name} ${car.data.year}` : 'Voiture',
+    isNew
+      ? 'Nouvelle voiture'
+      : car.data
+        ? `${car.data.name} ${car.data.year}`
+        : car.error?.response?.status === 404
+          ? 'Voiture introuvable'
+          : 'Voiture',
   )
 
   const loading =
@@ -58,6 +64,7 @@ export default function AdminCarFormPage() {
         <EmptyState
           icon={CarFront}
           title="Voiture introuvable"
+          titleAs="h1"
           action={<Button to="/admin/voitures">Voir la flotte</Button>}
         />
       )
@@ -65,6 +72,7 @@ export default function AdminCarFormPage() {
     return (
       <ErrorState
         title="Impossible de charger la voiture"
+        titleAs="h1"
         error={car.error}
         onRetry={() => car.refetch()}
       />

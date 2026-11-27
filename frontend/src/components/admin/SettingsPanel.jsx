@@ -24,7 +24,7 @@ import ApiIcon from './ApiIcon.jsx'
  * to add or edit, and a delete that the server refuses (409, French reason in a
  * toast) while the item is still in use.
  *
- * `config`: { resource, title, singular, addLabel, emptyText, deleteHint, columns, fields, empty, toForm, toPayload }
+ * `config`: { resource, title, singular, addLabel, loadError, emptyText, deleteHint, columns, fields, empty, toForm, toPayload }
  * `fields`: [{ name, label, type: 'text'|'textarea'|'number'|'select'|'switch'|'icon', options?, hint?, info?, required?, suffix? }]
  * (`info`: a rule or consequence, shown in a tooltip next to the label)
  */
@@ -99,11 +99,7 @@ export default function SettingsPanel({ config }) {
       </div>
 
       {isError ? (
-        <ErrorState
-          title={`Impossible de charger : ${config.title.toLowerCase()}`}
-          error={error}
-          onRetry={refetch}
-        />
+        <ErrorState title={config.loadError} error={error} onRetry={refetch} />
       ) : (
         <Table
           caption={config.title}

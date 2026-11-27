@@ -24,8 +24,5 @@ export function whatsappUrl(text) {
   return text ? `${base}?text=${encodeURIComponent(text)}` : base
 }
 
-/** "+212524000101" -> "+212 5 24 00 01 01" (Moroccan numbers, display only). */
-export function formatPhone(phone) {
-  const match = /^\+212(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(phone ?? '')
-  return match ? `+212 ${match.slice(1).join(' ')}` : (phone ?? '')
-}
+/** Kept here for the existing imports; the formatter lives in utils/format.js. */
+export { formatPhone } from '../utils/format.js'

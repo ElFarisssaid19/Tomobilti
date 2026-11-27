@@ -161,7 +161,7 @@ function DriverSummary({ user }) {
         </h3>
         <Link
           to="/espace/profil"
-          className="link-underline rounded-xs text-sm font-semibold text-accent-text"
+          className="link-underline touch-target rounded-xs text-sm font-semibold text-accent-text"
         >
           Modifier mon profil
         </Link>

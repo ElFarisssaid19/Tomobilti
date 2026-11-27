@@ -13,7 +13,7 @@ const VARIANTS = {
   ghost: 'text-fg-muted hover:bg-raised hover:text-fg',
   danger:
     'bg-danger text-on-lime hover:bg-danger-hover hover:shadow-[0_10px_36px_-12px_rgb(248_113_113/0.55)] motion-safe:hover:-translate-y-px',
-  link: 'link-underline rounded-xs text-accent-text motion-safe:active:scale-100',
+  link: 'link-underline touch-target rounded-xs text-accent-text motion-safe:active:scale-100',
 }
 
 const DISABLED = {
@@ -26,13 +26,13 @@ const DISABLED = {
 }
 
 const SIZES = {
-  sm: 'h-9 px-4 text-sm',
+  sm: 'touch-target h-9 px-4 text-sm',
   md: 'h-11 px-5 text-sm',
   lg: 'h-13 px-7 text-base',
 }
 
 const ICON_ONLY_SIZES = {
-  sm: 'size-9',
+  sm: 'touch-target size-9',
   md: 'size-11',
   lg: 'size-13',
 }

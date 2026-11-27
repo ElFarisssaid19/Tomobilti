@@ -13,6 +13,7 @@ use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -41,17 +42,32 @@ class CarStatusController extends Controller
         Gate::authorize('changeStatus', $car);
 
         $status = $request->enum('status', CarStatus::class);
-        $affected = $status === CarStatus::Available ? new Collection : $this->affectedReservations($car);
 
-        if ($affected->isNotEmpty() && ! $request->boolean('force')) {
-            return response()->json([
-                'message' => trans_choice('api.admin.cars.status_conflicts', $affected->count()),
-                'code' => 'status_conflicts',
-                'reservations' => AdminReservationResource::collection($affected),
-            ], 409);
+        // The car row is locked like ReservationBooker does: a booking made at the same
+        // moment is either listed in the conflicts or sees the new status.
+        $outcome = DB::transaction(function () use ($car, $status, $request): Collection|JsonResponse {
+            Car::query()->withTrashed()->whereKey($car->getKey())->lockForUpdate()->first();
+
+            $affected = $status === CarStatus::Available ? new Collection : $this->affectedReservations($car);
+
+            if ($affected->isNotEmpty() && ! $request->boolean('force')) {
+                return response()->json([
+                    'message' => trans_choice('api.admin.cars.status_conflicts', $affected->count()),
+                    'code' => 'status_conflicts',
+                    'reservations' => AdminReservationResource::collection($affected),
+                ], 409);
+            }
+
+            $car->update(['status' => $status]);
+
+            return $affected;
+        });
+
+        if ($outcome instanceof JsonResponse) {
+            return $outcome;
         }
 
-        $car->update(['status' => $status]);
+        $affected = $outcome;
 
         return (new AdminCarResource($car->load([...AdminCarResource::RELATIONS, 'images'])->loadCount('upcomingReservations')))
             ->additional([

@@ -342,7 +342,7 @@ function WhyTomobilti() {
           Par téléphone au{' '}
           <a
             href={`tel:${AGENCY.phone}`}
-            className="link-underline rounded-xs font-semibold text-fg tabular-nums"
+            className="link-underline touch-target rounded-xs font-semibold text-fg tabular-nums"
           >
             {AGENCY.phoneDisplay}
           </a>{' '}
@@ -351,7 +351,7 @@ function WhyTomobilti() {
             href={whatsappUrl()}
             target="_blank"
             rel="noreferrer noopener"
-            className="link-underline inline-flex items-center gap-1 rounded-xs font-semibold text-fg"
+            className="link-underline touch-target inline-flex items-center gap-1 rounded-xs font-semibold text-fg"
           >
             <WhatsAppIcon className="size-4" />
             WhatsApp

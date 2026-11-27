@@ -25,7 +25,7 @@ export default function SectionHeading({
       {to && (
         <Link
           to={to}
-          className="link-underline shrink-0 rounded-xs text-sm font-semibold text-accent-text"
+          className="link-underline touch-target shrink-0 rounded-xs text-sm font-semibold text-accent-text"
         >
           {linkLabel}
         </Link>

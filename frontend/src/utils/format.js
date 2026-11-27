@@ -22,6 +22,16 @@ export function formatPrice(amount) {
   return Number.isFinite(value) ? `${amountFormatter.format(value)}${NBSP}DH` : ''
 }
 
+/**
+ * Moroccan phone number for display: "+212524000101" -> "+212 5 24 00 01 01" (the API
+ * stores E.164). Other values are returned as they are. Same rule as the PDFs and emails
+ * (FrenchFormatter::phone).
+ */
+export function formatPhone(phone) {
+  const match = /^\+212(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(phone ?? '')
+  return match ? `+212 ${match.slice(1).join(' ')}` : (phone ?? '')
+}
+
 /** Format a plain number in French (thousands separators). */
 export function formatNumber(value, options) {
   const number = Number(value)

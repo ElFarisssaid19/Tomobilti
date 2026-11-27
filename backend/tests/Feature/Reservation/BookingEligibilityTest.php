@@ -91,7 +91,7 @@ class BookingEligibilityTest extends TestCase
         $this->assertSame(
             [[
                 'code' => 'license_too_recent',
-                'message' => 'Il faut au moins 2 ans de permis le jour de la prise en charge. Le vôtre les aura le 15/03/2027.',
+                'message' => 'Il faut au moins 2 ans de permis le jour de la prise en charge. Le vôtre les aura le 15 mars 2027.',
             ]],
             $result->reasons,
         );

@@ -68,7 +68,7 @@ class BookingEligibility
         if ($licenseOldEnoughOn && $licenseOldEnoughOn->greaterThan($pickupAt)) {
             $reasons[] = ['code' => 'license_too_recent', 'message' => __('api.booking.eligibility.license_too_recent', [
                 'years' => $minLicenseYears,
-                'date' => $licenseOldEnoughOn->format('d/m/Y'),
+                'date' => FrenchFormatter::date($licenseOldEnoughOn),
             ])];
         }
 

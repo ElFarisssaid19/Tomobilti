@@ -32,7 +32,7 @@ class LocationController extends Controller
         $location = Location::create([...$request->validated(), 'slug' => Location::uniqueSlugFor($request->validated('name'))]);
 
         return (new AdminLocationResource($location->loadCount('cars')))
-            ->additional(['message' => __('api.admin.settings.saved')])
+            ->additional(['message' => __('api.admin.settings.created.location')])
             ->response()
             ->setStatusCode(201);
     }
@@ -44,7 +44,7 @@ class LocationController extends Controller
         $location->update($request->validated());
 
         return (new AdminLocationResource($location->loadCount('cars')))
-            ->additional(['message' => __('api.admin.settings.saved')]);
+            ->additional(['message' => __('api.admin.settings.updated.location')]);
     }
 
     public function destroy(Location $location): JsonResponse
@@ -61,6 +61,6 @@ class LocationController extends Controller
 
         $location->delete();
 
-        return response()->json(['message' => __('api.admin.settings.deleted')]);
+        return response()->json(['message' => __('api.admin.settings.deleted.location')]);
     }
 }

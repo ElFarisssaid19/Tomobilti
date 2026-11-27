@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import useSingleFlightMutation from './useSingleFlightMutation.js'
 import { toast } from 'sonner'
 import { apiErrorMessage } from '../lib/auth.js'
 import { downloadBlob } from '../lib/download.js'
@@ -13,7 +13,7 @@ import { downloadBlob } from '../lib/download.js'
  * <Button loading={voucher.isPending} onClick={() => voucher.download(reference)}>…</Button>
  */
 export default function useDownload(fetcher, errorTitle = 'Le téléchargement a échoué') {
-  const mutation = useMutation({
+  const mutation = useSingleFlightMutation({
     mutationFn: (args) => fetcher(...args),
     onSuccess: ({ blob, filename }) => downloadBlob(blob, filename),
     onError: async (error) => {

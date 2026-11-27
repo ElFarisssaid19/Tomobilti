@@ -134,7 +134,7 @@ export default function LoginPage() {
           />
           <Link
             to="/mot-de-passe-oublie"
-            className="link-underline self-end rounded-xs text-sm font-semibold text-accent-text"
+            className="link-underline touch-target self-end rounded-xs text-sm font-semibold text-accent-text"
           >
             Mot de passe oublié ?
           </Link>

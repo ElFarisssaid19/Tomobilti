@@ -19,6 +19,8 @@ export default defineConfig({
   // https://vitest.dev/config/
   test: {
     environment: 'jsdom',
+    // Unit and component tests only: e2e/ belongs to Playwright Test (npm run test:e2e).
+    include: ['src/**/*.test.{js,jsx}'],
     setupFiles: ['./src/test/setup.js'],
     css: false,
     restoreMocks: true,

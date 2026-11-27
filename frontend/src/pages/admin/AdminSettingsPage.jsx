@@ -4,7 +4,7 @@ import { Badge, PageHeader, Tabs } from '../../components/ui'
 import usePageMeta from '../../hooks/usePageMeta.js'
 import useUrlFilters from '../../hooks/useUrlFilters.js'
 import { EXTRA_PRICING, label, LOCATION_TYPE, toOptions } from '../../lib/labels.js'
-import { formatNumber, formatPrice } from '../../utils/format.js'
+import { formatNumber, formatPhone, formatPrice } from '../../utils/format.js'
 
 function IconCell({ name }) {
   return (
@@ -33,6 +33,7 @@ const PANELS = [
     config: {
       resource: 'categories',
       title: 'Catégories',
+      loadError: 'Impossible de charger les catégories',
       singular: 'la catégorie',
       addLabel: 'Ajouter une catégorie',
       emptyText: 'Aucune catégorie',
@@ -103,6 +104,7 @@ const PANELS = [
     config: {
       resource: 'brands',
       title: 'Marques',
+      loadError: 'Impossible de charger les marques',
       singular: 'la marque',
       addLabel: 'Ajouter une marque',
       emptyText: 'Aucune marque',
@@ -133,6 +135,7 @@ const PANELS = [
     config: {
       resource: 'locations',
       title: 'Agences',
+      loadError: 'Impossible de charger les agences',
       singular: 'l’agence',
       addLabel: 'Ajouter une agence',
       emptyText: 'Aucune agence',
@@ -154,7 +157,9 @@ const PANELS = [
         {
           key: 'phone',
           header: 'Téléphone',
-          render: (item) => <span className="tabular-nums">{item.phone ?? '—'}</span>,
+          render: (item) => (
+            <span className="tabular-nums">{item.phone ? formatPhone(item.phone) : '—'}</span>
+          ),
         },
         {
           key: 'opening_hours',
@@ -236,6 +241,7 @@ const PANELS = [
     config: {
       resource: 'extras',
       title: 'Options',
+      loadError: 'Impossible de charger les options',
       singular: 'l’option',
       addLabel: 'Ajouter une option',
       emptyText: 'Aucune option',

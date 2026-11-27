@@ -37,3 +37,9 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Playwright (MCP browser checks, e2e test artifacts)
+.playwright-mcp/
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/e2e/.auth/

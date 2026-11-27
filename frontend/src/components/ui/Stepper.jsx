@@ -5,7 +5,8 @@ const RESERVATION_STEPS = ['Dates', 'Options', 'Informations', 'Confirmation']
 
 /**
  * Progress through a sequence (the reservation flow). `current` is the 0-based index.
- * On small screens only the current step keeps its label.
+ * On small screens only the current step shows its label (the others stay readable by
+ * screen readers).
  * @example <Stepper current={1} />
  */
 export default function Stepper({
@@ -52,7 +53,8 @@ export default function Stepper({
               <span
                 className={cn(
                   'text-center text-xs font-semibold sm:text-sm',
-                  active ? 'text-fg' : 'hidden text-fg-muted sm:block',
+                  // Small screens show the current label only; the others stay for screen readers.
+                  active ? 'text-fg' : 'sr-only text-fg-muted sm:not-sr-only',
                 )}
               >
                 {step}

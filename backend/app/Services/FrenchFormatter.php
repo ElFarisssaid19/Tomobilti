@@ -8,23 +8,46 @@ use NumberFormatter;
 
 /**
  * French formatting shared by the PDFs (invoice, voucher) and the emails: amounts in
- * dirhams ("1 234,50 DH"), dates ("vendredi 12 décembre 2026 à 10:00") and the amount
+ * dirhams ("1.234,50 DH", like the SPA), dates ("vendredi 12 décembre 2026 à 10:00") and the amount
  * written out in words, as Moroccan invoices require ("mille deux cent trente-quatre
  * dirhams et cinquante centimes").
  */
 final class FrenchFormatter
 {
     /**
-     * Non-breaking space, so "1 234,50 DH" never wraps in a PDF cell.
+     * Non-breaking space, so "1.234,50 DH" never wraps in a PDF cell.
      */
     private const NBSP = "\u{00A0}";
 
     /**
-     * "1 234,50 DH" from a decimal string such as "1234.50".
+     * "1.234,50 DH" from a decimal string such as "1234.50", and "1.840 DH" for a whole
+     * amount: the same format as `formatPrice` in the SPA (fr-MA: dot for thousands,
+     * comma for decimals, centimes only when there are some), so a price reads the same
+     * on the site, in the emails and in the PDFs.
      */
     public static function money(string|int|float $amount): string
     {
-        return number_format((float) $amount, 2, ',', self::NBSP).self::NBSP.'DH';
+        $centimes = (int) round((float) $amount * 100);
+        $decimals = $centimes % 100 === 0 ? 0 : 2;
+
+        return number_format($centimes / 100, $decimals, ',', '.').self::NBSP.'DH';
+    }
+
+    /**
+     * "+212524000101" → "+212 5 24 00 01 01": a Moroccan number stored in E.164, grouped
+     * like the SPA (`formatPhone`). Other numbers are returned as they are.
+     */
+    public static function phone(?string $phone): string
+    {
+        if ($phone === null) {
+            return '';
+        }
+
+        if (! preg_match('/^\+212(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/', $phone, $parts)) {
+            return $phone;
+        }
+
+        return '+212 '.implode(' ', array_slice($parts, 1));
     }
 
     /**

@@ -1,9 +1,10 @@
-import { CircleAlert, Heart, LayoutGrid, SearchX, SlidersHorizontal } from 'lucide-react'
+import { CircleAlert, Heart, LayoutGrid, RotateCw, SearchX, SlidersHorizontal } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useMemo, useRef, useState } from 'react'
 import FiltersPanel from '../../components/catalog/FiltersPanel.jsx'
 import SearchWidget from '../../components/site/SearchWidget.jsx'
 import {
+  Alert,
   BottomSheet,
   Button,
   CarCard,
@@ -60,7 +61,9 @@ export default function CatalogPage() {
   )
   const { filters, setFilters, resetFilters } = useCatalogFilters()
   const { favorites, isFavorite, toggleFavorite } = useFavorites()
-  const { data: options } = useCatalogOptions()
+  const catalogOptions = useCatalogOptions()
+  const options = catalogOptions.data
+  const optionsError = catalogOptions.isError ? catalogOptions.error : null
   const [sheetOpen, setSheetOpen] = useState(false)
   const resultsRef = useRef(null)
 
@@ -96,6 +99,9 @@ export default function CatalogPage() {
 
       <CategoryChips
         categories={options?.categories}
+        error={optionsError}
+        onRetry={catalogOptions.refetch}
+        retrying={catalogOptions.isFetching}
         selected={filters.category}
         onChange={(category) => setFilters({ category })}
         favoritesOn={filters.favorites}
@@ -110,6 +116,7 @@ export default function CatalogPage() {
             <FiltersPanel
               filters={filters}
               options={options}
+              unavailable={Boolean(optionsError)}
               onChange={setFilters}
               onReset={() => setFilters(PANEL_RESET)}
             />
@@ -217,12 +224,37 @@ export default function CatalogPage() {
 /** Category chips (several can be selected) and the "Mes favoris" chip. */
 function CategoryChips({
   categories,
+  error,
+  onRetry,
+  retrying,
   selected,
   onChange,
   favoritesOn,
   favoritesCount,
   onToggleFavorites,
 }) {
+  if (error) {
+    return (
+      <Alert
+        tone="danger"
+        title="Impossible de charger les filtres"
+        action={
+          <Button
+            size="sm"
+            variant="secondary"
+            leftIcon={RotateCw}
+            loading={retrying}
+            onClick={onRetry}
+          >
+            Réessayer
+          </Button>
+        }
+      >
+        {apiErrorMessage(error)}
+      </Alert>
+    )
+  }
+
   if (!categories) {
     return (
       // Same rows as the real chips: one scrolling row on mobile, two wrapped rows on desktop.
@@ -231,7 +263,7 @@ function CategoryChips({
         className="flex gap-2 overflow-hidden py-1 lg:flex-wrap"
       >
         {Array.from({ length: 11 }, (_, item) => (
-          <Skeleton key={item} className="h-10 w-28 shrink-0 rounded-full" />
+          <Skeleton key={item} className="h-11 w-28 shrink-0 rounded-full md:h-10" />
         ))}
       </LoadingRegion>
     )

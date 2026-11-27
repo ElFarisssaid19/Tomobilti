@@ -19,13 +19,15 @@ import { useAdminClient } from '../../hooks/useAdmin.js'
 import usePageMeta from '../../hooks/usePageMeta.js'
 import { formatShortDate } from '../../lib/adminFormat.js'
 import { RESERVATION_STATUS } from '../../lib/labels.js'
-import { formatNumber, formatPrice } from '../../utils/format.js'
+import { formatNumber, formatPhone, formatPrice } from '../../utils/format.js'
 
 /** /admin/clients/:id: profile, totals, every reservation, activation. */
 export default function AdminClientDetailPage() {
   const { id } = useParams()
   const { data: client, isPending, isError, error, refetch } = useAdminClient(id)
-  usePageMeta(client ? client.name : 'Client')
+  usePageMeta(
+    client ? client.name : error?.response?.status === 404 ? 'Client introuvable' : 'Client',
+  )
 
   if (isPending) {
     return (
@@ -45,17 +47,25 @@ export default function AdminClientDetailPage() {
         <EmptyState
           icon={UserRound}
           title="Client introuvable"
+          titleAs="h1"
           text="Ce compte n’existe pas ou n’est pas un compte client."
           action={<Button to="/admin/clients">Voir les clients</Button>}
         />
       )
     }
-    return <ErrorState title="Impossible de charger le client" error={error} onRetry={refetch} />
+    return (
+      <ErrorState
+        title="Impossible de charger le client"
+        titleAs="h1"
+        error={error}
+        onRetry={refetch}
+      />
+    )
   }
 
   const details = [
     { icon: Mail, value: client.email, href: `mailto:${client.email}` },
-    client.phone && { icon: Phone, value: client.phone, href: `tel:${client.phone}` },
+    client.phone && { icon: Phone, value: formatPhone(client.phone), href: `tel:${client.phone}` },
     (client.address || client.city) && {
       icon: MapPin,
       value: [client.address, client.city].filter(Boolean).join(', '),
@@ -120,7 +130,10 @@ export default function AdminClientDetailPage() {
               return (
                 <li key={item.value}>
                   {item.href ? (
-                    <a href={item.href} className="flex items-start gap-2 hover:text-fg">
+                    <a
+                      href={item.href}
+                      className="touch-target relative flex items-start gap-2 hover:text-fg"
+                    >
                       {content}
                     </a>
                   ) : (

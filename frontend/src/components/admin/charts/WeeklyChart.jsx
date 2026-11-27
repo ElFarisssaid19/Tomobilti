@@ -40,7 +40,11 @@ export default function WeeklyChart({ data }) {
     <figure className="relative flex flex-col gap-3">
       <div className="h-64" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <AreaChart
+            data={data}
+            margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+            accessibilityLayer={false}
+          >
             <CartesianGrid vertical={false} stroke={CHART.grid} strokeWidth={1} />
             <XAxis
               dataKey="week"

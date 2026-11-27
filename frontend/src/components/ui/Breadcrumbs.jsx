@@ -17,7 +17,7 @@ export default function Breadcrumbs({ items = [], className }) {
               {item.to && !last ? (
                 <Link
                   to={item.to}
-                  className="link-underline rounded-xs text-fg-muted hover:text-fg"
+                  className="link-underline touch-target rounded-xs text-fg-muted hover:text-fg"
                 >
                   {item.label}
                 </Link>

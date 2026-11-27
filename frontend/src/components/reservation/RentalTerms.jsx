@@ -20,7 +20,7 @@ export default function RentalTerms({ deposit, freeUntil, freeUntilLabel, classN
       : null)
 
   const items = [
-    { icon: Banknote, text: 'Paiement à l’agence, en espèces ou par carte' },
+    { icon: Banknote, text: 'Paiement à l’agence, en espèces, par carte ou par virement' },
     {
       icon: ShieldCheck,
       text:

@@ -146,7 +146,7 @@ export function InfoTip({ content, label = 'Plus d’informations', side = 'top'
         type="button"
         aria-label={label}
         className={cn(
-          'inline-grid size-6 shrink-0 place-items-center rounded-full text-fg-subtle transition-colors duration-150 hover:bg-raised hover:text-fg',
+          'touch-target relative inline-grid size-6 shrink-0 place-items-center rounded-full text-fg-subtle transition-colors duration-150 hover:bg-raised hover:text-fg',
           className,
         )}
       >

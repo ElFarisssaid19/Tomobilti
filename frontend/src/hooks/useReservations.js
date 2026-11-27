@@ -1,4 +1,5 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import useSingleFlightMutation from './useSingleFlightMutation.js'
 import { queryKeys } from '../api/queryKeys.js'
 import {
   cancelReservation,
@@ -53,7 +54,7 @@ export function useReservation(reference) {
 /** Book a car. A new reservation changes the lists and the car's booked days. */
 export function useCreateReservation() {
   const queryClient = useQueryClient()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: createReservation,
     onSuccess: ({ reservation }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.reservations.all })
@@ -65,7 +66,7 @@ export function useCreateReservation() {
 /** Cancel a reservation, then refresh it, the lists and the car's booked days. */
 export function useCancelReservation() {
   const queryClient = useQueryClient()
-  return useMutation({
+  return useSingleFlightMutation({
     mutationFn: ({ reference, reason }) => cancelReservation(reference, reason),
     onSuccess: ({ reservation }) => {
       queryClient.setQueryData(queryKeys.reservations.detail(reservation.reference), reservation)

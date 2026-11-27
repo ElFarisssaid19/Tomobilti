@@ -30,7 +30,7 @@ import { formatShortDate } from '../../lib/adminFormat.js'
 import { apiErrorMessage } from '../../lib/auth.js'
 import { formatDays } from '../../lib/dates.js'
 import { label, PAYMENT_METHOD } from '../../lib/labels.js'
-import { formatDate, formatPrice } from '../../utils/format.js'
+import { formatDate, formatPhone, formatPrice } from '../../utils/format.js'
 
 const WHEN = {
   weekday: 'short',
@@ -44,8 +44,10 @@ const WHEN = {
 /** /admin/reservations/:reference */
 export default function AdminReservationDetailPage() {
   const { reference } = useParams()
-  usePageMeta(`Réservation ${reference}`)
   const { data: reservation, isPending, isError, error, refetch } = useAdminReservation(reference)
+  usePageMeta(
+    error?.response?.status === 404 ? 'Réservation introuvable' : `Réservation ${reference}`,
+  )
 
   if (isPending) {
     return (
@@ -65,13 +67,19 @@ export default function AdminReservationDetailPage() {
         <EmptyState
           icon={CalendarX}
           title="Réservation introuvable"
+          titleAs="h1"
           text={`Aucune réservation ne porte la référence ${reference}.`}
           action={<Button to="/admin/reservations">Voir les réservations</Button>}
         />
       )
     }
     return (
-      <ErrorState title="Impossible de charger la réservation" error={error} onRetry={refetch} />
+      <ErrorState
+        title="Impossible de charger la réservation"
+        titleAs="h1"
+        error={error}
+        onRetry={refetch}
+      />
     )
   }
 
@@ -155,7 +163,7 @@ export default function AdminReservationDetailPage() {
             </div>
             <Link
               to={`/admin/clients/${client.id}`}
-              className="link-underline self-start text-base font-semibold text-fg"
+              className="link-underline touch-target self-start text-base font-semibold text-fg"
             >
               {client.name}
             </Link>
@@ -165,7 +173,7 @@ export default function AdminReservationDetailPage() {
               </ContactLine>
               {client.phone && (
                 <ContactLine icon={Phone} href={`tel:${client.phone}`}>
-                  {client.phone}
+                  {formatPhone(client.phone)}
                 </ContactLine>
               )}
               {client.cin && <ContactLine icon={IdCard}>CIN {client.cin}</ContactLine>}
@@ -186,7 +194,7 @@ export default function AdminReservationDetailPage() {
               <div className="flex min-w-0 flex-col">
                 <Link
                   to={`/admin/voitures/${car.id}`}
-                  className="link-underline self-start font-semibold text-fg"
+                  className="link-underline touch-target self-start font-semibold text-fg"
                 >
                   {car.name} {car.year}
                 </Link>
@@ -262,7 +270,9 @@ function Handover({ title, at, location }) {
       <p className="text-sm font-semibold text-fg-muted">{title}</p>
       <p className="text-lg font-bold text-fg tabular-nums">{formatDate(at, WHEN)}</p>
       <p className="text-sm text-fg">{location?.name}</p>
-      {location?.phone && <p className="text-sm text-fg-muted tabular-nums">{location.phone}</p>}
+      {location?.phone && (
+        <p className="text-sm text-fg-muted tabular-nums">{formatPhone(location.phone)}</p>
+      )}
     </div>
   )
 }
@@ -277,7 +287,7 @@ function ContactLine({ icon: Icon, href, children }) {
   return (
     <li>
       {href ? (
-        <a href={href} className="flex items-center gap-2 hover:text-fg">
+        <a href={href} className="touch-target relative flex items-center gap-2 hover:text-fg">
           {content}
         </a>
       ) : (

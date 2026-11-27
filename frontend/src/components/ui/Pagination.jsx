@@ -42,7 +42,7 @@ export default function Pagination({ page, lastPage, onPageChange, className }) 
                 aria-current={item === page ? 'page' : undefined}
                 aria-label={`Page ${item}`}
                 className={cn(
-                  'grid size-9 place-items-center rounded-full text-sm font-semibold tabular-nums transition-colors duration-150',
+                  'touch-target relative grid size-9 place-items-center rounded-full text-sm font-semibold tabular-nums transition-colors duration-150',
                   item === page
                     ? 'bg-lime text-on-lime'
                     : 'text-fg-muted hover:bg-raised hover:text-fg',

@@ -30,7 +30,7 @@ function CreditLink({ href, children }) {
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      className="link-underline inline-flex items-center gap-0.5 rounded-xs text-fg-muted hover:text-fg"
+      className="link-underline touch-target inline-flex items-center gap-0.5 rounded-xs text-fg-muted hover:text-fg"
     >
       {children}
       <ExternalLink className="size-3" aria-hidden="true" />

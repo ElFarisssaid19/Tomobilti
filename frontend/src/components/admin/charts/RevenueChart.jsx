@@ -40,6 +40,7 @@ export default function RevenueChart({ data }) {
             data={rows}
             margin={{ top: 8, right: 4, bottom: 0, left: 0 }}
             barCategoryGap="25%"
+            accessibilityLayer={false}
           >
             <CartesianGrid vertical={false} stroke={CHART.grid} strokeWidth={1} />
             <XAxis

@@ -79,7 +79,7 @@ export function AgencyCard({ location, showCarsLink = false, className }) {
             <Phone className="mt-0.5 size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
             <a
               href={`tel:${location.phone}`}
-              className="link-underline rounded-xs text-fg tabular-nums"
+              className="link-underline touch-target rounded-xs text-fg tabular-nums"
             >
               {formatPhone(location.phone)}
             </a>
@@ -89,7 +89,7 @@ export function AgencyCard({ location, showCarsLink = false, className }) {
       {showCarsLink && (
         <Link
           to={`/voitures?location=${encodeURIComponent(location.slug)}`}
-          className="link-underline mt-auto self-start rounded-xs text-sm font-semibold text-accent-text"
+          className="link-underline touch-target mt-auto self-start rounded-xs text-sm font-semibold text-accent-text"
         >
           Voir les voitures de cette agence
         </Link>

@@ -106,6 +106,19 @@ prevents iOS zoom.
 - Mobile first. The top navbar appears from `md` (768px); below that, the compact top
   bar and the bottom nav take over. Admin sidebar from `lg`.
 - Pages under the fixed navbar start with `pt-24 md:pt-32`.
+- **Touch targets (phones).** Below 768px every control offers at least 44 × 44 px to the
+  finger. Controls that are smaller on purpose (small and icon buttons, `link` buttons,
+  the switch, `InfoTip`, pagination, standalone text links such as "Voir tout", phone
+  numbers or table titles) use the `touch-target` utility: an invisible `::before`
+  centered on the element, so the look does not change. It needs a positioned element
+  (`relative`, `absolute`; `link-underline` already is) and is clipped by
+  `overflow: hidden`, so chips and tabs, which sit in scrolling rows, are simply `h-11`
+  below `md`. Links inside a sentence stay as they are.
+- **Focus never hides under a bar.** `html` has `scroll-padding-top: 6rem` (navbar, admin
+  topbar) and `scroll-padding-bottom` 7.5rem below `md` (bottom nav), so tabbing or an
+  anchor scrolls the focused element clear of the fixed bars (WCAG 2.4.11).
+- **Grids** without a column template get `grid-cols-1`: an implicit `auto` track grows
+  to its widest child's min-content and pushes the page sideways on small phones.
 
 ### Radius
 
@@ -256,7 +269,8 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 - **Spacing**: the hero runs behind the navbar; every other page starts with
   `pt-24 md:pt-32` so the navbar never covers content. The admin keeps its sidebar.
 - **Auth-aware actions**: visitors see Connexion / Inscription; signed-in users see the
-  notification bell and the avatar menu (`UserMenu`: Mon espace, Administration for admins, Déconnexion) in the same
+  notification bell and the avatar menu (`UserMenu`: Mon espace, Administration for admins, Déconnexion; the admin
+  topbar uses `UserMenu variant="admin"`; the button is always named "Menu du compte de …") in the same
   right-hand position. While the session loads, a skeleton pill of the same size holds the
   place. The mobile top bar shows the compact avatar, and the bottom nav's "Profil" item
   leads to `/connexion` for visitors (`guestTo` in `config/navigation.js`).
@@ -414,6 +428,9 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   and "Non lue" for screen readers), the body, the reference, the relative time in French
   (`formatRelativeTime`: "il y a 5 min", "hier", then the date). A click marks it read,
   closes the panel and opens `url`. Empty: a bell and "Aucune notification".
+- **Amounts and phones read the same everywhere**: the SPA (`formatPrice`, `formatPhone`
+  in `utils/format.js`) and the emails and PDFs (`App\Services\FrenchFormatter::money`,
+  `::phone`) both write "1.840 DH", "1.234,50 DH" and "+212 5 24 00 01 01".
 - **Emails** share one template (backend `mail/reservation.blade.php`): a title, one line,
   a panel of key details, an optional reason or checklist, one lime button. **PDFs**
   (voucher, invoice) are light A4 pages in Plus Jakarta Sans; lime only as a fill (the band
@@ -706,6 +723,11 @@ for feedback after an action, an Alert for a state the user must read on the pag
 toast.success('Réservation envoyée')
 ```
 
+`EmptyState` and `ErrorState` take `titleAs` (`h3` by default). When the state replaces a
+whole page (a reservation, a car or a client that does not exist), pass the page's
+heading level (`h1`, or `h2` under "Mon espace") and give the page a specific title
+("Réservation introuvable | Tomobilti").
+
 ## 6b. Texte et ton
 
 Short copy, so pages read clean. Every phase follows these rules:
@@ -764,9 +786,14 @@ From Phase 3, every API read goes through **TanStack Query** (`@tanstack/react-q
   `EmptyState` with one action. Pass `{ signal }` from the query function to axios so
   abandoned requests are cancelled.
 - **Mutations** (forms) keep `useForm` + the `api/*.js` function (422 errors under the
-  fields, toast on success). Mutations that change cached data use `useMutation`
-  (`useCreateReservation`, `useCancelReservation` in `hooks/useReservations.js`), then
-  invalidate the matching keys (`reservations`, the car's `availability`).
+  fields, toast on success). Mutations that change cached data use
+  **`useSingleFlightMutation`** (`hooks/useSingleFlightMutation.js`, a `useMutation` that
+  ignores a second call with the same input while the first is in flight), never
+  `useMutation` directly: TanStack Query reports `isPending` a tick late, so a double click
+  on "Confirmer la réservation" used to book the car and then show the 409 of the second
+  request. Examples: `useCreateReservation`, `useCancelReservation` in
+  `hooks/useReservations.js`; they invalidate the matching keys (`reservations`, the
+  car's `availability`).
 - **Reservations** (`api/reservations.js`, `hooks/useReservations.js`): `useBookingRules`
   (10 min), `useReservationQuote(payload)` (stale time 0, previous quote kept),
   `useReservations({ tab, page })`, `useReservation(reference)`. Keys:
