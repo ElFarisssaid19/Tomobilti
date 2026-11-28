@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\ClientActivationController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController as AdminInvoiceController;
-use App\Http\Controllers\Admin\PingController;
 use App\Http\Controllers\Admin\PlanningController;
 use App\Http\Controllers\Admin\ReservationActionController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
@@ -17,6 +16,7 @@ use App\Http\Controllers\Admin\Settings\ExtraController as AdminExtraController;
 use App\Http\Controllers\Admin\Settings\LocationController as AdminLocationController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\CurrentSessionController;
 use App\Http\Controllers\Auth\CurrentUserController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -31,6 +31,7 @@ use App\Http\Controllers\Catalog\ExtraController;
 use App\Http\Controllers\Catalog\FeaturedCarController;
 use App\Http\Controllers\Catalog\LocationController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Profile\PasswordController;
 use App\Http\Controllers\Profile\ProfileController;
@@ -64,6 +65,9 @@ Route::middleware('throttle:catalog')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
     Route::get('/extras', [ExtraController::class, 'index'])->name('extras.index');
+
+    // Values of the conditions générales and the privacy page (config/tomobilti.php).
+    Route::get('/legal', LegalController::class)->name('legal');
 });
 
 // 3 messages per 10 minutes per IP address ("contact" limiter).
@@ -101,6 +105,12 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('password.store');
+
+    // Start-up of the SPA: the user, or null for a visitor (never a 401). A named limiter:
+    // unnamed ones ("6,1") share one counter per IP, which page loads would use up.
+    Route::get('/session', CurrentSessionController::class)
+        ->middleware('throttle:session')
+        ->name('session');
 
     // Signed link from the verification email (works with or without a session).
     Route::post('/email/verify/{id}/{hash}', VerifyEmailController::class)
@@ -172,7 +182,6 @@ Route::prefix('reservations')->name('reservations.')->middleware('auth:sanctum')
 */
 
 Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::get('/ping', PingController::class)->name('ping');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/planning', PlanningController::class)->name('planning');
 

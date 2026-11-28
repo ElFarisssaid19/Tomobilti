@@ -269,7 +269,7 @@ function Agenda({ days }) {
       <CardTitle
         title="Départs et retours"
         action={
-          <Button to="/admin/reservations?tab=today" variant="ghost" size="sm">
+          <Button to="/admin/reservations?onglet=today" variant="ghost" size="sm">
             Voir la journée
           </Button>
         }
@@ -452,7 +452,7 @@ function Recent({ reservations }) {
       <CardTitle
         title="Dernières réservations"
         action={
-          <Button to="/admin/reservations?tab=all" variant="ghost" size="sm">
+          <Button to="/admin/reservations?onglet=all" variant="ghost" size="sm">
             Voir toutes
           </Button>
         }

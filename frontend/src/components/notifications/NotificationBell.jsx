@@ -10,22 +10,17 @@ import {
 import { buttonClasses } from '../ui/buttonStyles.js'
 import { cn } from '../../lib/cn.js'
 import { scaleIn } from '../../lib/motion.js'
-import { notificationType, unreadLabel } from '../../lib/notifications.js'
-import { formatNumber, formatRelativeTime } from '../../utils/format.js'
+import { useAuth } from '../../context/authContext.js'
+import { unreadLabel } from '../../lib/notifications.js'
+import { formatNumber } from '../../utils/format.js'
 import { Button, Skeleton } from '../ui'
-
-const TONES = {
-  success: 'bg-success/12 text-success',
-  danger: 'bg-danger/12 text-danger',
-  warning: 'bg-warning/12 text-warning',
-  info: 'bg-info/12 text-info',
-  neutral: 'bg-raised-hover text-fg-muted',
-}
+import NotificationItem from './NotificationItem.jsx'
 
 /**
  * The bell of the signed-in user (public navbar, mobile top bar, admin topbar): the
  * unread count, refreshed every 60 seconds, and a panel with the latest
- * notifications. A click opens the related reservation and marks it read.
+ * notifications. A click opens the related reservation and marks it read; "Voir tout"
+ * opens the full list (/espace/notifications, /admin/notifications for admins).
  *
  * The panel is anchored to the bell, kept 16px inside the viewport and capped at the
  * space left (Headless UI anchoring): its header stays visible, only the list scrolls.
@@ -35,6 +30,7 @@ export default function NotificationBell({ size = 'sm', className }) {
   const markRead = useMarkNotificationRead()
   const markAllRead = useMarkAllNotificationsRead()
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const unread = data?.meta?.unread_count ?? 0
   const notifications = data?.data ?? []
 
@@ -135,54 +131,23 @@ export default function NotificationBell({ size = 'sm', className }) {
                     </ul>
                   )}
                 </div>
+
+                <div className="shrink-0 border-t border-line p-1.5">
+                  <Button
+                    to={isAdmin ? '/admin/notifications' : '/espace/notifications'}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => close()}
+                  >
+                    Voir tout
+                  </Button>
+                </div>
               </PopoverPanel>
             )}
           </AnimatePresence>
         </>
       )}
     </Popover>
-  )
-}
-
-function NotificationItem({ notification, onOpen }) {
-  const { icon: Icon, tone } = notificationType(notification.type)
-  const unread = !notification.read_at
-
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex w-full items-start gap-3 rounded-sm px-2.5 py-2.5 text-left transition-colors duration-150 hover:bg-raised-hover"
-    >
-      <span
-        className={cn('mt-0.5 grid size-9 shrink-0 place-items-center rounded-full', TONES[tone])}
-      >
-        <Icon className="size-4" aria-hidden="true" />
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="flex items-baseline justify-between gap-2">
-          <span
-            className={cn('text-sm', unread ? 'font-bold text-fg' : 'font-semibold text-fg-muted')}
-          >
-            {notification.title}
-          </span>
-          <time
-            dateTime={notification.created_at}
-            className="shrink-0 text-xs text-fg-subtle tabular-nums"
-          >
-            {formatRelativeTime(notification.created_at)}
-          </time>
-        </span>
-        <span className="text-sm text-fg-muted">{notification.body}</span>
-        {notification.reference && (
-          <span className="text-xs text-fg-subtle tabular-nums">{notification.reference}</span>
-        )}
-      </span>
-      {unread && (
-        <span className="mt-2 size-2 shrink-0 rounded-full bg-info">
-          <span className="sr-only">Non lue</span>
-        </span>
-      )}
-    </button>
   )
 }

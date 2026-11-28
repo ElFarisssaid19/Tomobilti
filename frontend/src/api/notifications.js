@@ -5,9 +5,12 @@ import api from './client.js'
  * notifications, customers and admins alike.
  */
 
-/** GET /api/notifications -> { data: [{ id, type, title, body, reference, url, read_at, created_at }], meta: { unread_count, … } } */
-export async function fetchNotifications({ signal } = {}) {
-  const { data } = await api.get('/api/notifications', { signal })
+/**
+ * GET /api/notifications?status=all|unread|read&page= -> { data: [{ id, type, title, body,
+ * reference, url, read_at, created_at }], meta: { unread_count, current_page, last_page, total } }
+ */
+export async function fetchNotifications({ params, signal } = {}) {
+  const { data } = await api.get('/api/notifications', { params, signal })
   return data
 }
 

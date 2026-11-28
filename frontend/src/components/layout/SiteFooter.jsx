@@ -24,6 +24,12 @@ const COLUMNS = [
   },
 ]
 
+const LEGAL_LINKS = [
+  { label: 'Conditions générales', to: '/conditions-generales' },
+  { label: 'Confidentialité', to: '/confidentialite' },
+  { label: 'Crédits photos', to: '/credits' },
+]
+
 // Brand logos from Simple Icons (CC0): the documented exception to lucide-only icons.
 const SOCIAL = [
   { label: 'WhatsApp (nouvel onglet)', icon: WhatsAppIcon, href: whatsappUrl(), external: true },
@@ -103,12 +109,15 @@ export default function SiteFooter() {
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-2 py-6 text-sm text-fg-subtle sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Tomobilti. Prix en dirhams (DH), TTC.</p>
-          <Link
-            to="/credits"
-            className="link-underline touch-target self-start rounded-xs hover:text-fg sm:self-auto"
-          >
-            Crédits photos
-          </Link>
+          <ul className="flex flex-wrap gap-x-5 gap-y-3" aria-label="Informations légales">
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className="link-underline touch-target rounded-xs hover:text-fg">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

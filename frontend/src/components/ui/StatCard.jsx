@@ -10,13 +10,13 @@ import {
 import { useEffect, useRef } from 'react'
 import { cn } from '../../lib/cn.js'
 import { duration, ease } from '../../lib/motion.js'
-import { formatNumber, formatPrice } from '../../utils/format.js'
+import { formatInvoiceAmount, formatNumber, formatPrice } from '../../utils/format.js'
 
 const FORMATTERS = {
   number: (value) => formatNumber(Math.round(value)),
   price: (value) => formatPrice(Math.round(value)),
-  /* To the centime, for totals that must match the invoices ("1 234,50 DH"). */
-  amount: (value) => formatPrice(Math.round(value * 100) / 100),
+  /* Invoice totals, always to the centime like the invoices ("1.234,00 DH"). */
+  amount: (value) => formatInvoiceAmount(Math.round(value * 100) / 100),
   percent: (value) => `${formatNumber(value, { maximumFractionDigits: 1 })} %`,
 }
 

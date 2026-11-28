@@ -9,7 +9,7 @@ import { applyFilterPatch, filtersToSearch, parseFilters } from '../lib/urlFilte
  *
  * @example
  * const { filters, setFilters, resetFilters } = useUrlFilters(RESERVATION_FILTERS)
- * setFilters({ tab: 'all' })
+ * setFilters({ onglet: 'all' })
  */
 export default function useUrlFilters(schema) {
   const { search } = useLocation()

@@ -136,7 +136,9 @@ On dark surfaces, hierarchy comes from **borders and lighter surfaces**, not hea
   the auth page backgrounds and empty states, and **never behind body text**.
   `--glow-stage` is the highlight behind cars.
 - `glass` utility: translucent, blurred bars (bottom nav, scrolled navbar, admin topbar).
-  It falls back to solid with `prefers-reduced-transparency`.
+  It falls back to solid with `prefers-reduced-transparency`. Write only the unprefixed
+  `backdrop-filter`: with a hand-written `-webkit-` copy the minifier kept only the
+  prefixed one, and Chrome showed unblurred bars in the production build.
 
 ### Z-index
 
@@ -271,7 +273,8 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
 - **Auth-aware actions**: visitors see Connexion / Inscription; signed-in users see the
   notification bell and the avatar menu (`UserMenu`: Mon espace, Administration for admins, Déconnexion; the admin
   topbar uses `UserMenu variant="admin"`; the button is always named "Menu du compte de …") in the same
-  right-hand position. While the session loads, a skeleton pill of the same size holds the
+  right-hand position. While the session loads (`GET /api/auth/session`, which answers
+  `null` for a visitor, never a 401), a skeleton pill of the same size holds the
   place. The mobile top bar shows the compact avatar, and the bottom nav's "Profil" item
   leads to `/connexion` for visitors (`guestTo` in `config/navigation.js`).
 
@@ -326,7 +329,7 @@ Variants: `fadeIn`, `fadeUp`, `scaleIn`, `staggerContainer` + `staggerItem`,
   motion), the reference in `text-accent-text`, "La suite" as a real numbered sequence, and
   "Voir ma réservation".
 - **`/espace/reservations`**: `Tabs` À venir, En cours, Passées, Annulées (labels in
-  `RESERVATION_TAB`, tab and page in the URL), `CarListItem` rows (dates as `subtitle`,
+  `RESERVATION_TAB`, `?onglet=` and page in the URL), `CarListItem` rows (dates as `subtitle`,
   reference as `meta`, `StatusBadge` and total as `trailing`), `CarListItemSkeleton` and one
   `EmptyState` per tab with "Voir les voitures".
 - **`/espace/reservations/:reference`**: `ReservationTimeline` (request sent → confirmed →
@@ -354,7 +357,10 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   the first row and the three counts on the second (`lg`), one row of five from `2xl`.
 - **Lists** (reservations, cars, clients): the URL holds filters, sort, page and tab
   (`useUrlFilters` + a schema in `lib/admin*.js`, parsed by `lib/urlFilters.js`; invalid
-  values fall back to defaults; any change goes back to page 1). Search fields write to
+  values fall back to defaults; any change goes back to page 1). **Tabs are always
+  `?onglet=`** (Mon espace and the admin); a schema rule's `apiKey` names the API
+  parameter when it differs (`onglet` → `tab`). Old `?tab=` links are redirected to
+  `?onglet=` by `RootLayout` (history entry replaced, other parameters kept). Search fields write to
   the URL 350 ms after the last key, replacing the history entry (`SearchField`). Filters
   wrap in a row from `md` and open in a bottom sheet below (`FilterPanel`). `Table` is a
   table from `lg` (row click opens the item, the first cell is a real link) and turns
@@ -394,7 +400,9 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   reorder by drag and drop or by the arrow buttons (keyboard), "Principale" lime badge,
   alt text saved on blur, delete behind a ConfirmDialog, credit under each photo.
 - **Invoices** (Phase 6, `/admin/factures`, `AdminInvoicesPage`): two `StatCard`s
-  (Encaissé, À encaisser, `format="amount"` so they match the invoices to the centime),
+  (Encaissé, À encaisser, `format="amount"`), and every amount of the page with
+  `formatInvoiceAmount`: always two decimals ("1.840,00 DH"), like the invoice PDF
+  (`FrenchFormatter::invoiceMoney`). The rest of the site keeps `formatPrice`,
   filters in the URL (`INVOICE_FILTERS` in `lib/adminInvoices.js`: statut, mode de paiement,
   émise du / au, recherche, tri), `Table` (cards below `lg`), `InvoiceStatusBadge` (paid:
   success + check, unpaid: warning + clock) and a row menu (`InvoiceActions variant="menu"`:
@@ -427,10 +435,23 @@ Pages in `pages/admin`, admin-only pieces in `components/admin`, data in
   icon and tone in `lib/notifications.js`), the title (bold while unread, with an info dot
   and "Non lue" for screen readers), the body, the reference, the relative time in French
   (`formatRelativeTime`: "il y a 5 min", "hier", then the date). A click marks it read,
-  closes the panel and opens `url`. Empty: a bell and "Aucune notification".
+  closes the panel and opens `url`. Empty: a bell and "Aucune notification". A footer
+  "Voir tout" (ghost button) opens `/espace/notifications`, or `/admin/notifications`
+  for admins.
+- **Notifications page** (`pages/NotificationsPage.jsx`, `admin` prop for the back
+  office): "Notifications" title with "Tout marquer comme lu" (secondary, disabled with
+  nothing unread), `Tabs` Toutes / Non lues (unread count) / Lues in `?onglet=`
+  (`all|unread|read`, the API's `status`), 15 rows per page in a Card with `Pagination`,
+  previous page dimmed while the next loads, one `EmptyState` per tab. Rows are the
+  bell's `NotificationItem` (`components/notifications`). Mon espace has a
+  "Notifications" tab; the admin topbar names the page through `ADMIN_EXTRA_PAGES`
+  (`config/navigation.js`). Marking read updates every cached list (bell and page) at
+  once, then refreshes them.
 - **Amounts and phones read the same everywhere**: the SPA (`formatPrice`, `formatPhone`
   in `utils/format.js`) and the emails and PDFs (`App\Services\FrenchFormatter::money`,
-  `::phone`) both write "1.840 DH", "1.234,50 DH" and "+212 5 24 00 01 01".
+  `::phone`) both write "1.840 DH", "1.234,50 DH" and "+212 5 24 00 01 01". **Invoices
+  are the exception**: the invoice PDF and `/admin/factures` always show the centimes
+  ("1.840,00 DH", `FrenchFormatter::invoiceMoney`, `formatInvoiceAmount`).
 - **Emails** share one template (backend `mail/reservation.blade.php`): a title, one line,
   a panel of key details, an optional reason or checklist, one lime button. **PDFs**
   (voucher, invoice) are light A4 pages in Plus Jakarta Sans; lime only as a fill (the band
@@ -578,6 +599,12 @@ After a failed submit, move focus to the first invalid field.
 <DateRangeCalendar value={range} onChange={setRange} />   // inline, e.g. reservation step 1
 ```
 
+`DateRangePicker` loads the calendar (react-day-picker and its locale) the first time
+the popover opens, behind a skeleton of the same size, so the home page does not
+download it. `DateRangeCalendar` is therefore **not** in the barrel: import it from
+`components/ui/DateRangeCalendar.jsx`. Its French labels use the typographic apostrophe
+("Aujourd’hui"; the library writes "Aujourd'hui").
+
 French locale, Monday first, past dates disabled. `unavailable` ranges (inclusive, Date
 or ISO strings) are struck through and can never be inside a range. The summary shows
 "3 jours, du 12 déc. 2026 au 15 déc. 2026" (`rentalDays` in `lib/dates.js`, display
@@ -702,6 +729,22 @@ under it, then every other column as a label and its value (wrapping, never trun
 `card: 'wide'` spans the card, `card: false` hides it, e.g. an icon). `cardLabel` and
 `cardRender` override the label and the content on cards.
 
+### Legal pages: LegalDocument, LegalList, LegalLink
+
+```jsx
+<LegalDocument title="Conditions générales" description="…" articles={(legal) => [{ id, title, content }]} />
+<LegalList items={['…', <>Au moins <strong>21 ans</strong></>]} />
+<LegalLink to="/conditions-generales">conditions générales</LegalLink>   // new tab, "(nouvel onglet)" for screen readers
+```
+
+`components/site/LegalDocument.jsx`, used by `/conditions-generales` and
+`/confidentialite` (`pages/legal`): title, a warning Alert "Modèle de démonstration",
+numbered articles (a contract really is a sequence) with a sticky table of contents from
+`lg`, body text `max-w-2xl`. Every figure comes from `GET /api/legal` (`useLegal`), so
+the pages state the rules the server applies. `LegalLink` goes in the `hint` of a terms
+checkbox (sign-up, booking step 4): a link inside the Headless UI label would also
+toggle the box.
+
 ### Alert
 
 ```jsx
@@ -804,8 +847,10 @@ From Phase 3, every API read goes through **TanStack Query** (`@tanstack/react-q
   page to 1. The query key is built from the parsed URL, so the cache and the URL agree.
 - **Local preferences** that do not belong to the server yet (favorites) use a small
   `useSyncExternalStore` hook over `localStorage` wrapped in try/catch (`useFavorites`).
-- **Page titles.** Every public page calls `usePageMeta(title, description)` (French title
-  "… | Tomobilti" and meta description).
+- **Page titles.** Every public page calls `usePageMeta(title, description)`: French title
+  "… | Tomobilti", meta description, canonical URL (the path without its query string)
+  and the Open Graph / Twitter title, description and URL. `index.html` holds the
+  site-wide preview tags (`og-image.jpg`, 1200 × 630), the favicons and the manifest.
 
 ## 8. Changes from the original brief
 

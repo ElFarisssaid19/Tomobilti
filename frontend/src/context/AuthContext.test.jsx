@@ -76,7 +76,15 @@ describe('AuthProvider', () => {
     expect(client.getCsrfCookie).toHaveBeenCalled()
   })
 
-  it('becomes guest when /api/user answers 401', async () => {
+  it('becomes guest when the session has no user', async () => {
+    authApi.fetchCurrentUser.mockResolvedValue(null)
+    renderProvider()
+
+    expect(await screen.findByText('status:guest')).toBeInTheDocument()
+    expect(screen.getByText('user:none')).toBeInTheDocument()
+  })
+
+  it('becomes guest when the session request answers 401', async () => {
     authApi.fetchCurrentUser.mockRejectedValue(unauthorized())
     renderProvider()
 

@@ -18,7 +18,6 @@ import {
   Checkbox,
   Chip,
   ChipGroup,
-  DateRangeCalendar,
   DateRangePicker,
   FormField,
   IconButton,
@@ -36,6 +35,7 @@ import { FUEL_TYPE, RESERVATION_STATUS, toOptions, TRANSMISSION } from '../../li
 import { formatPrice } from '../../utils/format.js'
 import { UNAVAILABLE_RANGES, VALIDATION_ERROR } from './demoData.js'
 import { Code, DemoGroup, DemoPanel, DemoSection, Specimen } from './parts.jsx'
+import DateRangeCalendar from '../../components/ui/DateRangeCalendar.jsx'
 
 const VARIANTS = ['primary', 'secondary', 'outline', 'ghost', 'danger', 'link']
 

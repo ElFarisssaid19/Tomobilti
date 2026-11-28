@@ -2,6 +2,7 @@ import { subHours } from 'date-fns'
 import DocumentsToBring from '../../components/reservation/DocumentsToBring.jsx'
 import PriceBreakdown from '../../components/reservation/PriceBreakdown.jsx'
 import RentalTerms from '../../components/reservation/RentalTerms.jsx'
+import { LegalLink } from '../../components/site/LegalDocument.jsx'
 import { Checkbox, Skeleton, Textarea } from '../../components/ui'
 import { combineDateTime, draftMoment } from '../../lib/booking.js'
 import { formatDate } from '../../utils/format.js'
@@ -79,7 +80,13 @@ export default function StepReview({
       <Checkbox
         name="terms"
         label="J’accepte les conditions générales de location"
-        hint="Âge minimum 21 ans, 2 ans de permis, caution bloquée à la prise en charge."
+        hint={
+          <>
+            Âge minimum {rules.min_age} ans, {rules.min_license_years} ans de permis, caution
+            bloquée à la prise en charge.{' '}
+            <LegalLink to="/conditions-generales">Lire les conditions</LegalLink>
+          </>
+        }
         checked={termsAccepted}
         onChange={onTermsChange}
         error={errors.terms}

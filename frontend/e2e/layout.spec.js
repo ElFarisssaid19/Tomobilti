@@ -50,7 +50,7 @@ for (const viewport of VIEWPORTS) {
 
     test('admin tables show as cards on phones and as tables on laptops', async ({ page }) => {
       await signIn(page, ADMIN, /\/admin$/)
-      await page.goto('/admin/reservations?tab=all')
+      await page.goto('/admin/reservations?onglet=all')
       const table = page.getByRole('main').getByRole('table')
       if (viewport.width < 1024) {
         await expect(table).toHaveCount(0)

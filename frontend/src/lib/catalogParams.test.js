@@ -3,7 +3,6 @@ import {
   applyFilterChange,
   countPanelFilters,
   EMPTY_FILTERS,
-  hasActiveFilters,
   parseCatalogParams,
   toApiParams,
   toQueryString,
@@ -109,7 +108,5 @@ describe('active filters', () => {
     }
 
     expect(countPanelFilters(filters)).toBe(4)
-    expect(hasActiveFilters({ ...EMPTY_FILTERS, sort: 'newest', page: 2 })).toBe(false)
-    expect(hasActiveFilters({ ...EMPTY_FILTERS, location: 'casablanca-maarif' })).toBe(true)
   })
 })

@@ -8,6 +8,7 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from '../../api/notifications.js'
+import { AuthContext } from '../../context/authContext.js'
 import NotificationBell from './NotificationBell.jsx'
 
 vi.mock('../../api/notifications.js', () => ({
@@ -54,18 +55,22 @@ const PAYLOAD = {
   meta: { unread_count: 2, current_page: 1, last_page: 1 },
 }
 
-function renderBell() {
+function renderBell({ isAdmin = false } = {}) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const router = createMemoryRouter(
     [
       { path: '/', element: <NotificationBell /> },
       { path: '/espace/reservations/:reference', element: <p>Page de la réservation</p> },
+      { path: '/espace/notifications', element: <p>Toutes mes notifications</p> },
+      { path: '/admin/notifications', element: <p>Notifications de l’agence</p> },
     ],
     { initialEntries: ['/'] },
   )
   render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AuthContext.Provider value={{ isAdmin }}>
+        <RouterProvider router={router} />
+      </AuthContext.Provider>
     </QueryClientProvider>,
   )
   return router
@@ -144,5 +149,28 @@ describe('NotificationBell', () => {
     await user.click(await screen.findByRole('button', { name: /^Notifications/ }))
 
     expect(await screen.findByText('Aucune notification')).toBeInTheDocument()
+  })
+
+  it('"Voir tout" opens the notifications page of the area', async () => {
+    const user = userEvent.setup()
+    const router = renderBell()
+
+    await user.click(await screen.findByRole('button', { name: /^Notifications/ }))
+    await user.click(await screen.findByRole('link', { name: 'Voir tout' }))
+
+    expect(await screen.findByText('Toutes mes notifications')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/espace/notifications')
+  })
+
+  it('"Voir tout" leads admins to the admin notifications', async () => {
+    const user = userEvent.setup()
+    renderBell({ isAdmin: true })
+
+    await user.click(await screen.findByRole('button', { name: /^Notifications/ }))
+
+    expect(await screen.findByRole('link', { name: 'Voir tout' })).toHaveAttribute(
+      'href',
+      '/admin/notifications',
+    )
   })
 })

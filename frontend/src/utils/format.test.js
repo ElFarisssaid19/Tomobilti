@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatPhone, formatPrice } from './format.js'
+import { formatDate, formatInvoiceAmount, formatPhone, formatPrice } from './format.js'
 
 // Intl may use (narrow) no-break spaces: normalise all whitespace for stable assertions.
 const normalize = (value) => value.replace(/\s/g, ' ')
@@ -18,6 +18,14 @@ describe('formatPrice', () => {
   it('returns an empty string for invalid values', () => {
     expect(formatPrice('abc')).toBe('')
     expect(formatPrice(undefined)).toBe('')
+  })
+})
+
+describe('formatInvoiceAmount', () => {
+  it('always shows the centimes, like the invoice PDF', () => {
+    expect(normalize(formatInvoiceAmount('1840.00'))).toBe('1.840,00 DH')
+    expect(normalize(formatInvoiceAmount(1533.333))).toBe('1.533,33 DH')
+    expect(formatInvoiceAmount('')).toBe('')
   })
 })
 

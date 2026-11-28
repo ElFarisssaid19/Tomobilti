@@ -38,6 +38,11 @@ trait ProcessesPhotos
     protected const WEBP_QUALITY = 80;
 
     /**
+     * Lowest quality used to fit a variant's `max_bytes` budget (see cropResizeEncode).
+     */
+    protected const WEBP_MIN_QUALITY = 50;
+
+    /**
      * Licenses that allow reuse in a public project. NC and ND licenses are refused.
      */
     protected const ALLOWED_LICENSE_PATTERN = '/^(CC0|Public domain|PD\b|CC BY(-SA)? \d|Pexels License|Unsplash License)/i';
@@ -211,7 +216,11 @@ trait ProcessesPhotos
     }
 
     /**
-     * @param  array{suffix: string, width: int, ratio: float, focus?: array{0: float, 1: float}, zoom?: float, blur?: list<array{0: float, 1: float, 2: float, 3: float}>}  $variant
+     * Crop, resize and encode one variant. With `max_bytes`, the quality goes down by
+     * steps of 2 (not below WEBP_MIN_QUALITY) until the file fits the budget, so large
+     * photos stay light without a visible loss.
+     *
+     * @param  array{suffix: string, width: int, ratio: float, focus?: array{0: float, 1: float}, zoom?: float, blur?: list<array{0: float, 1: float, 2: float, 3: float}>, max_bytes?: int}  $variant
      * @param  list<array{0: float, 1: float, 2: float, 3: float}>  $blurRegions
      */
     private function cropResizeEncode(GdImage $source, array $variant, array $blurRegions): string
@@ -242,10 +251,16 @@ trait ProcessesPhotos
             $this->pixelate($target, $region);
         }
 
-        ob_start();
-        imagewebp($target, null, self::WEBP_QUALITY);
+        $quality = self::WEBP_QUALITY;
 
-        return (string) ob_get_clean();
+        do {
+            ob_start();
+            imagewebp($target, null, $quality);
+            $bytes = (string) ob_get_clean();
+            $quality -= 2;
+        } while (isset($variant['max_bytes']) && strlen($bytes) > $variant['max_bytes'] && $quality >= self::WEBP_MIN_QUALITY);
+
+        return $bytes;
     }
 
     /**

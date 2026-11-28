@@ -198,14 +198,6 @@ export function stepErrors(step, draft, { rules, quote, now, termsAccepted } = {
   return {}
 }
 
-/** First step whose checks fail (used to restore a saved draft safely). */
-export function firstBlockedStep(draft, context, upTo = draft.step) {
-  for (let step = 0; step < upTo; step += 1) {
-    if (Object.keys(stepErrors(step, draft, context)).length > 0) return step
-  }
-  return upTo
-}
-
 const SHORT_DAY = { weekday: 'short', day: 'numeric', month: 'short' }
 const DAY_WITH_YEAR = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
 

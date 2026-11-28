@@ -4,7 +4,7 @@ import { getCsrfCookie, onUnauthorized } from '../api/client.js'
 import { AuthContext } from './authContext.js'
 
 /**
- * Loads the signed-in user once on start (CSRF cookie, then GET /api/user) and
+ * Loads the signed-in user once on start (CSRF cookie, then GET /api/auth/session) and
  * shares it with the whole app through `useAuth()`.
  *
  * status: 'loading' until the first answer, then 'authenticated' or 'guest'.

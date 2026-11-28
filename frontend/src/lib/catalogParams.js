@@ -165,13 +165,3 @@ export function countPanelFilters(filters) {
     (filters.air_conditioning ? 1 : 0)
   )
 }
-
-/** True when anything narrows the results (the sort and the page do not). */
-export function hasActiveFilters(filters) {
-  return Object.keys(EMPTY_FILTERS).some(
-    (key) =>
-      key !== 'sort' &&
-      key !== 'page' &&
-      JSON.stringify(filters[key]) !== JSON.stringify(EMPTY_FILTERS[key]),
-  )
-}

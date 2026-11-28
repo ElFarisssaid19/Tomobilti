@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\NotificationIndexRequest;
 use App\Http\Resources\NotificationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,14 +15,20 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class NotificationController extends Controller
 {
     /**
-     * GET /api/notifications: newest first, 15 per page, with meta.unread_count.
+     * GET /api/notifications?status=all|unread|read&page=: newest first, 15 per page,
+     * with meta.unread_count (always every unread notification, whatever the filter).
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(NotificationIndexRequest $request): AnonymousResourceCollection
     {
         $user = $request->user();
+        $notifications = match ($request->validated('status')) {
+            'unread' => $user->unreadNotifications(),
+            'read' => $user->readNotifications(),
+            default => $user->notifications(),
+        };
 
         return NotificationResource::collection(
-            $user->notifications()->paginate(config('tomobilti.notifications.per_page'))
+            $notifications->paginate(config('tomobilti.notifications.per_page'))->withQueryString()
         )->additional(['meta' => ['unread_count' => $user->unreadNotifications()->count()]]);
     }
 

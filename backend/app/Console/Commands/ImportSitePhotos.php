@@ -41,6 +41,11 @@ class ImportSitePhotos extends Command
     ];
 
     /**
+     * Budget of each generated file (about 150 KB): the quality goes down until it fits.
+     */
+    private const MAX_BYTES = 150 * 1024;
+
+    /**
      * Execute the console command.
      */
     public function handle(): int
@@ -86,6 +91,7 @@ class ImportSitePhotos extends Command
             'focus' => $variant['focus'] ?? [0.5, 0.5],
             'zoom' => $variant['zoom'] ?? 1.0,
             ...(isset($variant['blur']) ? ['blur' => $variant['blur']] : []),
+            'max_bytes' => self::MAX_BYTES,
         ], $photo['variants'] ?? self::DEFAULT_VARIANTS);
         $plateBlurred = isset($photo['blur']) || array_filter($variants, fn (array $variant): bool => isset($variant['blur'])) !== [];
 

@@ -41,6 +41,45 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Rental terms and personal data (Phase 7B)
+    |--------------------------------------------------------------------------
+    |
+    | Printed on /conditions-generales and /confidentialite (GET /api/legal), with
+    | the booking rules below, so the pages always state the rules the server
+    | applies. DEMO VALUES: the agency must validate them (and the text of both
+    | pages) before going live.
+    |
+    */
+
+    'rental' => [
+        // The car is handed over with a full tank and returned with the same level;
+        // missing fuel is billed at the pump price plus this service fee (DH, TTC).
+        'refuel_fee' => '100.00',
+
+        // Kilometres included per day (null: unlimited mileage).
+        'km_per_day' => null,
+
+        // A return later than this many minutes after the planned time adds a day.
+        'late_return_grace_minutes' => 59,
+
+        // The customer's share of a damage covered by the insurance: at most the deposit.
+        'excess_equals_deposit' => true,
+    ],
+
+    'privacy' => [
+        // How long each kind of personal data is kept, in years.
+        'retention_years' => [
+            // Account, profile, CIN and licence: after the last reservation or sign-in.
+            'account' => 3,
+            // Invoices and the data printed on them (Moroccan accounting rules).
+            'invoices' => 10,
+            // Contact form messages.
+            'contact' => 1,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Notifications (Phase 6)
     |--------------------------------------------------------------------------
     */

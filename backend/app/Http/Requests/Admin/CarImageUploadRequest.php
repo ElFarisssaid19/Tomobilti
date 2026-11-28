@@ -24,7 +24,9 @@ class CarImageUploadRequest extends FormRequest
     {
         return [
             'images' => ['required', 'array', 'min:1', 'max:'.self::MAX_FILES],
-            'images.*' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.self::MAX_KILOBYTES, 'dimensions:min_width=400,min_height=250'],
+            // `mimes` checks the content, `extensions` the file name. The maximum size in
+            // pixels keeps a small but huge image (decompression bomb) away from GD.
+            'images.*' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:'.self::MAX_KILOBYTES, 'dimensions:min_width=400,min_height=250,max_width=8000,max_height=8000'],
         ];
     }
 

@@ -19,9 +19,9 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
-  // End-to-end tests and their config run in Node (Playwright Test), not in the browser.
+  // End-to-end tests, the build config and its plugins run in Node, not in the browser.
   {
-    files: ['e2e/**/*.js', 'playwright.config.js'],
+    files: ['e2e/**/*.js', 'playwright.config.js', 'vite.config.js', 'build/**/*.js'],
     languageOptions: { globals: globals.node },
   },
   // Prettier handles formatting: turn off ESLint rules that conflict with it.

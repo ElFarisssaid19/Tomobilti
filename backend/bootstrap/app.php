@@ -3,11 +3,13 @@
 use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,6 +26,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             ForceJsonResponse::class,
         ]);
+
+        // A safety net on every route ("api" and "web" limiters, AppServiceProvider), on
+        // top of the stricter limiters of login, registration, contact, catalogue...
+        $middleware->throttleApi();
+        $middleware->web(append: [ThrottleRequests::class.':web']);
+
+        // Every response (api, sitemap, CSRF cookie, errors): nosniff, no framing, CSP...
+        $middleware->append(SecurityHeaders::class);
 
         // Route::middleware(['auth:sanctum', 'admin']): administrators only (403 otherwise).
         $middleware->alias([

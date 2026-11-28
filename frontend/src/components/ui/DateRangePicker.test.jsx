@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { DateRangeCalendar } from './DateRangePicker.jsx'
+import DateRangeCalendar from './DateRangeCalendar.jsx'
 
 describe('DateRangeCalendar', () => {
   beforeEach(() => {
@@ -20,6 +20,14 @@ describe('DateRangeCalendar', () => {
     expect(screen.getByRole('button', { name: /\b2 novembre 2026/ })).toBeDisabled()
     expect(screen.getByRole('button', { name: /18 novembre 2026/ })).toBeEnabled()
     expect(screen.getByRole('button', { name: /25 novembre 2026/ })).toBeEnabled()
+  })
+
+  it('names today with the typographic apostrophe', () => {
+    render(<DateRangeCalendar value={undefined} onChange={() => {}} />)
+
+    expect(
+      screen.getByRole('button', { name: 'Aujourd’hui, mercredi 18 novembre 2026' }),
+    ).toBeEnabled()
   })
 
   it('disables unavailable (already booked) ranges', () => {

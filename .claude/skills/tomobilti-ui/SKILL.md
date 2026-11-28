@@ -14,7 +14,8 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 - **Components**: `frontend/src/components/ui` (import from `components/ui/index.js`).
   Button, IconButton, Chip/ChipGroup, Input (+ `trailing` slot), PasswordInput, Textarea,
   Select, Checkbox, RadioGroup, RangeSlider,
-  Switch, FormField, DateRangePicker/DateRangeCalendar, Badge, StatusBadge, Card,
+  Switch, FormField, DateRangePicker (DateRangeCalendar: import it from its own file, it is
+  lazy-loaded and kept out of the barrel), Badge, StatusBadge, Card,
   PromoCard, CarCard(+Skeleton), CarListItem(+Skeleton), Modal, ConfirmDialog,
   Drawer/BottomSheet, DropdownMenu, Tabs, Tooltip/InfoTip, Accordion, Skeleton, Spinner,
   EmptyState, ErrorState, Alert, Pagination, Breadcrumbs, PageHeader, SectionHeading,
@@ -27,7 +28,8 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 - **Labels**: `frontend/src/lib/labels.js` for every backend enum (reservation status,
   transmission, fuel, car status, location type, extra pricing, invoice status, payment
   method, role). Never hard-code "Confirmée" or "Diesel" in a component.
-- **Formatting**: `formatPrice` ("450 DH"), `formatDate`, `formatNumber` (`src/utils/format.js`),
+- **Formatting**: `formatPrice` ("450 DH"), `formatInvoiceAmount` ("1.840,00 DH", invoices
+  only), `formatDate`, `formatNumber` (`src/utils/format.js`),
   `rentalDays` (`src/lib/dates.js`). **Laravel 422 errors**: pass the axios error to the
   `errors` prop of a form control or FormField (`src/lib/validation.js`).
 - **Tokens only**: semantic Tailwind classes from `src/index.css`, such as `bg-canvas`,
@@ -52,7 +54,7 @@ http://localhost:5173/design (dev server only), and it shows every token and com
 - Mutations use `useSingleFlightMutation` (hooks/useSingleFlightMutation.js), never
   `useMutation` directly: it drops a double click's second request.
 - List filters, sort and page live in the URL (`useCatalogFilters`, `lib/catalogParams.js`),
-  never in React state. Each public page sets its French title and description with
+  never in React state. Tabs are always `?onglet=` (old `?tab=` links redirect). Each public page sets its French title and description with
   `usePageMeta`.
 
 ## Color rules

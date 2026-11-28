@@ -31,7 +31,10 @@ const CarDetailPage = lazy(() => import('./pages/catalog/CarDetailPage.jsx'))
 const BookingPage = lazy(() => import('./pages/booking/BookingPage.jsx'))
 const ReservationsPage = lazy(() => import('./pages/account/ReservationsPage.jsx'))
 const ReservationDetailPage = lazy(() => import('./pages/account/ReservationDetailPage.jsx'))
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage.jsx'))
 const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
+const TermsPage = lazy(() => import('./pages/legal/TermsPage.jsx'))
+const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage.jsx'))
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'))
 const AdminLayout = lazy(() => import('./layouts/AdminLayout.jsx'))
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage.jsx'))
@@ -80,6 +83,8 @@ export default function App() {
           <Route path="a-propos" element={page(AboutPage)} />
           <Route path="contact" element={page(ContactPage)} />
           <Route path="credits" element={page(CreditsPage)} />
+          <Route path="conditions-generales" element={page(TermsPage)} />
+          <Route path="confidentialite" element={page(PrivacyPage)} />
 
           {/* Visitors only: signed-in users are sent to their space. */}
           <Route element={<GuestRoute />}>
@@ -114,6 +119,14 @@ export default function App() {
                 element={
                   <Suspense fallback={<ContentSkeleton label="Chargement de la réservation…" />}>
                     <ReservationDetailPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="notifications"
+                element={
+                  <Suspense fallback={<ContentSkeleton label="Chargement des notifications…" />}>
+                    <NotificationsPage />
                   </Suspense>
                 }
               />
@@ -182,6 +195,14 @@ export default function App() {
             <Route
               path="parametres"
               element={adminPage(AdminSettingsPage, 'Chargement des paramètres…')}
+            />
+            <Route
+              path="notifications"
+              element={
+                <Suspense fallback={<ContentSkeleton label="Chargement des notifications…" />}>
+                  <NotificationsPage admin />
+                </Suspense>
+              }
             />
             <Route path="categories" element={<Navigate to="/admin/parametres" replace />} />
             <Route path="*" element={<NotFoundPage />} />

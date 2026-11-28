@@ -43,12 +43,13 @@ const EMPTY = {
 }
 
 /**
- * /espace/reservations?tab&page: my reservations in 4 tabs (À venir, En cours,
+ * /espace/reservations?onglet&page: my reservations in 4 tabs (À venir, En cours,
  * Passées, Annulées). The tab and the page live in the URL.
  */
 export default function ReservationsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = TABS.includes(searchParams.get('tab')) ? searchParams.get('tab') : 'upcoming'
+  const onglet = searchParams.get('onglet')
+  const tab = TABS.includes(onglet) ? onglet : 'upcoming'
   const page = Math.max(1, Number(searchParams.get('page')) || 1)
   const query = useReservations({ tab, page })
   const counts = query.data?.meta?.counts
@@ -56,11 +57,11 @@ export default function ReservationsPage() {
   usePageMeta('Mes réservations', 'Vos réservations Tomobilti : à venir, en cours et passées.')
 
   function changeTab(index) {
-    setSearchParams(index === 0 ? {} : { tab: TABS[index] })
+    setSearchParams(index === 0 ? {} : { onglet: TABS[index] })
   }
 
   function changePage(nextPage) {
-    setSearchParams({ ...(tab !== 'upcoming' && { tab }), page: String(nextPage) })
+    setSearchParams({ ...(tab !== 'upcoming' && { onglet: tab }), page: String(nextPage) })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 

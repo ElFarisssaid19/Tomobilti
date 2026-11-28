@@ -7,9 +7,14 @@ import { ADMIN_RESERVATION_TAB, RESERVATION_STATUS } from './labels.js'
  * which stays the judge: a refused move answers 403 or 409 with the French reason.
  */
 
-/** URL parameters of /admin/reservations (same names as GET /api/admin/reservations). */
+/** URL parameters of /admin/reservations (GET /api/admin/reservations: `onglet` is `tab`). */
 export const RESERVATION_FILTERS = Object.freeze({
-  tab: { type: 'enum', values: Object.keys(ADMIN_RESERVATION_TAB), default: 'pending' },
+  onglet: {
+    type: 'enum',
+    values: Object.keys(ADMIN_RESERVATION_TAB),
+    default: 'pending',
+    apiKey: 'tab',
+  },
   status: { type: 'list', values: Object.keys(RESERVATION_STATUS) },
   from: { type: 'date' },
   to: { type: 'date' },

@@ -110,6 +110,9 @@ class ReservationDocumentTest extends TestCase
         $this->assertSame(['3 jours × 300 DH', '3 jours × 50 DH', 'Marrakech Guéliz → Agadir Al Massira'], str_replace("\u{00A0}", ' ', array_column($lines, 'detail')));
         $this->assertSame(['900.00', '150.00', '300.00'], array_column($lines, 'amount'));
         $this->assertSame('Frais d’abandon', $lines[2]['label']);
+
+        $invoiceLines = app(ReservationDocuments::class)->lines($reservation, invoice: true);
+        $this->assertSame(['3 jours × 300,00 DH', '3 jours × 50,00 DH'], str_replace("\u{00A0}", ' ', array_slice(array_column($invoiceLines, 'detail'), 0, 2)));
     }
 
     public function test_the_invoice_pdf_prints_the_vat_split_and_the_amount_in_words(): void
@@ -134,5 +137,27 @@ class ReservationDocumentTest extends TestCase
         $this->assertStringContainsString('1.234,50 DH', $text);
         $this->assertStringContainsString('Arrêtée la présente facture à la somme de mille deux cent trente-quatre dirhams et cinquante centimes TTC.', $text);
         $this->assertStringContainsString('Carte bancaire', $text);
+    }
+
+    public function test_the_invoice_pdf_writes_every_amount_with_the_centimes(): void
+    {
+        if ((new Process(['which', 'pdftotext']))->run() !== 0) {
+            $this->markTestSkipped('pdftotext (poppler-utils) is not installed.');
+        }
+
+        $reservation = Reservation::factory()->for($this->user)->completed()->create(['days' => 4, 'price_per_day' => '460.00', 'extras_total' => '0.00', 'one_way_fee' => '0.00', 'total' => '1840.00']);
+        Invoice::factory()->paid()->for($reservation)->create();
+
+        $path = tempnam(sys_get_temp_dir(), 'facture');
+        file_put_contents($path, $this->actingAs($this->user)->get("/api/reservations/{$reservation->reference}/invoice")->getContent());
+        $process = new Process(['pdftotext', '-layout', $path, '-']);
+        $process->run();
+        unlink($path);
+
+        $text = preg_replace('/\s+/u', ' ', str_replace("\u{00A0}", ' ', $process->getOutput()));
+        $this->assertStringContainsString('4 jours × 460,00 DH', $text);
+        $this->assertStringContainsString('Total HT 1.533,33 DH', $text);
+        $this->assertStringContainsString('1.840,00 DH', $text);
+        $this->assertStringNotContainsString('1.840 DH', $text);
     }
 }

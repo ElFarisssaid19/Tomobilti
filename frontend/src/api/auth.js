@@ -5,10 +5,13 @@ import api, { getCsrfCookie } from './client.js'
  * Functions that return a user return the UserResource object (`data`).
  */
 
-/** GET /api/user -> the signed-in user (401 for guests). */
+/**
+ * GET /api/auth/session -> the signed-in user, or null for a visitor. Unlike GET /api/user
+ * (401 for guests), a visitor's start-up logs no failed request in the console.
+ */
 export async function fetchCurrentUser() {
-  const { data } = await api.get('/api/user')
-  return data.data
+  const { data } = await api.get('/api/auth/session')
+  return data.data ?? null
 }
 
 /** POST /api/auth/login { email, password, remember } */
@@ -70,11 +73,5 @@ export async function updateProfile(fields) {
 /** PUT /api/profile/password { current_password, password, password_confirmation } */
 export async function updatePassword(payload) {
   const { data } = await api.put('/api/profile/password', payload)
-  return data
-}
-
-/** GET /api/admin/ping (admins only) -> { message, time } */
-export async function pingAdmin({ signal } = {}) {
-  const { data } = await api.get('/api/admin/ping', { signal })
   return data
 }

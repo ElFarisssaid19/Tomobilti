@@ -1,4 +1,5 @@
 import {
+  Bell,
   CalendarCheck,
   CalendarRange,
   CarFront,
@@ -32,6 +33,7 @@ export const BOTTOM_NAV = [
 /** Tabs of "Mon espace". */
 export const CLIENT_LINKS = [
   { label: 'Mes réservations', to: '/espace/reservations', icon: CalendarCheck },
+  { label: 'Notifications', to: '/espace/notifications', icon: Bell },
   { label: 'Profil', to: '/espace/profil', icon: UserRound },
 ]
 
@@ -48,3 +50,6 @@ export const ADMIN_LINKS = [
   { label: 'Clients', to: '/admin/clients', icon: Users },
   { label: 'Paramètres', to: '/admin/parametres', icon: Settings },
 ]
+
+/** Admin pages outside the sidebar, for the topbar title (reached from the bell). */
+export const ADMIN_EXTRA_PAGES = [{ label: 'Notifications', to: '/admin/notifications' }]

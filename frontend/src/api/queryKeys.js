@@ -17,8 +17,13 @@ export const queryKeys = {
   categories: () => ['categories'],
   locations: () => ['locations'],
   extras: () => ['extras'],
+  legal: () => ['legal'],
   bookingRules: () => ['booking-rules'],
-  notifications: () => ['notifications'],
+  notifications: {
+    all: ['notifications'],
+    latest: () => ['notifications', 'latest'],
+    list: (params) => ['notifications', 'list', params],
+  },
   reservations: {
     all: ['reservations'],
     list: (params) => ['reservations', 'list', params],

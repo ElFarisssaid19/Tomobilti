@@ -279,8 +279,10 @@
 /* Translucent glass for floating bars (bottom nav, scrolled navbar). */
 @utility glass {
   background-color: rgb(31 30 39 / 0.72);
+  /* No hand-written -webkit- copy: the minifier merged the two and kept only the
+     prefixed one, which Chrome ignores (unblurred bars in production). Lightning CSS
+     adds the Safari prefix itself. */
   backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
 
   @supports not (backdrop-filter: blur(1px)) {
     background-color: rgb(31 30 39 / 0.96);

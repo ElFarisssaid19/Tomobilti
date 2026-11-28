@@ -8,6 +8,11 @@ const amountFormatter = new Intl.NumberFormat(LOCALE, {
   trailingZeroDisplay: 'stripIfInteger', // 450 -> "450", 1234.5 -> "1.234,50"
 })
 
+const invoiceAmountFormatter = new Intl.NumberFormat(LOCALE, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
 const numberFormatter = new Intl.NumberFormat(LOCALE)
 
 /**
@@ -20,6 +25,18 @@ export function formatPrice(amount) {
   if (amount === null || amount === undefined || amount === '') return ''
   const value = Number(amount)
   return Number.isFinite(value) ? `${amountFormatter.format(value)}${NBSP}DH` : ''
+}
+
+/**
+ * An invoice amount, always with the centimes: "1.840,00 DH". Invoices only (the
+ * /admin/factures page, like the invoice PDF: FrenchFormatter::invoiceMoney); the rest
+ * of the site uses formatPrice.
+ * @example formatInvoiceAmount('1840.00') // "1.840,00 DH"
+ */
+export function formatInvoiceAmount(amount) {
+  if (amount === null || amount === undefined || amount === '') return ''
+  const value = Number(amount)
+  return Number.isFinite(value) ? `${invoiceAmountFormatter.format(value)}${NBSP}DH` : ''
 }
 
 /**

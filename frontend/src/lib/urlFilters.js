@@ -4,11 +4,13 @@
  * live in it, so a filtered list can be shared and the back button restores it.
  *
  * A schema lists the parameters, in URL order:
- *   { tab: { type: 'enum', values: ['pending', 'all'], default: 'pending' },
+ *   { onglet: { type: 'enum', values: ['pending', 'all'], default: 'pending', apiKey: 'tab' },
  *     status: { type: 'list' }, q: { type: 'string' }, page: { type: 'page' } }
  *
  * Types: string, enum (one of `values`), list (comma separated, optionally limited to
  * `values`), date (YYYY-MM-DD), id (positive integer as a string), page (≥ 1).
+ * `apiKey` names the API parameter when it differs from the URL one (the tab is
+ * `?onglet=` in the SPA's URLs and `tab` in the API).
  */
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
@@ -58,7 +60,7 @@ export function parseFilters(search, schema) {
   )
 }
 
-/** Filters -> "?tab=all&status=confirmed,active" (empty string when everything is default). */
+/** Filters -> "?onglet=all&status=confirmed,active" (empty string when everything is default). */
 export function filtersToSearch(filters, schema) {
   const parts = Object.entries(schema)
     .filter(([key, rule]) => !isEmpty(rule, filters[key]))
@@ -82,11 +84,14 @@ export function filtersToApiParams(filters, schema) {
         const value = filters[key]
         return Array.isArray(value) ? value.length > 0 : value !== '' && value !== null
       })
-      .map(([key, rule]) => [key, rule.type === 'list' ? filters[key].join(',') : filters[key]]),
+      .map(([key, rule]) => [
+        rule.apiKey ?? key,
+        rule.type === 'list' ? filters[key].join(',') : filters[key],
+      ]),
   )
 }
 
-/** Number of filters that differ from their default, `ignore` excluded (tab, sort, page…). */
+/** Number of filters that differ from their default, `ignore` excluded (onglet, sort, page…). */
 export function countActiveFilters(filters, schema, ignore = []) {
   return Object.entries(schema).filter(
     ([key, rule]) => !ignore.includes(key) && !isEmpty(rule, filters[key]),

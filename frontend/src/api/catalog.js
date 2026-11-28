@@ -48,6 +48,15 @@ export async function fetchLocations({ signal } = {}) {
   return data.data
 }
 
+/**
+ * GET /api/legal -> { company, booking, rental, privacy }: every value printed on the
+ * conditions générales and the privacy page (config/tomobilti.php on the server).
+ */
+export async function fetchLegal({ signal } = {}) {
+  const { data } = await api.get('/api/legal', { signal })
+  return data.data
+}
+
 /** GET /api/extras -> Extra[] (active) */
 export async function fetchExtras({ signal } = {}) {
   const { data } = await api.get('/api/extras', { signal })

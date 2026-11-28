@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\CatalogCache;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +30,24 @@ class AppServiceProvider extends ServiceProvider
         $this->configurePasswordRules();
         $this->configureAuthorization();
         $this->configureRateLimiting();
+        $this->clearCatalogCacheOnChanges();
+    }
+
+    /**
+     * Any write to a car, category, brand, agency or option clears the cached public
+     * reference data (filters, categories, agencies, legal values, sitemap). Restoring a
+     * soft deleted car saves it, so "saved" covers it. The cache is cleared once the
+     * transaction commits (at once outside one), so a request running meanwhile cannot
+     * cache the old state again.
+     */
+    private function clearCatalogCacheOnChanges(): void
+    {
+        $flush = fn () => DB::afterCommit(fn () => CatalogCache::flush());
+
+        foreach (CatalogCache::MODELS as $model) {
+            $model::saved($flush);
+            $model::deleted($flush);
+        }
     }
 
     /**
@@ -50,13 +70,26 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * Every route: "api" (300 requests per minute per user or IP) and "web" (120 per
+     * minute per IP: CSRF cookie, sitemap), a safety net under the limiters below.
+     *
      * Public endpoints:
+     * - "session": 60 per minute (GET /api/auth/session, on every start of the SPA);
      * - "catalog": 60 requests per minute per visitor (cars, filters, locations...);
      * - "contact": 3 messages per 10 minutes per IP address, with a French message;
      * - "booking": 120 requests per minute (quotes refresh while the customer chooses).
      */
     private function configureRateLimiting(): void
     {
+        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(300)
+            ->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for('web', fn (Request $request): Limit => Limit::perMinute(120)
+            ->by($request->ip()));
+
+        RateLimiter::for('session', fn (Request $request): Limit => Limit::perMinute(60)
+            ->by($request->user()?->id ?: $request->ip()));
+
         RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(60)
             ->by($request->user()?->id ?: $request->ip()));
 

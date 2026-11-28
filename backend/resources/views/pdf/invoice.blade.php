@@ -56,7 +56,7 @@
                 <tr>
                     <td class="semibold">{{ $line['label'] }}</td>
                     <td class="muted">{{ $line['detail'] }}</td>
-                    <td class="amount">{{ Fr::money($line['amount']) }}</td>
+                    <td class="amount">{{ Fr::invoiceMoney($line['amount']) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -76,18 +76,18 @@
             <table class="totals">
                 <tr>
                     <td class="muted">Total HT</td>
-                    <td class="amount">{{ Fr::money((string) $invoice->subtotal_ht) }}</td>
+                    <td class="amount">{{ Fr::invoiceMoney((string) $invoice->subtotal_ht) }}</td>
                 </tr>
                 <tr>
                     <td class="muted">TVA {{ $vatRate }} %</td>
-                    <td class="amount">{{ Fr::money((string) $invoice->vat_amount) }}</td>
+                    <td class="amount">{{ Fr::invoiceMoney((string) $invoice->vat_amount) }}</td>
                 </tr>
             </table>
             <div class="key" style="margin-top: 8px;">
                 <table>
                     <tr>
                         <td class="key-label" style="vertical-align: middle;">Total TTC</td>
-                        <td class="right key-value nowrap">{{ Fr::money((string) $invoice->total_ttc) }}</td>
+                        <td class="right key-value nowrap">{{ Fr::invoiceMoney((string) $invoice->total_ttc) }}</td>
                     </tr>
                 </table>
             </div>

@@ -84,9 +84,11 @@ class AdminCarImageTest extends TestCase
             ->post("/api/admin/cars/{$this->car->id}/images", ['images' => [
                 UploadedFile::fake()->create('notes.pdf', 100, 'application/pdf'),
                 UploadedFile::fake()->image('huge.jpg', 1600, 1000)->size(6000),
+                UploadedFile::fake()->image('giant.png', 8100, 400),
+                UploadedFile::fake()->image('photo.php', 1600, 1000),
             ]], ['Accept' => 'application/json'])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['images.0', 'images.1']);
+            ->assertJsonValidationErrors(['images.0', 'images.1', 'images.2', 'images.3']);
 
         $this->assertSame(0, $this->car->images()->count());
     }

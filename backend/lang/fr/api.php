@@ -85,8 +85,6 @@ return [
     ],
 
     'admin' => [
-        'pong' => 'Espace administrateur opérationnel. Bonjour, :name.',
-
         'reservations' => [
             'not_allowed' => 'Impossible :action une réservation « :status ».',
             'verbs' => [

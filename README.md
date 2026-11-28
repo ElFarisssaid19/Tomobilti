@@ -1,529 +1,200 @@
+![Tomobilti: car rental in Morocco](frontend/public/og-image.jpg)
+
 # Tomobilti
 
-**Tomobilti** is a car rental web application (_location de voitures_) for a Moroccan rental agency.
-Customers browse the catalogue and book a car online; the agency manages its fleet, bookings and invoices from an admin dashboard.
+**Book a rental car online in Morocco, pay at the agency.** A French-language car rental web app for a Moroccan agency: customers browse the fleet and book in four steps; the agency confirms, hands the cars over, issues invoices and follows its business from a back office.
 
-- UI language: **French**
-- Currency: **MAD (DH)**
-- Timezone: **Africa/Casablanca**
+![Laravel 13](docs/badges/laravel.svg) ![React 19](docs/badges/react.svg) ![Tailwind CSS 4](docs/badges/tailwind.svg) ![MySQL 8.4](docs/badges/mysql.svg) ![Tests: 457 PHPUnit, 148 Vitest, 7 end-to-end](docs/badges/tests.svg)
 
-## Architecture
+UI in **French**, prices in **dirhams (DH)**, timezone **Africa/Casablanca**.
 
-```
-┌─────────────────────────┐   HTTP (JSON) + cookies   ┌──────────────────────────┐
-│  frontend/  React SPA   │ ────────────────────────▶ │  backend/  Laravel API   │
-│  Vite · localhost:5173  │ ◀──────────────────────── │  localhost:8000          │
-└─────────────────────────┘   Sanctum SPA auth, CORS  └────────────┬─────────────┘
-                                                                   │
-                                          ┌────────────────────────┴───────────┐
-                                          │ Docker: MySQL 8.4 · Mailpit · PMA  │
-                                          └────────────────────────────────────┘
-```
+![Demo: home, car page, booking, the agency confirms, the invoice](docs/demo.gif)
 
-One monorepo, two independent apps:
+21-second demo: a customer books a Peugeot 208, the agency confirms the request, hands the car over and finds the paid invoice. [Watch it as a video (MP4)](docs/demo.mp4).
 
-| Folder      | What                                                                 |
-| ----------- | -------------------------------------------------------------------- |
-| `backend/`  | Laravel REST API (JSON only). Auth with Laravel Sanctum (SPA cookies). |
-| `frontend/` | React single-page app built with Vite.                               |
-| root        | Docker services, shared VS Code config, scripts that drive both apps. |
+## Screenshots
 
-The SPA and the API both run on **`localhost`** (never `127.0.0.1`) so Sanctum's session and XSRF cookies are shared between them.
+### Customer side (desktop)
+
+<img src="docs/screenshots/desktop-home.webp" alt="Home page: hero photo with the search by agency and dates" width="49%"> <img src="docs/screenshots/desktop-catalogue.webp" alt="Catalogue with category chips and the filter panel" width="49%">
+
+**Home**: search by agency and dates. **Catalogue**: categories, filters and sort, all kept in the URL.
+
+<img src="docs/screenshots/desktop-car-detail.webp" alt="Car page with the photo gallery, the price and the booking card" width="49%"> <img src="docs/screenshots/desktop-booking-recap.webp" alt="Last booking step: recap with the server's price breakdown" width="49%">
+
+**Car page**: gallery with photo credits, availability calendar, estimated total. **Booking, step 4**: the recap priced by the server, deposit apart.
+
+<img src="docs/screenshots/desktop-my-reservations.webp" alt="Mes réservations: upcoming reservations with their status" width="49%">
+
+**Mes réservations**: tabs per state, status badges, invoice icon when one exists.
+
+### Mobile
+
+<img src="docs/screenshots/mobile-home.webp" alt="Home on a phone" width="15.5%"> <img src="docs/screenshots/mobile-catalogue.webp" alt="Catalogue on a phone" width="15.5%"> <img src="docs/screenshots/mobile-car-detail.webp" alt="Car page on a phone" width="15.5%"> <img src="docs/screenshots/mobile-booking-dates.webp" alt="Booking step 1 on a phone, with the floating total" width="15.5%"> <img src="docs/screenshots/mobile-my-reservations.webp" alt="Mes réservations on a phone" width="15.5%"> <img src="docs/screenshots/mobile-admin-dashboard.webp" alt="Admin dashboard on a phone" width="15.5%">
+
+Home, catalogue, car page, booking (dates step), Mes réservations and the admin dashboard at 390 × 844.
+
+### Back office
+
+<img src="docs/screenshots/desktop-admin-dashboard.webp" alt="Admin dashboard: revenue, requests to answer, today's pick-ups and returns" width="49%"> <img src="docs/screenshots/desktop-admin-planning.webp" alt="Planning: one row per car, reservations as colored bars over two weeks" width="49%">
+
+**Dashboard**: revenue, requests to answer, today's and tomorrow's handovers, charts. **Planning**: every car over two weeks, colored by status.
+
+<img src="docs/screenshots/desktop-admin-reservations.webp" alt="Reservations list with tabs, filters and the CSV export" width="49%"> <img src="docs/screenshots/desktop-admin-invoices.webp" alt="Invoices with the collected and outstanding totals" width="49%">
+
+**Reservations**: tabs, filters in the URL, CSV export. **Factures**: collected and outstanding totals, download, mark as paid, send again.
+
+### Documents and e-mails
+
+<img src="docs/screenshots/invoice-pdf.webp" alt="Invoice PDF: company details, lines, VAT split and the amount in words" width="32%"> <img src="docs/screenshots/voucher-pdf.webp" alt="Booking voucher PDF: reference, car, agencies with hours, documents to bring" width="32%"> <img src="docs/screenshots/email-invoice.webp" alt="The invoice e-mail in Mailpit" width="33%">
+
+**Invoice** (A4 PDF, every amount to the centime), **booking voucher**, and the **invoice e-mail** as received (Mailpit).
+
+## Features
+
+**Customers**
+
+- Catalogue with search by agency and dates, filters (category, brand, fuel, gearbox, seats, price, air conditioning) and sort, shareable through the URL; favorites.
+- Car page: gallery and lightbox with photo credits, specifications, availability calendar, estimated total, similar cars.
+- Booking in 4 steps with a live price from the server: dates and agencies, options, driver profile (age and licence checked), recap. Double-booking is impossible (row lock, 409).
+- Mon espace: reservations per state, detail with timeline, agency contact and WhatsApp, free cancellation up to 24 hours before, voucher and invoice PDFs, notifications, profile.
+- Account: sign-up with e-mail verification, password reset, sessions with "remember me".
+- E-mails at each step (request received, confirmed with voucher, refused, cancelled, reminder the day before, invoice, thank you).
+- Rental conditions and privacy pages generated from the real rules.
+
+**Agency (back office)**
+
+- Dashboard: revenue, expected revenue, requests to answer, active rentals, fleet utilisation, handovers of the day, charts, top cars.
+- Reservations: tabs and filters, CSV export, status workflow (confirm, refuse, picked up with the payment, returned, cancel) with full history.
+- Planning of the fleet over two weeks.
+- Fleet: create and edit cars, drag-and-drop photos (cropped and optimized), status changes that list the affected bookings.
+- Customers: history, total spent, activate or deactivate.
+- Invoices issued at pick-up (numbered, VAT split, amount in words), marked paid, sent again.
+- Settings: categories, brands, agencies, options; in-app notifications with a full list.
 
 ## Stack
 
-| Layer    | Tools                                                                                     |
-| -------- | ----------------------------------------------------------------------------------------- |
-| Backend  | PHP 8.3+, Laravel 13, Laravel Sanctum, laravel-lang (French translations), Pint, PHPUnit |
-| Frontend | React 19, Vite 8, Tailwind CSS 4, React Router 8, axios, TanStack Query 5, lucide-react, Motion, Headless UI, react-day-picker, sonner, ESLint, Prettier, Vitest + Testing Library |
-| Services | MySQL 8.4, phpMyAdmin, Mailpit (Docker Compose)                                           |
+| Layer | Tools |
+| --- | --- |
+| Backend | PHP 8.3+, Laravel 13, Laravel Sanctum (SPA cookies), barryvdh/laravel-dompdf, laravel-lang, Pint, PHPUnit |
+| Frontend | React 19, Vite 8, Tailwind CSS 4, React Router 8, TanStack Query 5, axios, Motion, Headless UI, react-day-picker, Recharts (admin only), sonner, lucide-react |
+| Tests | PHPUnit (SQLite in memory), Vitest + Testing Library, Playwright Test + axe-core |
+| Services | MySQL 8.4, Mailpit, phpMyAdmin (Docker Compose); queue worker and scheduler |
 
-## Prerequisites
+## Architecture
 
-- PHP **8.3+** with extensions: `pdo_mysql`, `mbstring`, `xml`, `curl`, `zip`, `bcmath`, `intl`, `gd`, `pcntl`, plus `pdo_sqlite` (tests run on in-memory SQLite)
-- Composer 2
-- Node.js **24 LTS** or newer, npm
-- Docker with Docker Compose v2+
-- Git
+A React single-page app talks to a JSON-only Laravel API with Sanctum session cookies (CSRF protected). The API uses MySQL, queues every e-mail for a worker, and runs a scheduler (expired requests, pick-up reminders). The server is the only source of truth for prices, availability and statuses.
 
-Ubuntu example for the PHP extensions:
-
-```bash
-sudo apt install php8.5-{mysql,mbstring,xml,curl,zip,bcmath,intl,gd,sqlite3}
+```
+React SPA (Vite)  ──JSON + cookies──▶  Laravel API  ──▶  MySQL
+localhost:5173                         localhost:8000     ├─ queue worker ──▶ Mailpit (SMTP)
+                                                          └─ scheduler (reminders, expiry)
 ```
 
-## Setup from a fresh clone
+Diagrams (authentication, booking, status machine, invoices and e-mails) with explanations, in French: **[docs/architecture.md](docs/architecture.md)**.
+
+| Document | Content |
+| --- | --- |
+| [docs/architecture.md](docs/architecture.md) | Architecture, sequences and state machine (Mermaid, French) |
+| [docs/api.md](docs/api.md) | Every endpoint by area: method, access, parameters, responses (French) |
+| [docs/database.md](docs/database.md) | Schema, enums, availability rule, pricing, demo data |
+| [docs/security.md](docs/security.md) | Headers, CSP, rate limits, production checklist |
+| [docs/demo.md](docs/demo.md) | 5-minute demo scenario for the jury (French) |
+| [docs/qa-report.md](docs/qa-report.md) | Phase 7A QA review |
+| [frontend/DESIGN.md](frontend/DESIGN.md) | Design system: tokens, motion, components, copy rules |
+
+## Setup
+
+Prerequisites: PHP **8.3+** (`pdo_mysql`, `pdo_sqlite`, `mbstring`, `xml`, `curl`, `zip`, `bcmath`, `intl`, `gd`, `pcntl`), Composer 2, Node.js **24+**, Docker with Compose v2, Git.
 
 ```bash
 # 1. Environment files (never commit the .env files)
 cp .env.example .env                    # Docker services: set the MySQL passwords
-cp backend/.env.example backend/.env    # Laravel: DB_PASSWORD must match MYSQL_PASSWORD in ./.env
+cp backend/.env.example backend/.env    # DB_PASSWORD must match MYSQL_PASSWORD in ./.env
 cp frontend/.env.example frontend/.env
 
 # 2. Dependencies (root, backend, frontend)
 npm run setup
 
-# 3. Start MySQL, phpMyAdmin and Mailpit (waits until they are healthy)
+# 3. MySQL, phpMyAdmin and Mailpit (waits until healthy)
 npm run services:up
 
-# 4. Laravel: app key, public storage link, database with demo data
+# 4. Laravel: key, storage link, database with the demo data
 cd backend
 php artisan key:generate
 php artisan storage:link
 php artisan migrate --seed
 cd ..
 
-# 5. Run everything (API + queue worker + scheduler + Vite)
+# 5. Everything: API + queue worker + scheduler + Vite
 npm run dev
 ```
 
-Open http://localhost:5173: the home page should show a green **"API connectée"** badge.
+Open http://localhost:5173. The SPA and the API both run on `localhost` (never `127.0.0.1`) so the session cookies are shared.
 
-## Database and demo data
+| Service | URL |
+| --- | --- |
+| Website (Vite) | http://localhost:5173 |
+| API | http://localhost:8000 (health: `/api/health`) |
+| Mailpit (every e-mail) | http://localhost:8025 |
+| phpMyAdmin | http://localhost:8082 |
+| MySQL | `127.0.0.1:3308`, database `tomobilti` |
 
-The schema, the enums, the availability rule and the demo data are documented in **[docs/database.md](docs/database.md)**.
-
-Rebuild the database with the demo data at any time (from `backend/`):
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-The seed is reproducible (fixed Faker seed): 32 cars with real photos (committed in `backend/database/seeders/assets/cars`, credits in [docs/image-credits.md](docs/image-credits.md)), 5 pick-up locations, 27 users and 64 reservations in every status, with their status history and invoices. Reservation dates are relative to the day you seed.
+Rebuild the demo data at any time with `php artisan migrate:fresh --seed` (from `backend/`; it signs everyone out). The seed is reproducible: 32 cars with real photos, 5 agencies, 27 users, 64 reservations in every status with their history and invoices, dated relative to the day you seed.
 
 ### Demo accounts
 
-> **Development only.** These accounts and their password exist only in the demo seed. Never use them in production.
+> **Development only.** These accounts exist only in the demo seed.
 
-| Email                 | Password   | Role   |
-| --------------------- | ---------- | ------ |
-| `admin@tomobilti.ma`  | `Tomobilti2026!` | Admin  |
-| `client@tomobilti.ma` | `Tomobilti2026!` | Client |
-
-## URLs and ports
-
-All Docker ports are bound to `127.0.0.1` only.
-
-| Service              | URL / port                              | Notes                                                       |
-| -------------------- | --------------------------------------- | ----------------------------------------------------------- |
-| Frontend (Vite)      | http://localhost:5173                   | `strictPort`: fails instead of switching port                |
-| API (Laravel)        | http://localhost:8000                   | Health check: http://localhost:8000/api/health              |
-| phpMyAdmin           | http://localhost:8082                   | Log in with `MYSQL_USER` / `MYSQL_PASSWORD` from `./.env`   |
-| Mailpit (web UI)     | http://localhost:8025                   | Every email sent by Laravel lands here                      |
-| Mailpit (SMTP)       | `localhost:1025`                        | Used by Laravel (`MAIL_PORT`)                               |
-| MySQL                | `127.0.0.1:3308`                        | Database `tomobilti`. Laravel uses `DB_HOST=127.0.0.1` (TCP) |
-
-> Ports 3308 and 8082 are used instead of 3307 and 8081, which were already taken on the machine where this project was set up.
-> To change a port, edit `./.env` (Docker) and the matching value in `backend/.env` (`DB_PORT`, `MAIL_PORT`).
-
-## Useful commands
-
-Run from the repository root:
-
-| Command                 | What it does                                                     |
-| ----------------------- | ---------------------------------------------------------------- |
-| `npm run dev`           | API (`php artisan serve`, with `backend/php/dev.ini` for photo uploads) + queue worker + scheduler (`php artisan schedule:work`) + Vite, colored output |
-| `npm run services:up`   | Start the Docker services and wait until healthy                 |
-| `npm run services:down` | Stop the Docker services (data is kept in Docker volumes)        |
-| `npm run services:logs` | Follow the Docker services logs                                  |
-| `npm run setup`         | Install dependencies (root, `backend/`, `frontend/`)             |
-| `npm test`              | PHPUnit (backend) then Vitest (frontend)                         |
-| `npm run lint`          | Pint `--test` (backend), ESLint + Prettier check (frontend)      |
-| `npm run format`        | Pint (backend), Prettier (frontend)                              |
-
-Each command also exists per app, for example `npm run test:backend` or `npm run lint:frontend`.
-
-Inside `backend/`:
-
-```bash
-php artisan migrate:fresh --seed   # rebuild the database
-php artisan route:list             # list routes
-php artisan tinker                 # REPL
-php artisan lang:update            # update the French translations (laravel-lang)
-php artisan tomobilti:import-car-photos   # download and optimize the demo car photos (WebP 800 + 1600 px)
-php artisan tomobilti:import-site-photos  # same for the SPA's site photos (frontend/src/assets/photos)
-php artisan tomobilti:image-credits       # regenerate docs/image-credits.md and the /credits data
-php artisan reservations:expire           # refuse pending requests whose pick-up time has passed
-php artisan reservations:send-reminders   # pick-up reminders (24 h before); --reference=TMB-… for one reservation
-php artisan tomobilti:e2e-cleanup         # delete the accounts and reservations of the e2e tests (refused in production)
-php artisan schedule:work                 # run the scheduler locally (npm run dev starts it)
-```
-
-In production, run the scheduler every minute with cron: `* * * * * cd /path/to/backend && php artisan schedule:run`.
-
-Inside `frontend/`:
-
-```bash
-npm run build     # production build in dist/
-npm run preview   # serve the build on http://localhost:4173
-npm run test:e2e  # end-to-end tests (see below)
-```
-
-## End-to-end tests
-
-Playwright Test with axe-core (`@axe-core/playwright`), in `frontend/e2e`. They drive
-the **installed Google Chrome** (`channel: 'chrome'`, no browser download) against the
-running app, headless by default.
-
-```bash
-npm run services:up          # MySQL + Mailpit
-npm run dev                  # API + queue worker + Vite (the suite checks they answer)
-cd frontend
-npm run test:e2e             # all specs, one worker
-npx playwright test --headed # watch them in a Chrome window
-npx playwright show-report   # HTML report of the last run (playwright-report/)
-```
-
-| Spec | What it checks |
-| --- | --- |
-| `public.spec.js` | Home → catalogue with a category and a filter (URL) → car detail; no serious or critical axe violation on each page |
-| `client.spec.js` | Sign in → booking flow up to the confirmation (a double click sends one booking) → the reservation in Mes réservations → cancel it |
-| `admin.spec.js` | Sign in as admin → dashboard → confirm a pending request → mark it picked up with a payment method → the paid invoice in Factures |
-| `layout.spec.js` | At 1366 × 650 and 375 × 667: the refusal, agency and car status dialogs fit the viewport; admin tables are cards on phones, tables on laptops, no sideways scroll |
-
-**Test data.** The suite creates its own customers through the API (registration, the
-verification link read from Mailpit's API, profile), books cars months ahead on random
-free dates, and uses the demo admin (`admin@tomobilti.ma`, needs the demo seed). Every
-test account uses the `@e2e.tomobilti.test` domain; `php artisan tomobilti:e2e-cleanup`
-deletes them with their reservations, invoices and notifications before and after each
-run. The queue worker must run, or the verification e-mail never reaches Mailpit.
-Override the URLs or the admin with `E2E_APP_URL`, `E2E_API_URL`, `E2E_MAILPIT_URL`,
-`E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`.
-
-## Who works where
-
-`backend/` and `frontend/` are independent apps with their own dependencies, env file, linter and tests. They only share the HTTP contract (JSON over `/api/*`).
-
-- **Backend developers** work in `backend/`. You only need PHP, Composer and Docker; test endpoints with `curl` or an HTTP client.
-- **Frontend developers** work in `frontend/`. You need Node.js, plus a running API (`npm run services:up` and `npm run dev:api` from the root).
-
-### API conventions
-
-- Every response is JSON. Requests to `api/*` are forced to `Accept: application/json`, so even 404, 401, 403, 422 and 500 errors come back as JSON.
-- Error shape:
-
-  ```json
-  { "message": "Le champ adresse e-mail est obligatoire.", "errors": { "email": ["…"] } }
-  ```
-
-  `errors` is only present for validation errors (422). With `APP_DEBUG=true`, 500 errors also include a `debug` key.
-
-- Messages are in French (`APP_LOCALE=fr`); validation messages come from `laravel-lang`, API error messages from `backend/lang/fr/api.php`.
-- Models are returned through **Eloquent API Resources** (`app/Http/Resources`), never as raw models.
-- The SPA calls the API with the shared axios instance in `frontend/src/api/client.js` (`withCredentials` and `withXSRFToken` enabled). Call `getCsrfCookie()` before login or register.
-
-## Authentication and roles
-
-Sanctum **SPA cookie authentication** (no tokens): the browser keeps a Laravel session cookie and an `XSRF-TOKEN` cookie that axios sends back as a header. Controllers live in `backend/app/Http/Controllers/Auth` (no Fortify, no Breeze), validation in `app/Http/Requests`.
-
-```
-SPA                                         API
-GET  /sanctum/csrf-cookie            ───▶   sets XSRF-TOKEN cookie
-POST /api/auth/login | register      ───▶   session cookie (+ remember cookie if asked)
-GET  /api/user                       ───▶   UserResource (401 for guests)
-```
-
-| Endpoint                                         | Auth        | Notes                                                                              |
-| ------------------------------------------------ | ----------- | ---------------------------------------------------------------------------------- |
-| `POST /api/auth/register`                        | —           | Role is always `client`. Logs in and sends the verification email. 6/min           |
-| `POST /api/auth/login`                           | —           | `remember`. 5 failed attempts per minute per email + IP, 20 attempts per minute per IP (429). Disabled account: 403 |
-| `POST /api/auth/logout`                          | session     | Invalidates the session, new CSRF token                                            |
-| `GET /api/user`                                  | session     | `UserResource` (never the password hash, the remember token or `is_active`)        |
-| `POST /api/auth/forgot-password`                 | —           | Same answer whether the account exists or not. 6/min                               |
-| `POST /api/auth/reset-password`                  | —           | Token from the email. 6/min                                                        |
-| `POST /api/auth/email/verify/{id}/{hash}`        | signed URL  | Called by `/verifier-email`; works signed in or not. 403 `expired` / `invalid`     |
-| `POST /api/auth/email/verification-notification` | session     | Resend the verification email. 6/min                                               |
-| `PUT /api/profile`                               | session     | Any subset of the profile; 18+, licence after the 18th birthday, new email = re-verify |
-| `PUT /api/profile/password`                      | session     | `current_password` required. 6/min                                                 |
-| `GET /api/admin/ping`                            | admin       | `admin` middleware: 401 for guests, 403 for clients                                |
-
-- **Emails** (`app/Notifications/Auth`): French, Tomobilti theme (`resources/views/vendor/mail`), queued, delivered to Mailpit in development. The links open the React app: `FRONTEND_URL/verifier-email?id&hash&expires&signature` and `FRONTEND_URL/reinitialiser-mot-de-passe?token&email`. The queue worker (`npm run dev` starts it) must run for them to leave.
-- **Roles**: the `role` column is not mass assignable. The `access-admin` gate (`AppServiceProvider`) backs the `admin` middleware alias; model policies go in `app/Policies`.
-- **SPA** (`frontend/src`): `context/AuthContext.jsx` loads the user on start and exposes `useAuth()` (`user`, `status`, `isAdmin`, `isVerified`, `login`, `register`, `logout`, `refreshUser`). The axios client retries once after a 419 with a fresh CSRF cookie and clears the user on 401. Guards: `GuestRoute`, `ProtectedRoute` (→ `/connexion?redirect=…`), `AdminRoute` (clients see a 403 page).
-- **Pages**: `/connexion`, `/inscription`, `/mot-de-passe-oublie`, `/reinitialiser-mot-de-passe`, `/verifier-email`, `/espace/profil`, `/espace/reservations`, `/admin`. After login, admins land on `/admin`, clients on `?redirect=` or `/espace/profil`.
-
-## Public catalogue and website (Phase 3)
-
-No authentication. JSON through API Resources, French messages, **60 requests per minute** per
-visitor (`catalog` limiter in `AppServiceProvider`). Only cars with the status `available` are
-public, and no endpoint exposes customers or reservation details.
-
-| Endpoint                                   | Notes                                                                                                                                                                                                                                                                           |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/cars`                            | 12 per page (`meta`, `links`). Filters: `category`, `brand`, `fuel`, `slug` (one or more, comma separated), `transmission`, `seats_min`, `price_min`, `price_max`, `location`, `air_conditioning`, `q` (brand and model), `start_at` + `end_at` (YYYY-MM-DD, free for the whole days). `sort`: `price_asc` (default), `price_desc`, `newest` (model year), `popular` (completed reservations) |
-| `GET /api/cars/featured`                   | Featured available cars, cheapest first                                                                                                                                                                                                                                         |
-| `GET /api/cars/{slug}`                     | Detail: every photo (800 / 1600 px URLs, alt, author, license, license URL, source), specs, description, deposit, home agency with hours, and `similar` (4 cars of the same category, closest in price). 404 for cars in maintenance, out of service or soft deleted          |
-| `GET /api/cars/{slug}/availability`        | `?from=&to=` (default today → 6 months, 6 months max): `unavailable` date ranges of blocking reservations, dates only                                                                                                                                                           |
-| `GET /api/catalog/filters`                 | Categories, brands and locations with their available car counts, transmission and fuel options, seat counts, min / max price per day                                                                                                                                         |
-| `GET /api/categories`                      | In display order, with `cars_count` (available cars)                                                                                                                                                                                                                            |
-| `GET /api/locations`                       | Active pick-up points with address, phone and opening hours                                                                                                                                                                                                                     |
-| `GET /api/extras`                          | Active options (chosen in the booking flow)                                                                                                                                                                                                                                        |
-| `POST /api/contact`                        | `name`, `email`, `phone` (optional), `subject`, `message`. Queues a French email to `AGENCY_EMAIL` (default `contact@tomobilti.ma`, Mailpit in development) with the visitor as Reply-To. **3 per 10 minutes per IP** (`contact` limiter)                                         |
-
-- Filtering lives in `app/Filters/CarFilter.php`: one small method per query parameter, each
-  adding an `AND` condition, validated first by `app/Http/Requests/Catalog/CarIndexRequest.php`.
-- Dates are whole days: a blocking reservation (`pending`, `confirmed`, `active`) touching the
-  first or the last day excludes the car, which matches the days struck through in its calendar.
-- Lists eager-load `brand`, `category`, `location` and the primary image (a test checks that
-  the number of queries does not grow with the number of cars).
-
-**SPA pages:** `/` (search by agency and dates, categories, featured cars, how it works,
-agencies, FAQ), `/voitures` (catalogue; every filter, the sort and the page live in the URL),
-`/voitures/:slug` (gallery and lightbox with photo credits, specs, availability calendar,
-estimated total, options, similar cars), `/a-propos`, `/contact`, and `/reserver/:slug`
-(signed-in users, the booking flow of Phase 4). Guests who press "Réserver" go to
-`/connexion?redirect=…` and come back to the car with their dates. Favorites are kept in the
-browser (`localStorage`) for now. Server state uses TanStack Query (conventions in
-[frontend/DESIGN.md](frontend/DESIGN.md), "Data").
-
-## Reservations (Phase 4)
-
-Customers book a car online; **payment and the deposit are handled at the agency at
-pick-up** (no online payment). The server is the only source of truth for prices and
-availability: the SPA sends the customer's choices, never a price.
-
-### Booking rules
-
-All in `backend/config/tomobilti.php` (`booking`), also served to the SPA by `GET /api/booking-rules`.
-
-| Rule | Value |
-| --- | --- |
-| Pick-up and return times | 08:00 to 20:00, every 30 minutes |
-| Earliest / latest pick-up | 2 hours from now / 6 months ahead |
-| Duration | 1 to 30 billed days; days = ceil(duration in hours / 24) |
-| Driver | at least 21 years old and licence held for at least 2 years, on the pick-up date |
-| Profile needed to book | verified email, active account, phone, birth date, CIN, licence number and date |
-| Free cancellation | until 24 hours before pick-up (pending or confirmed reservations) |
-| One-way fee | 300 DH when the return agency differs from the pick-up agency |
-| Price | days × price per day + options (per day: × days × quantity; per rental: × quantity) + one-way fee. The deposit is never in the total |
-
-The pricing (`App\Services\ReservationPricing`), the eligibility check (`App\Services\BookingEligibility`)
-and the double-booking protection are described in [docs/database.md](docs/database.md#pricing-phase-4).
-
-### Endpoints
-
-| Endpoint | Auth | Notes |
+| E-mail | Password | Role |
 | --- | --- | --- |
-| `GET /api/booking-rules` | — | The rules above. 120/min (`booking` limiter) |
-| `POST /api/reservations/quote` | — | `car`, `start_at`, `end_at` (`YYYY-MM-DD HH:MM`, agency time), `pickup_location`, `return_location`, `extras: [{ slug, quantity }]`. Returns the price breakdown, `available` (+ French message), and for a signed-in customer `eligibility` (`eligible`, French `reasons`, `missing_fields`) and `can_book`. 120/min |
-| `POST /api/reservations` | session + verified email | Quote input + `customer_notes`, `terms`. Validates again, checks eligibility (422 with the reasons), then creates a **pending** reservation in a transaction that locks the car row: a car booked meanwhile answers **409** with a French message. Price, extras and deposit are snapshotted. 10/min |
-| `GET /api/reservations` | session | My reservations: `tab` = `upcoming` (default), `current`, `past`, `cancelled`; 10 per page; `meta.counts` per tab |
-| `GET /api/reservations/{reference}` | session | One of mine (404 otherwise): car with photos, agencies (address, hours, phone), extras, price breakdown, status timestamps, `cancellation` (`allowed`, French `reason`, `free_until`) |
-| `POST /api/reservations/{reference}/cancel` | session | `reason` optional. Mine only (404), pending or confirmed, more than 24 h before pick-up; otherwise 403 with the French reason |
+| `admin@tomobilti.ma` | `Tomobilti2026!` | Agency (admin) |
+| `client@tomobilti.ma` | `Tomobilti2026!` | Customer |
 
-- `ReservationPolicy` covers every customer action (`viewAny`, `view`, `create`, `cancel`).
-- `reservations:expire` (every five minutes) refuses pending requests whose pick-up time has
-  passed, with the reason "Demande expirée", and emails the refusal (Phase 6).
+## Commands
 
-### SPA pages
+From the repository root:
 
-- `/reserver/:slug` (signed-in users): 4 steps (Dates et agences, Options, Informations,
-  Récapitulatif) with a live summary of the server's quote, the profile completed inline,
-  the choices kept in `sessionStorage` across a refresh or the login detour, similar free
-  cars when the car is taken, and a confirmation screen with the reference.
-- `/espace/reservations`: tabs À venir, En cours, Passées, Annulées.
-- `/espace/reservations/:reference`: status timeline, agencies with phone and WhatsApp,
-  price breakdown, documents to bring, free cancellation with a confirmation dialog.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | API, queue worker, scheduler and Vite, with colored output |
+| `npm run services:up` / `services:down` | Start / stop the Docker services (data kept in volumes) |
+| `npm test` | PHPUnit then Vitest |
+| `npm run lint` | Pint `--test`, ESLint, Prettier check |
+| `npm run format` | Pint and Prettier |
 
-Details in [frontend/DESIGN.md](frontend/DESIGN.md) ("Booking flow and reservations").
+Inside `backend/`: `php artisan route:list`, `reservations:expire`, `reservations:send-reminders`, `tomobilti:import-car-photos`, `tomobilti:import-site-photos`, `tomobilti:image-credits`, `tomobilti:e2e-cleanup`. Inside `frontend/`: `npm run build` (production build in `dist/`), `npm run preview` (the build on http://localhost:4173, with the production security headers).
 
-## Admin back office (Phase 5)
+## Tests
 
-The agency's back office at `/admin` (admins only; clients get the 403 page). The SPA
-loads it lazily, so visitors and clients never download it (Recharts included).
-
-### What the agency can do
-
-- **Tableau de bord**: period switch (30 jours, 90 jours, 12 mois, in the URL), KPIs
-  (revenue, expected revenue, requests to answer, active rentals, fleet utilisation),
-  reservations received per status, today's and tomorrow's pick-ups and returns, alerts
-  (pending requests within 48 h, cars in maintenance or out of service), revenue per month
-  and reservations per week charts, top 5 cars, share per category and per agency, latest
-  reservations.
-- **Réservations**: tabs À traiter / Aujourd'hui / En cours / Toutes with counts, filters
-  in the URL (status, agency, car, dates, search on reference, name, email or phone),
-  sort, table on desktop and cards on mobile, CSV export of the filtered list. The detail
-  page shows the client, the car, the agencies, the price breakdown, the notes and the full
-  status history, with the actions the status allows: Confirmer, Refuser (reason
-  required), Marquer comme récupérée, Marquer comme rendue, Annuler (reason required).
-- **Planning**: one row per car, the reservations as bars colored by status over two weeks
-  (week navigation, today marker, tooltips, click to open). No calendar library.
-- **Voitures**: search, filters, status badges; create and edit in sections; photos
-  uploaded by drag and drop (progress per file), reordered, set as primary, described
-  (alt text) or deleted; status change that lists the affected reservations first;
-  removal (soft delete, refused while reservations still need the car) and restore.
-- **Clients**: search and filters, reservation count and total spent, detail page with
-  the history, activate / deactivate.
-- **Paramètres**: categories, brands, agencies and options, with modal forms. Anything
-  still in use cannot be deleted (409 with the reason); agencies and options are
-  deactivated instead.
-
-### Rules the server enforces
-
-- Every route below is behind `auth:sanctum` + `admin` (401 for guests, 403 for clients,
-  checked before route model binding) and each action also has a policy
-  (`app/Policies`: `CarPolicy`, `UserPolicy`, `ReservationPolicy`, settings policies).
-- **Every status change goes through `App\Services\ReservationWorkflow`**: it locks the
-  reservation row, checks `ReservationStatus::canTransitionTo()`, saves the timestamp and
-  reason, and writes a `reservation_status_histories` row with the author (customer,
-  admin, or none for the scheduler). Confirming also locks the car row and checks again
-  that the car is rentable and that no other blocking reservation overlaps (409
-  otherwise). A move the status does not allow answers 403 with the French reason.
-- **Deactivating a client** deletes their database sessions, replaces their remember-me
-  token and revokes API tokens: their next request answers 401 and they cannot sign in
-  again. An admin cannot deactivate themselves or another admin.
-- **Photos** (`App\Services\CarPhotoUploader`) use the same GD pipeline as the demo
-  photos: EXIF orientation applied, 16:10 crop, `-1600.webp` and `-800.webp`, metadata
-  removed, credited "Tomobilti". JPG, PNG or WebP, 5 MB each. The first real photo
-  replaces the SVG placeholder.
-- **Dashboard figures** are defined in `App\Services\DashboardStats` (one aggregate query
-  each): revenue = completed reservations returned in the period; expected revenue =
-  confirmed + active; utilisation = hours of confirmed, active and completed rentals
-  inside the period / (cars not removed and not out of service × days).
-
-### Endpoints
-
-All under `/api/admin`, JSON, French messages. Cars and settings are found by id,
-reservations by reference.
-
-| Endpoint                                                | Notes                                                                                                                                                                                                                                    |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /dashboard?period=30d\|90d\|12m`                   | KPIs, `today`, `charts`, `alerts`, `recent`                                                                                                                                                                                              |
-| `GET /reservations`                                     | `tab` (`pending`, `today`, `active`, `all`), `status` (comma separated), `from`, `to`, `car`, `location`, `q`, `sort` (`start_at`, `end_at`, `created_at`, `total`, `reference`), `direction`, `page`, `per_page`; `meta.counts` per tab |
-| `GET /reservations/export`                              | Same filters, every page, CSV: UTF-8 with BOM, `;` separators, decimal commas, French headers                                                                                                                                            |
-| `GET /reservations/{reference}`                         | Client, car, agencies, extras, `pricing`, notes, `timeline`, `invoice`, `history`                                                                                                                                                        |
-| `POST /reservations/{reference}/confirm`                | pending → confirmed (car locked, availability checked again)                                                                                                                                                                             |
-| `POST /reservations/{reference}/reject`                 | `reason` required; pending → rejected                                                                                                                                                                                                    |
-| `POST /reservations/{reference}/pick-up`                | `payment_method` (`cash`, `card`, `bank_transfer`) and `paid` (boolean) required; confirmed → active, `picked_up_at`, and issues the invoice (Phase 6)                                                                                     |
-| `GET /reservations/{reference}/voucher`                 | Booking voucher PDF (confirmed, active, completed; 404 otherwise)                                                                                                                                                                        |
-| `POST /reservations/{reference}/return`                 | active → completed, `returned_at`                                                                                                                                                                                                        |
-| `POST /reservations/{reference}/cancel`                 | `reason` required; pending or confirmed → cancelled (no 24 h limit for the agency)                                                                                                                                                       |
-| `PATCH /reservations/{reference}/notes`                 | `admin_notes` (never shown to the customer)                                                                                                                                                                                              |
-| `GET /planning?from=&to=`                               | Per car, its reservations in the range (cancelled and refused left out); 31 days max, default this week + next                                                                                                                           |
-| `GET /cars`                                             | `q`, `status`, `category`, `brand`, `location`, `deleted` (`with`, `only`), `sort`, `direction`, `page`, `per_page`                                                                                                                      |
-| `POST /cars`, `GET\|PUT /cars/{id}`                     | Form request; plate normalized to `12345-A-6` and unique; slug from brand + model + year, unique                                                                                                                                         |
-| `DELETE /cars/{id}`, `POST /cars/{id}/restore`          | Soft delete, 409 with the reservations while upcoming or current ones need the car                                                                                                                                                       |
-| `GET /cars/{id}/status-conflicts`                       | Pending and confirmed reservations not over yet                                                                                                                                                                                          |
-| `PATCH /cars/{id}/status`                               | `status`, `force`; without `force`, 409 with the affected reservations                                                                                                                                                                   |
-| `POST /cars/{id}/images`                                | Multipart `images[]` (1 to 10)                                                                                                                                                                                                           |
-| `PUT /cars/{id}/images/order`                           | `ids`: every photo, once                                                                                                                                                                                                                 |
-| `PATCH\|DELETE /cars/{id}/images/{image}`               | `alt`, `is_primary` / delete with the files                                                                                                                                                                                              |
-| `GET /clients`, `GET /clients/{id}`                     | `q`, `active`, `verified`, `sort`; detail with `stats` and `reservations`                                                                                                                                                                |
-| `POST /clients/{id}/activate`, `/deactivate`            | Deactivation ends every session                                                                                                                                                                                                          |
-| `GET\|POST /categories`, `PUT\|DELETE /categories/{id}` | Same for `/brands`, `/locations`, `/extras`; 409 when in use                                                                                                                                                                             |
-
-### SPA routes
-
-`/admin`, `/admin/reservations`, `/admin/reservations/:reference`, `/admin/planning`,
-`/admin/factures` (Phase 6), `/admin/voitures`, `/admin/voitures/nouvelle`, `/admin/voitures/:id`, `/admin/clients`,
-`/admin/clients/:id`, `/admin/parametres` (`?onglet=categories|brands|locations|extras`).
-The sidebar badge on Réservations shows the requests to answer, refreshed every 60 seconds.
-Details in [frontend/DESIGN.md](frontend/DESIGN.md) ("Admin back office").
-
-### Photo uploads in development
-
-PHP's defaults (2 MB per file, 8 MB per request) are below the 5 MB photo limit, so
-`npm run dev:api` loads `backend/php/dev.ini` through `PHP_INI_SCAN_DIR` (the system
-`php.ini` is not changed). In production, set the same limits (`upload_max_filesize`,
-`post_max_size`) in PHP-FPM and the web server.
-
-## Invoices, emails and notifications (Phase 6)
-
-### Invoices and vouchers
-
-- **Payment happens at the agency, at pick-up.** "Marquer comme récupérée" asks for the
-  payment method (espèces, carte, virement) and whether it is paid now; the same
-  transaction moves the reservation to `active` and issues the invoice (`Invoice::issueFor`),
-  paid or unpaid. An unpaid invoice is marked as paid later from `/admin/factures` or the
-  reservation page. Numbers: `FAC-{year}-{6 digits}`, retried on a unique-index conflict.
-- Amounts are TTC as booked; `Invoice::splitTotal()` gives HT and TVA 20 % (bcmath).
-- **PDFs** (`App\Services\ReservationDocuments`, barryvdh/laravel-dompdf, views in
-  `backend/resources/views/pdf`): the **bon de réservation** (confirmed, active and completed
-  reservations: reference, client, car and plate, dates, agencies with address and hours,
-  options, price, deposit, documents to bring) and the **facture** (company details, client
-  with address and CIN, lines, total HT, TVA, total TTC, the amount in words with PHP intl,
-  payment method and status). A4, light, Plus Jakarta Sans embedded as a subset
-  (`backend/resources/fonts`, SIL Open Font License).
-- **Company details** come from `config/tomobilti.php` (`company`, `COMPANY_*` env
-  variables). The defaults are **demo values** (ICE, RC and IF are all zeros).
-
-### Emails
-
-French, queued, in the branded light theme (`resources/views/mail/reservation.blade.php`:
-a title, the key details, one button). Each one is dispatched **after the database
-commit** of the change it describes (`afterCommit`), and each event is notified once: the
-status change is made under a row lock by `ReservationWorkflow`, then
-`App\Services\ReservationNotifier` sends its notifications.
-
-| Event | Client | Agency (`AGENCY_EMAIL`) | In-app |
-| --- | --- | --- | --- |
-| Booking (pending) | Demande reçue | Nouvelle demande (Reply-To: the client) | Admins |
-| Confirmed | Réservation confirmée + voucher PDF | | Client |
-| Refused (agency or expired) | Réservation refusée, with the reason | | Client |
-| Cancelled by the client | Confirmation | Annulation client | Admins |
-| Cancelled by the agency | Réservation annulée, with the reason | | Client |
-| Pick-up reminder (24 h before) | Rappel: agency address, hours, documents | | Client |
-| Picked up (invoice issued) | Votre facture + PDF | | Client |
-| Invoice sent again by the agency | Votre facture + PDF | | |
-| Returned | Merci | | |
-
-The queue worker must run for emails and in-app notifications to leave (`npm run dev`
-starts it). In development they land in Mailpit (http://localhost:8025).
-
-### Pick-up reminder
-
-`reservations:send-reminders` runs **every 15 minutes** (`routes/console.php`). It reminds
-confirmed reservations whose pick-up is less than 24 hours away, once: each reservation is
-claimed by setting `reservations.reminder_sent_at` with a conditional update before the
-reminder is queued. Cancelled, pending and started reservations are skipped.
-
-### Endpoints
-
-| Endpoint | Auth | Notes |
+| Suite | Command | What it covers |
 | --- | --- | --- |
-| `GET /api/reservations/{reference}/voucher` | session | My reservation only; PDF once confirmed, 404 before |
-| `GET /api/reservations/{reference}/invoice` | session | My reservation only; PDF once issued, 404 before |
-| `GET /api/notifications` | session | 15 per page, newest first, `meta.unread_count` |
-| `POST /api/notifications/{id}/read` | session | Mine only (404); returns `meta.unread_count` |
-| `POST /api/notifications/read-all` | session | |
-| `GET /api/admin/invoices` | admin | `status`, `payment_method`, `from`, `to` (issue date), `q` (number, reference, client), `sort` (`issued_at`, `number`, `total_ttc`), `direction`, `page`, `per_page`; `meta.totals` (`count`, `total`, `paid`, `unpaid`) for the whole filtered list |
-| `GET /api/admin/invoices/{number}/pdf` | admin | PDF |
-| `POST /api/admin/invoices/{number}/mark-paid` | admin | `payment_method`; 403 when already paid |
-| `POST /api/admin/invoices/{number}/send` | admin | Emails the invoice to the client again |
-| `GET /api/admin/reservations/{reference}/voucher` | admin | PDF |
+| Backend | `npm run test:backend` | 457 PHPUnit tests: endpoints, rules, policies, workflow, PDFs, e-mails, query counts, cache, headers |
+| Frontend | `npm run test:frontend` | 148 Vitest tests: components, hooks, formatting, booking rules |
+| End-to-end | `cd frontend && npm run test:e2e` | 7 Playwright tests on the running app with the installed Chrome: booking, admin flow, layouts at 375 and 1366 px, axe-core |
 
-Reservations now return `has_voucher` and `invoice` (number, status; plus method, total
-and dates on the admin detail).
+The end-to-end suite needs `npm run dev` and Mailpit. It creates its own customers through the API on the `@e2e.tomobilti.test` domain and removes them, with their reservations and invoices, before and after each run (`php artisan tomobilti:e2e-cleanup`). `npx playwright test --headed` shows the browser.
 
-### SPA
+## Production
 
-- **Bell** (`components/notifications/NotificationBell.jsx`) in the floating navbar, the
-  mobile top bar and the admin topbar: unread count refreshed every 60 seconds, a panel
-  with the latest notifications (icon, short text, relative time), a click opens the
-  reservation and marks it read, "Tout marquer comme lu".
-- `/espace/reservations/:reference`: "Télécharger le bon de réservation" and "Télécharger
-  la facture" when they exist; the list shows a small invoice icon.
-- `/admin/factures` (sidebar "Factures"): totals (encaissé, à encaisser), filters in the
-  URL, table (cards on phones), download, mark as paid, send again. The reservation page
-  shows the invoice card and the voucher download.
-
-## VS Code
-
-Open the repository root. Install the recommended extensions when VS Code suggests them (`.vscode/extensions.json`).
-Saving a file formats it: Prettier and ESLint for JS/JSX/CSS, Laravel Pint for PHP (official Laravel extension, `Laravel.basePath` is set to `backend`).
+Set `APP_DEBUG=false`, secure same-site session cookies, `SESSION_DOMAIN`, `SANCTUM_STATEFUL_DOMAINS`, `FRONTEND_URL`, a real SMTP relay and the agency's legal details (`COMPANY_*`): see the production section of [backend/.env.example](backend/.env.example). The web server serving the SPA sends the Content-Security-Policy and routes `/sitemap.xml` to the API; run a queue worker and `php artisan schedule:run` every minute. Details in [docs/security.md](docs/security.md).
 
 ## Roadmap
 
-- [x] **Phase 0: Setup** (monorepo, Docker services, Laravel API, React SPA, tooling)
-- [x] **Phase 1: Database** (schema, migrations, models, seeders)
-  - [x] **1A Base de données** (enums, migrations, models, relations, factories, seeders; see [docs/database.md](docs/database.md))
-  - [x] **1B Design system (frontend)** (tokens, motion, UI kit, layouts, style guide at `/design` in development; see [frontend/DESIGN.md](frontend/DESIGN.md))
-  - [x] **1C Photos & navbar** (real car and site photos imported with their credits, floating desktop navbar; see [docs/image-credits.md](docs/image-credits.md))
-- [x] **Phase 2: Auth & roles** (Sanctum SPA login, registration, email verification, password reset, customer profile, admin role; see [Authentication and roles](#authentication-and-roles))
-- [x] **Phase 3: Catalogue** (public catalogue API, search and filters, car detail with availability, home, about and contact pages; see [Public catalogue and website](#public-catalogue-and-website-phase-3))
-- [x] **Phase 4: Reservation** (booking flow, pricing in MAD, my reservations, cancellation, new home hero photo; see [Reservations](#reservations-phase-4))
-- [x] **Phase 5: Admin back office** (dashboard and statistics, reservations with status history, planning, fleet and photos, customers, catalogue settings; see [Admin back office](#admin-back-office-phase-5))
-- [x] **Phase 6: Invoices & notifications** (invoices issued at pick-up, PDF invoices and booking vouchers, emails, in-app notifications, pick-up reminders; see [Invoices, emails and notifications](#invoices-emails-and-notifications-phase-6))
-- [ ] **Phase 7: Polish** (UX, accessibility, performance, tests)
-  - [x] **7A Revue complète** (QA review of every page, viewport, overlay and state; fixes at the root; axe-core clean; no N+1; Playwright end-to-end suite; see [docs/qa-report.md](docs/qa-report.md) and [End-to-end tests](#end-to-end-tests))
-- [ ] **Phase 8: Deployment** (production hosting, CI/CD)
+- [x] **Phase 0**: setup (monorepo, Docker services, Laravel API, React SPA, tooling)
+- [x] **Phase 1**: database, design system, real photos and floating navbar
+- [x] **Phase 2**: authentication and roles (Sanctum SPA, verification, password reset, profile)
+- [x] **Phase 3**: public catalogue, search and filters, car page, home, about and contact
+- [x] **Phase 4**: booking flow, pricing in DH, Mon espace, cancellation
+- [x] **Phase 5**: back office (dashboard, reservation workflow, planning, fleet, customers, settings)
+- [x] **Phase 6**: invoices and vouchers (PDF), e-mails, reminders, in-app notifications
+- [x] **Phase 7**: polish
+  - [x] **7A**: full QA review, accessibility, end-to-end suite ([report](docs/qa-report.md))
+  - [x] **7B**: legal pages, notifications page, cleanup, dependencies, performance, security, SEO, documentation
+- [ ] **Phase 8**: deployment (hosting, CI/CD)
+
+## Credits and license
+
+Car and site photos are used under their licenses (CC BY, CC BY-SA, Unsplash, Pexels), credited on the site's `/credits` page and in [docs/image-credits.md](docs/image-credits.md). Plus Jakarta Sans is under the SIL Open Font License; brand icons come from Simple Icons (CC0).
+
+The application code is proprietary (`"license": "proprietary"` in `backend/composer.json`): all rights reserved, shared for review and education. The legal pages and the company details are demo content that the agency must validate.

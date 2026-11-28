@@ -133,7 +133,7 @@ export default function AdminReservationsPage() {
   const [exporting, setExporting] = useState(false)
 
   const activeCount = countActiveFilters(filters, RESERVATION_FILTERS, [
-    'tab',
+    'onglet',
     'sort',
     'direction',
     'page',
@@ -161,9 +161,9 @@ export default function AdminReservationsPage() {
       error={error}
       refetch={refetch}
       dimmed={isPlaceholderData}
-      tab={filters.tab}
+      tab={filters.onglet}
       hasFilters={activeCount > 0}
-      onReset={() => resetFilters({ tab: filters.tab })}
+      onReset={() => resetFilters({ onglet: filters.onglet })}
       onOpen={(row) => navigate(`/admin/reservations/${row.reference}`)}
       onPage={(page) => setFilters({ page })}
     />
@@ -193,7 +193,10 @@ export default function AdminReservationsPage() {
           onChange={(q) => setFilters({ q }, { replace: true })}
           className="w-full md:max-w-md"
         />
-        <FilterPanel activeCount={activeCount} onReset={() => resetFilters({ tab: filters.tab })}>
+        <FilterPanel
+          activeCount={activeCount}
+          onReset={() => resetFilters({ onglet: filters.onglet })}
+        >
           <Select
             label="Statut"
             className="md:w-44"
@@ -258,8 +261,8 @@ export default function AdminReservationsPage() {
 
       <Tabs
         label="Onglets des réservations"
-        selectedIndex={TABS.indexOf(filters.tab)}
-        onChange={(index) => setFilters({ tab: TABS[index] })}
+        selectedIndex={TABS.indexOf(filters.onglet)}
+        onChange={(index) => setFilters({ onglet: TABS[index] })}
         tabs={TABS.map((tab) => ({
           label: ADMIN_RESERVATION_TAB[tab],
           count: data?.meta?.counts?.[tab],

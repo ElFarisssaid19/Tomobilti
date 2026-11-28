@@ -13,25 +13,23 @@ class AdminAccessTest extends TestCase
 
     public function test_admin_reaches_the_admin_area(): void
     {
-        $admin = User::factory()->admin()->create(['name' => 'Karim Admin']);
-
-        $this->actingAs($admin)
-            ->getJson('/api/admin/ping')
+        $this->actingAs(User::factory()->admin()->create())
+            ->getJson('/api/admin/dashboard')
             ->assertOk()
-            ->assertJsonPath('message', 'Espace administrateur opérationnel. Bonjour, Karim Admin.');
+            ->assertJsonStructure(['data' => ['kpis']]);
     }
 
     public function test_client_gets_a_french_403(): void
     {
         $this->actingAs(User::factory()->create())
-            ->getJson('/api/admin/ping')
+            ->getJson('/api/admin/dashboard')
             ->assertForbidden()
             ->assertExactJson(['message' => "Vous n'êtes pas autorisé à effectuer cette action."]);
     }
 
     public function test_guest_gets_401(): void
     {
-        $this->getJson('/api/admin/ping')->assertUnauthorized();
+        $this->getJson('/api/admin/dashboard')->assertUnauthorized();
     }
 
     public function test_access_admin_gate_allows_admins_only(): void

@@ -142,3 +142,19 @@ their text is stored when they are created.
    applies to the invoice PDF too, so its table shows "1.533,33 DH" next to "1.840 DH".
    If you prefer two decimals on invoices only, that is a small change (a two-decimal
    variant of `FrenchFormatter::money` used by the invoice view).
+
+## Follow-up (Phase 7B, 27 November 2026)
+
+The four items left open and the three decisions above were settled in Phase 7B:
+
+| # | Decision |
+| --- | --- |
+| m16 | "Voir tout" at the bottom of the bell opens `/espace/notifications` (or `/admin/notifications`): pagination, Toutes / Non lues / Lues, "Tout marquer comme lu" |
+| m17 | `?onglet=` everywhere; old `?tab=` links are redirected to `?onglet=` |
+| m18 | `/conditions-generales` and `/confidentialite`, built from `config/tomobilti.php` and marked as a demo model, linked from the footer and both terms checkboxes |
+| m19 | The date pickers' labels use the typographic apostrophe |
+| Amounts | Two decimals on the invoice PDF and `/admin/factures` only ("1.840,00 DH") |
+
+Also found in 7B: the production build dropped the unprefixed `backdrop-filter` of the
+`glass` utility (bars unblurred in Chrome, production only; the reviews ran on the dev
+server). Fixed, see [security.md](security.md).

@@ -18,7 +18,9 @@ export { default as CarListItem, CarListItemSkeleton } from './CarListItem.jsx'
 export { default as Checkbox } from './Checkbox.jsx'
 export { Chip, ChipGroup } from './Chip.jsx'
 export { default as ConfirmDialog } from './ConfirmDialog.jsx'
-export { DateRangeCalendar, default as DateRangePicker } from './DateRangePicker.jsx'
+// DateRangeCalendar is not re-exported: import it from './DateRangeCalendar.jsx', so the
+// calendar stays in its own chunk (DateRangePicker loads it when the popover opens).
+export { default as DateRangePicker } from './DateRangePicker.jsx'
 export { BottomSheet, default as Drawer } from './Drawer.jsx'
 export { default as DropdownMenu } from './DropdownMenu.jsx'
 export { default as EmptyState } from './EmptyState.jsx'

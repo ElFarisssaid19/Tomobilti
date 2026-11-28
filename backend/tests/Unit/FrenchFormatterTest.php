@@ -36,6 +36,14 @@ class FrenchFormatterTest extends TestCase
         $this->assertSame("{$formatted}\u{00A0}DH", FrenchFormatter::money($amount));
     }
 
+    #[TestWith(['1840.00', '1.840,00'])]
+    #[TestWith(['1533.333', '1.533,33'])]
+    #[TestWith(['450', '450,00'])]
+    public function test_formats_invoice_amounts_with_the_centimes(string $amount, string $formatted): void
+    {
+        $this->assertSame("{$formatted}\u{00A0}DH", FrenchFormatter::invoiceMoney($amount));
+    }
+
     #[TestWith(['+212524000101', '+212 5 24 00 01 01'])]
     #[TestWith(['+33612345678', '+33612345678'])]
     #[TestWith([null, ''])]

@@ -25,7 +25,7 @@ import { INVOICE_FILTERS } from '../../lib/adminInvoices.js'
 import { cn } from '../../lib/cn.js'
 import { INVOICE_STATUS, label, PAYMENT_METHOD, toOptions } from '../../lib/labels.js'
 import { countActiveFilters, filtersToApiParams } from '../../lib/urlFilters.js'
-import { formatPrice } from '../../utils/format.js'
+import { formatInvoiceAmount } from '../../utils/format.js'
 
 const SORTS = [
   { value: '', label: 'Plus récentes' },
@@ -76,7 +76,7 @@ const COLUMNS = [
     header: 'Total TTC',
     align: 'right',
     render: (invoice) => (
-      <span className="font-semibold tabular-nums">{formatPrice(invoice.total_ttc)}</span>
+      <span className="font-semibold tabular-nums">{formatInvoiceAmount(invoice.total_ttc)}</span>
     ),
   },
   {
@@ -241,7 +241,7 @@ export default function AdminInvoicesPage() {
               />
               <p className="text-sm text-fg-subtle tabular-nums">
                 {data.meta.total} facture{data.meta.total > 1 ? 's' : ''}
-                {totals && `, ${formatPrice(totals.total)} TTC`}
+                {totals && `, ${formatInvoiceAmount(totals.total)} TTC`}
               </p>
             </div>
           )}

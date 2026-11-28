@@ -7,6 +7,7 @@ import {
   fetchCategories,
   fetchExtras,
   fetchFeaturedCars,
+  fetchLegal,
   fetchLocations,
 } from '../api/catalog.js'
 import { queryKeys } from '../api/queryKeys.js'
@@ -65,6 +66,15 @@ export function useCategories() {
   return useQuery({
     queryKey: queryKeys.categories(),
     queryFn: ({ signal }) => fetchCategories({ signal }),
+    staleTime: REFERENCE_STALE_TIME,
+  })
+}
+
+/** Values of /conditions-generales and /confidentialite (reference data). */
+export function useLegal() {
+  return useQuery({
+    queryKey: queryKeys.legal(),
+    queryFn: ({ signal }) => fetchLegal({ signal }),
     staleTime: REFERENCE_STALE_TIME,
   })
 }

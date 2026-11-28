@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { toast } from 'sonner'
 import AuthShell from '../../components/auth/AuthShell.jsx'
 import PasswordStrength from '../../components/auth/PasswordStrength.jsx'
+import { LegalLink } from '../../components/site/LegalDocument.jsx'
 import { Alert, Button, Checkbox, Input, PasswordInput } from '../../components/ui'
 import { useAuth } from '../../context/authContext.js'
 import {
@@ -160,6 +161,12 @@ export default function RegisterPage() {
         />
         <Checkbox
           label="J’accepte les conditions générales de location et la politique de confidentialité"
+          hint={
+            <>
+              Lire les <LegalLink to="/conditions-generales">conditions générales</LegalLink> et la{' '}
+              <LegalLink to="/confidentialite">politique de confidentialité</LegalLink>
+            </>
+          }
           name="terms"
           checked={values.terms}
           onChange={(terms) => setValues((current) => ({ ...current, terms }))}

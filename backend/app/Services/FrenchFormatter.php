@@ -34,6 +34,17 @@ final class FrenchFormatter
     }
 
     /**
+     * "1.840,00 DH": an invoice amount, always with the centimes (the invoice PDF and the
+     * /admin/factures page, `formatInvoiceAmount` in the SPA). Everything else uses money().
+     */
+    public static function invoiceMoney(string|int|float $amount): string
+    {
+        $centimes = (int) round((float) $amount * 100);
+
+        return number_format($centimes / 100, 2, ',', '.').self::NBSP.'DH';
+    }
+
+    /**
      * "+212524000101" → "+212 5 24 00 01 01": a Moroccan number stored in E.164, grouped
      * like the SPA (`formatPhone`). Other numbers are returned as they are.
      */

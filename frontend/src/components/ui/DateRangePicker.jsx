@@ -1,82 +1,41 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { CalendarDays } from 'lucide-react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useId, useMemo } from 'react'
-import { DayPicker } from 'react-day-picker'
-import { fr } from 'react-day-picker/locale'
-import { startOfToday } from 'date-fns'
-import useMediaQuery from '../../hooks/useMediaQuery.js'
+import { AnimatePresence, motion } from 'motion/react'
+import { lazy, Suspense, useId } from 'react'
 import { cn } from '../../lib/cn.js'
-import { formatDays, rentalDays, toDateRanges } from '../../lib/dates.js'
+import { rentalDays } from '../../lib/dates.js'
 import { scaleIn } from '../../lib/motion.js'
 import { getFieldError, toErrorMessage } from '../../lib/validation.js'
 import { formatDate } from '../../utils/format.js'
 import Button from './Button.jsx'
 import { FieldErrorText } from './FieldErrorText.jsx'
+import Skeleton from './Skeleton.jsx'
 
 const SHORT_DATE = { day: 'numeric', month: 'short', year: 'numeric' }
 
-function summary(range) {
-  if (!range?.from) return 'Choisissez la date de départ.'
-  if (!range.to) return 'Choisissez la date de retour.'
-  return `${formatDays(rentalDays(range))}, du ${formatDate(range.from, SHORT_DATE)} au ${formatDate(range.to, SHORT_DATE)}`
-}
-
-/**
- * Inline range calendar: French locale, weeks start on Monday, past dates disabled,
- * `unavailable` ranges (already booked, inclusive) disabled and struck through.
- * A range can never include an unavailable day (`excludeDisabled`).
- *
- * @param {{ from?: Date, to?: Date }} value
- * @param {(range?: { from?: Date, to?: Date }) => void} onChange
- * @param {Array<{ from: Date|string, to: Date|string }>} unavailable
+/*
+ * The calendar (react-day-picker and the date-fns locale) loads the first time the
+ * popover opens, so the home page's search does not download it up front.
  */
-export function DateRangeCalendar({
-  value,
-  onChange,
-  unavailable = [],
-  numberOfMonths,
-  minDays = 1,
-  maxDays,
-  showSummary = true,
-  className,
-}) {
-  const isDesktop = useMediaQuery('(min-width: 768px)')
-  const reduceMotion = useReducedMotion()
-  const today = startOfToday()
-  const blocked = useMemo(() => toDateRanges(unavailable), [unavailable])
+const DateRangeCalendar = lazy(() => import('./DateRangeCalendar.jsx'))
 
+/** Placeholder with the calendar's footprint while it loads (one or two months). */
+function CalendarSkeleton() {
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
-      <DayPicker
-        mode="range"
-        locale={fr}
-        weekStartsOn={1}
-        selected={value}
-        onSelect={onChange}
-        min={minDays}
-        max={maxDays}
-        excludeDisabled
-        disabled={[{ before: today }, ...blocked]}
-        modifiers={{ unavailable: blocked }}
-        modifiersClassNames={{ unavailable: 'rdp-unavailable' }}
-        numberOfMonths={numberOfMonths ?? (isDesktop ? 2 : 1)}
-        startMonth={today}
-        defaultMonth={value?.from ?? today}
-        animate={!reduceMotion}
-        className="tmb-calendar"
-      />
-      {showSummary && (
-        <p
-          aria-live="polite"
-          className={cn(
-            'text-sm tabular-nums',
-            value?.to ? 'font-semibold text-fg' : 'text-fg-muted',
-          )}
-        >
-          {summary(value)}
-        </p>
-      )}
+    <div aria-busy="true" className="flex flex-col gap-4">
+      <span className="sr-only">Chargement du calendrier…</span>
+      <div className="flex gap-6">
+        {[0, 1].map((month) => (
+          <div
+            key={month}
+            className={cn('flex w-72 flex-col gap-3', month === 1 && 'hidden md:flex')}
+          >
+            <Skeleton className="mx-auto h-6 w-32" />
+            <Skeleton className="h-64 w-full rounded-input" />
+          </div>
+        ))}
+      </div>
+      <Skeleton className="h-5 w-56" />
     </div>
   )
 }
@@ -155,14 +114,16 @@ export default function DateRangePicker({
                   {({ close }) => (
                     <>
                       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-0 sm:p-5 sm:pb-0">
-                        <DateRangeCalendar
-                          value={value}
-                          onChange={onChange}
-                          unavailable={unavailable}
-                          numberOfMonths={numberOfMonths}
-                          minDays={minDays}
-                          maxDays={maxDays}
-                        />
+                        <Suspense fallback={<CalendarSkeleton />}>
+                          <DateRangeCalendar
+                            value={value}
+                            onChange={onChange}
+                            unavailable={unavailable}
+                            numberOfMonths={numberOfMonths}
+                            minDays={minDays}
+                            maxDays={maxDays}
+                          />
+                        </Suspense>
                       </div>
                       <div className="mx-4 flex shrink-0 items-center justify-end gap-2 border-t border-line py-4 sm:mx-5">
                         <Button

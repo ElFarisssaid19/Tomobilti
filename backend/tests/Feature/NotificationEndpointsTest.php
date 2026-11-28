@@ -49,6 +49,34 @@ class NotificationEndpointsTest extends TestCase
             ->assertJsonPath('data.0.read_at', null);
     }
 
+    public function test_filters_unread_and_read_notifications(): void
+    {
+        $read = $this->notify($this->user, ReservationConfirmed::class);
+        $this->user->notifications()->first()->markAsRead();
+        $this->travel(1)->hour();
+        $unread = $this->notify($this->user, ReservationRejected::class);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/notifications?status=unread')
+            ->assertOk()
+            ->assertJsonPath('data.*.reference', [$unread->reference])
+            ->assertJsonPath('meta.unread_count', 1);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/notifications?status=read')
+            ->assertJsonPath('data.*.reference', [$read->reference])
+            ->assertJsonPath('meta.unread_count', 1);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/notifications?status=all')
+            ->assertJsonPath('meta.total', 2);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/notifications?status=archived')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('status');
+    }
+
     public function test_marks_one_notification_as_read(): void
     {
         $this->notify($this->user, ReservationConfirmed::class);

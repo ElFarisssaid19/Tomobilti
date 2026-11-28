@@ -7,7 +7,7 @@ import NotificationBell from '../components/notifications/NotificationBell.jsx'
 import PageTransition from '../components/layout/PageTransition.jsx'
 import UserMenu from '../components/auth/UserMenu.jsx'
 import { Drawer, IconButton } from '../components/ui'
-import { ADMIN_LINKS } from '../config/navigation.js'
+import { ADMIN_EXTRA_PAGES, ADMIN_LINKS } from '../config/navigation.js'
 import { cn } from '../lib/cn.js'
 
 const STORAGE_KEY = 'tomobilti.admin.sidebarCollapsed'
@@ -30,7 +30,7 @@ export default function AdminLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { pathname } = useLocation()
   const current =
-    [...ADMIN_LINKS]
+    [...ADMIN_LINKS, ...ADMIN_EXTRA_PAGES]
       .reverse()
       .find((link) => (link.end ? pathname === link.to : pathname.startsWith(link.to))) ??
     ADMIN_LINKS[0]

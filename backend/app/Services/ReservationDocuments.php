@@ -47,7 +47,7 @@ class ReservationDocuments
         return $this->render('pdf.invoice', [
             'invoice' => $invoice,
             'reservation' => $reservation,
-            'lines' => $this->lines($reservation),
+            'lines' => $this->lines($reservation, invoice: true),
             'amountInWords' => FrenchFormatter::amountInWords((string) $invoice->total_ttc),
             'title' => "Facture {$invoice->number}",
         ]);
@@ -55,19 +55,23 @@ class ReservationDocuments
 
     /**
      * Lines of the price (amounts TTC, as booked): the rental, each option, the one-way
-     * fee. They add up to the reservation total.
+     * fee. They add up to the reservation total. On an invoice the unit prices keep
+     * their centimes ("300,00 DH"), like every other amount of the invoice.
      *
      * @return list<array{label: string, detail: string, amount: string}>
      */
-    public function lines(Reservation $reservation): array
+    public function lines(Reservation $reservation, bool $invoice = false): array
     {
         $reservation->loadMissing(['car.brand', 'extras']);
         $days = $reservation->days;
         $dayWord = $days > 1 ? 'jours' : 'jour';
+        $money = fn (string $amount): string => $invoice
+            ? FrenchFormatter::invoiceMoney($amount)
+            : FrenchFormatter::money($amount);
 
         $lines = [[
             'label' => "Location {$reservation->car->brand->name} {$reservation->car->model}",
-            'detail' => "{$days} {$dayWord} × ".FrenchFormatter::money((string) $reservation->price_per_day),
+            'detail' => "{$days} {$dayWord} × ".$money((string) $reservation->price_per_day),
             'amount' => bcmul((string) $reservation->price_per_day, (string) $days, 2),
         ]];
 
@@ -75,8 +79,8 @@ class ReservationDocuments
             $pivot = $extra->pivot;
             $quantity = $pivot->quantity > 1 ? "{$pivot->quantity} × " : '';
             $detail = $pivot->pricing === ExtraPricing::PerDay
-                ? "{$quantity}{$days} {$dayWord} × ".FrenchFormatter::money((string) $pivot->unit_price)
-                : $quantity.FrenchFormatter::money((string) $pivot->unit_price).' par location';
+                ? "{$quantity}{$days} {$dayWord} × ".$money((string) $pivot->unit_price)
+                : $quantity.$money((string) $pivot->unit_price).' par location';
 
             $lines[] = ['label' => $extra->name, 'detail' => $detail, 'amount' => (string) $pivot->total];
         }
